@@ -1,0 +1,77 @@
+<?php
+
+use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
+use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType; ?>
+
+<div>
+    <h1>Liquido Pagamentos</h1>
+    <?php if (!$this->hasFailed()) : ?>
+        <h3>Número do pedido: <?php echo $this->getOrderId() ?></h3>
+
+        <?php if (
+            $this->getPaymentMethodType() == LiquidoBrlPaymentMethodType::BOLETO
+            && $this->getTransferStatus() != LiquidoBrlPayInStatus::SETTLED
+        ) : ?>
+            <h2>Pague seu boleto pelo seu app de pagamentos ou Internet Banking</h2>
+            <!-- <div id="pdf-container"></div> -->
+            <a target="_blank" href="<?php echo $this->getBoletoUrl() ?>">Baixar Boleto</a>
+            <hr />
+            <div id="boleto-digital-line-copy-paste">
+                <fieldset class="fieldset">
+                    <label for="boleto-digital-line">Se preferir, você pode pagá-lo copiando e colando o código abaixo:</label><br>
+                    <input type="text" id="boleto-digital-line" name="boleto-digital-line" readonly value="<?php echo $this->getBoletoDigitalLine() ?>"><br>
+                </fieldset>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button onclick="copyToClipboard('boleto-digital-line')" class="action primary" title="<?php echo __('Copiar código') ?>">
+                            <span><?php echo __('Copiar código') ?></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::IN_PROGRESS) : ?>
+            <h3><strong>Você já gerou um pagamento com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::SETTLED) : ?>
+            <h3><strong>Você já pagou com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php endif; ?>
+
+    <?php else : ?>
+        <a href="/checkout/liquidobrl/index">Alterar método de pagamento</a>
+    <?php endif; ?>
+</div>
+<!-- <script>
+    require(
+        ['jquery', 'jquery/ui'],
+        function($) {
+
+            $(document).ready(function() {
+
+                var URL = "https://docs.google.com/gview?url=<?php // echo $this->getBoletoUrl() 
+                                                                ?>&embedded=true";
+                var count = 0;
+                var iframe = `<iframe id="pdf-iframe" src="${URL}" style="width:900px; height:900px;" frameborder="0" allowfullscreen=""></iframe>`;
+
+                $(`#pdf-container`).html(iframe);
+
+                $('#pdf-iframe').on('load', function() {
+                    count++;
+                    if (count > 0) {
+                        clearInterval(ref)
+                    }
+                });
+
+                var ref = setInterval(() => {
+                    $(`#pdf-container`).html(iframe);
+                    $('#pdf-iframe').on('load', function() {
+                        count++;
+                        if (count > 0) {
+                            clearInterval(ref)
+                        }
+                    });
+                }, 2000);
+
+            });
+
+        }
+    );
+</script> -->

@@ -1,0 +1,110 @@
+<div>
+    <h1>Liquido Pagamentos</h1>
+    <?php
+    $payin_method_name = $this->getCardPayInMethodName();
+    ?>
+    <h2>Pagar com <?php echo $payin_method_name ?></h2>
+
+    <form id="credit-card-customer-form" data-mage-init='{"validation": {}}' class="form" action="<?php echo $this->getUrl('checkout/liquidobrl/creditcard', ['_secure' => true]); ?>" method="post">
+        <fieldset class="fieldset">
+            <legend class="legend"><span><?php echo __('Dados do Cartão') ?></span></legend><br>
+            <!-- <div>
+                <table>
+                    <tr>
+                        <td>
+                            <input type="radio" id="vi" name="flag" value="VI">
+                            <label for="vi" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="mc" name="flag" value="MC">
+                            <label for="mc" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="ae" name="flag" value="AE">
+                            <label for="ae" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="jcb" name="flag" value="JCB">
+                            <label for="jcb" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="di" name="flag" value="DI">
+                            <label for="di" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="dn" name="flag" value="DN">
+                            <label for="dn" class="label"><span></span></label>
+                        </td>
+                        <td>
+                            <input type="radio" id="elo" name="flag" value="ELO">
+                            <label for="elo" class="label"><span></span></label>
+                        </td>
+                    </tr>
+                </table>
+            </div> -->
+            <div class="field required">
+                <label for="card-number" class="label"><span><?php echo __('Número') ?></span></label>
+                <div class="control">
+                    <input type="number" name="card-number" id="card-number" value="" title="<?php echo __('Número') ?>" class="" data-validate="{required:true, 'validate-cc-number':true}">
+                </div>
+            </div>
+            <div class="field required">
+                <label for="card-name" class="label"><span><?php echo __('Nome Completo') ?></span></label>
+                <div class="control">
+                    <input type="text" name="card-name" id="card-name" value="" title="<?php echo __('Nome Completo') ?>" data-validate="{required:true}">
+                </div>
+            </div>
+            <div class="field required">
+                <label for="card-expire-date" class="label"><span><?php echo __('Mês / Ano') ?></span></label>
+                <div class="control">
+                    <input type="text" name="card-expire-date" id="card-expire-date" placeholder="MM/YYYY" value="" title="<?php echo __('Mês / Ano') ?>" class="minimum-length-7 maximum-length-7" data-validate="{required:true, 'pattern':'(0[1-9]|10|11|12)/20[0-9]{2}$', 'validate-length':true}">
+                </div>
+            </div>
+            <div class="field required">
+                <label for="card-cvv" class="label"><span><?php echo __('CVV') ?></span></label>
+                <div class="control">
+                    <input type="number" name="card-cvv" id="card-cvv" value="" title="<?php echo __('CVV') ?>" class="minimum-length-3 maximum-length-4" data-validate="{required:true, 'validate-digits':true, 'validate-length':true}">
+                    <!-- <input type="number" name="card-cvv" id="card-cvv" value="" class="" data-validate="{required:true, 'validate-cc-cvn':'#flag-checked'}">
+                    <input type="hidden" name="flag-checked" id="flag-checked" /> -->
+                </div>
+            </div>
+            <div class="field required">
+                <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
+                <div class="control">
+                    <select name="card-installments" id="card-installments">
+                        <?php
+                        $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
+                        ?>
+                        <?php foreach ($optionsInfoArray as $index => $optionInfo) : ?>
+                            <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button type="submit" id="credit-card-submit-button" class="action submit primary" title="<?php echo __('Pagar') ?>"><span><?php echo __('Pagar') ?></span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    require(
+        [
+            'jquery',
+            'jquery/ui',
+            'Liquido_PayIn/js/lib/jquery.maskedinput.min'
+        ],
+        function(jQuery) {
+            jQuery("#card-expire-date").mask("99/9999");
+            /*jQuery(document).ready(function() {
+                jQuery('input[type=radio][name=flag]').change(function() {
+                    jQuery('#flag-checked').val(this.value);
+                });
+
+            });*/
+
+        }
+    );
+</script>

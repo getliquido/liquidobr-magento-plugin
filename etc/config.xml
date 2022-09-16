@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <liquidobrl>
+                <payment_action>true</payment_action>
+                <model>Liquido\PayIn\Model\Brl\LiquidoBrlPaymentMethod</model>
+                <active>1</active>
+                <title>Liquido BR Pagamentos</title>
+            </liquidobrl>
+        </payment>
+    </default>
+</config>

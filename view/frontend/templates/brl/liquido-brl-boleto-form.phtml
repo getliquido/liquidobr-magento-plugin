@@ -1,0 +1,35 @@
+<div>
+    <h1>Liquido Pagamentos</h1>
+    <?php
+    $payin_method_name = $this->getBoletoPayInMethodName();
+    ?>
+    <h2>Pagar com <?php echo $payin_method_name ?></h2>
+    <form id="boleto-customer-form" data-mage-init='{"validation": {}}' class="form" method="POST" action="<?php echo $this->getUrl('checkout/liquidobrl/boleto', ['_secure' => true]); ?>">
+        <fieldset class="fieldset">
+            <legend class="legend"><span><?php echo __('Dados Pessoais') ?></span></legend><br>
+            <div class="field required">
+                <label for="customer-cpf" class="label"><span><?php echo __('Cpf') ?></span></label>
+                <div class="control">
+                    <input type="text" name="customer-cpf" id="customer-cpf" value="" title="<?php echo __('Cpf') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                </div>
+            </div>
+        </fieldset>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button type="submit" class="action submit primary" title="<?php echo __('Gerar Boleto') ?>"><span><?php echo __('Gerar Boleto') ?></span></button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    require(
+        [
+            'jquery',
+            'jquery/ui',
+            'Liquido_PayIn/js/lib/jquery.maskedinput.min'
+        ],
+        function(jQuery) {
+            jQuery("#customer-cpf").mask("999.999.999-99");
+        }
+    );
+</script>

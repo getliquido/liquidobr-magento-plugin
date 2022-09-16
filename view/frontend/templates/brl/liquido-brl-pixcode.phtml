@@ -1,0 +1,39 @@
+<?php
+
+use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
+use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType; ?>
+
+<div>
+    <h1>Liquido Pagamentos</h1>
+    <?php if (!$this->hasFailed()) : ?>
+        <h3>Número do pedido: <?php echo $this->getOrderId() ?></h3>
+
+        <?php if (
+            $this->getPaymentMethodType() == LiquidoBrlPaymentMethodType::PIX_STATIC_QR
+            && $this->getTransferStatus() != LiquidoBrlPayInStatus::SETTLED
+        ) : ?>
+            <h2>Escaneie o código QR pelo seu app de pagamentos ou Internet Banking</h2>
+            <img style="height: 400px;" src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?php echo $this->getPixCode() ?>&choe=UTF-8" alt="QR Code">
+            <hr />
+            <div id="pix-code-copy-paste">
+                <fieldset class="fieldset">
+                    <label for="pix-code">Se preferir, você pode pagá-lo copiando e colando o código abaixo:</label><br>
+                    <input type="text" id="pix-code" name="pix-code" readonly value="<?php echo $this->getPixCode() ?>"><br>
+                </fieldset>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button onclick="copyToClipboard('pix-code')" class="action primary" title="<?php echo __('Copiar código') ?>">
+                            <span><?php echo __('Copiar código') ?></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::IN_PROGRESS) : ?>
+            <h3><strong>Você já gerou um pagamento com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::SETTLED) : ?>
+            <h3><strong>Você já pagou com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php endif; ?>
+    <?php else : ?>
+        <a href="/checkout/liquidobrl/index">Alterar método de pagamento</a>
+    <?php endif; ?>
+</div>

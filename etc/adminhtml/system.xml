@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <!-- All data below are in "core_config_data" table in "path" column -->
+        <section id="payment" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="liquidobrl" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Liquido BR Pagamentos</label>
+                <field id="active" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Habilitar este meio de pagamento?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="production_mode" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ativar modo produção?</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="sandbox_client_id" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Sandbox Client Id</label>
+                </field>
+                <field id="sandbox_client_secret" translate="label comment" type="password" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Sandbox Client Secret</label>
+                </field>
+                <field id="sandbox_api_key" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Sandbox API Key</label>
+                </field>
+                <field id="prod_client_id" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Production Client Id</label>
+                </field>
+                <field id="prod_client_secret" translate="label comment" type="password" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Production Client Secret</label>
+                </field>
+                <field id="prod_api_key" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>Production API Key</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
