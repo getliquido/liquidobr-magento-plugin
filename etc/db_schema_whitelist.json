@@ -1,0 +1,13 @@
+{
+    "liquido_payin_sales_order": {
+        "column": {
+            "id": true,
+            "increment_id": true,
+            "idempotency_key": true,
+            "transfer_status": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

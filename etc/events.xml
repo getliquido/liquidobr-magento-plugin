@@ -1,0 +1,5 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="liquido_brl_update_order_in_database">
+        <observer name="liquido_brl_update_order_in_database_observer" instance="Liquido\PayIn\Observer\Brl\LiquidoBrlUpdateOrderObserver" />
+    </event>
+</config>

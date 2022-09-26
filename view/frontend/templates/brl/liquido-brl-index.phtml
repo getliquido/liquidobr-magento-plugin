@@ -1,0 +1,21 @@
+<div class="liquido-container">
+    <h1>Liquido Pagamentos</h1>
+    <h2>Escolha como quer pagar</h2>
+    <?php
+    $brazil_payin_methods = $this->getLiquidoBrazilPayInMethods();
+    ?>
+
+    <ul id="payin-methods">
+        <?php foreach ($brazil_payin_methods as $payin_method) : ?>
+            <a class="payin-method-link-brl" href="<?php echo $this->getPayInMethodViewRoute($payin_method["title"]) ?>">
+                <li>
+                    <img src="<?php echo $this->getViewFileUrl($payin_method["image"]); ?>" alt="PayIn method image">
+                    <div class="payin-method-single">
+                        <p><?php echo $payin_method["title"]; ?></p>
+                        <small><?php echo $payin_method["description"]; ?></small>
+                    </div>
+                </li>
+            </a>
+        <?php endforeach; ?>
+    </ul>
+</div>
