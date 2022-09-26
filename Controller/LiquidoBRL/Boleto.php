@@ -10,11 +10,16 @@ use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlOrderData;
-use \Liquido\PayIn\Service\Brl\LiquidoBrlBoletoPayInService;
 use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlSalesOrderHelper;
+use \Liquido\PayIn\Helper\Brl\LiquidoBrlConfigData;
+
+use \LiquidoBrl\PayInPhpSdk\Util\Config;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentFlow;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
+use \LiquidoBrl\PayInPhpSdk\Model\PayInRequest;
+use \LiquidoBrl\PayInPhpSdk\Service\PayInService;
 
 class Boleto implements ActionInterface
 {
@@ -23,7 +28,8 @@ class Boleto implements ActionInterface
     private LoggerInterface $logger;
     protected LiquidoBrlPayInSession $payInSession;
     private LiquidoBrlOrderData $liquidoOrderData;
-    private LiquidoBrlBoletoPayInService $boletoPayInService;
+    private PayInService $payInService;
+    private LiquidoBrlConfigData $liquidoConfig;
     private LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper;
     private DataObject $boletoInputData;
     private DataObject $boletoResultData;
@@ -39,7 +45,8 @@ class Boleto implements ActionInterface
         LoggerInterface $logger,
         LiquidoBrlPayInSession $payInSession,
         LiquidoBrlOrderData $liquidoOrderData,
-        LiquidoBrlBoletoPayInService $boletoPayInService,
+        PayInService $payInService,
+        LiquidoBrlConfigData $liquidoConfig,
         RequestInterface $httpRequest,
         LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
     ) {
@@ -48,7 +55,8 @@ class Boleto implements ActionInterface
         $this->logger = $logger;
         $this->payInSession = $payInSession;
         $this->liquidoOrderData = $liquidoOrderData;
-        $this->boletoPayInService = $boletoPayInService;
+        $this->payInService = $payInService;
+        $this->liquidoConfig = $liquidoConfig;
         $this->httpRequest = $httpRequest;
         $this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
         $this->boletoInputData = new DataObject(array());
@@ -131,21 +139,21 @@ class Boleto implements ActionInterface
             && $boletoResponse->transferStatusCode == 200
         ) {
             if (
-                $boletoResponse->paymentMethod == LiquidoBrlPaymentMethodType::BOLETO
-                && $boletoResponse->transferStatus == LiquidoBrlPayInStatus::IN_PROGRESS
+                $boletoResponse->paymentMethod == PaymentMethod::BOLETO
+                && $boletoResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
                 $successMessage = __('Boleto gerado.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
-            if ($boletoResponse->transferStatus == LiquidoBrlPayInStatus::SETTLED) {
-                $successMessage = __('Pagamento já aprovado.');
+            if ($boletoResponse->transferStatus == PayInStatus::SETTLED) {
+                $successMessage = __('Pagamento aprovado.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
             $this->boletoResultData->setData('paymentMethod', $boletoResponse->paymentMethod);
 
-            if ($boletoResponse->paymentMethod == LiquidoBrlPaymentMethodType::BOLETO) {
+            if ($boletoResponse->paymentMethod == PaymentMethod::BOLETO) {
                 $this->boletoResultData->setData(
                     'boletoDigitalLine',
                     $boletoResponse->transferDetails->boleto->digitalLine
@@ -153,6 +161,7 @@ class Boleto implements ActionInterface
             }
 
             $this->boletoResultData->setData('transferStatus', $boletoResponse->transferStatus);
+            $this->boletoResultData->setData('boletoUrl', $boletoResponse->boletoUrl);
         } else {
             $this->boletoResultData->setData('hasFailed', true);
 
@@ -219,11 +228,45 @@ class Boleto implements ActionInterface
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
 
-            $this->boletoInputData->setData('idempotencyKey', $liquidoIdempotencyKey);
-
-            $boletoResponse = $this->boletoPayInService->createLiquidoBoletoPayIn(
-                $this->boletoInputData
+            $config = new Config(
+                [
+                    'clientId' => $this->liquidoConfig->getClientId(),
+                    'clientSecret' => $this->liquidoConfig->getClientSecret(),
+                    'apiKey' => $this->liquidoConfig->getApiKey()
+                ],
+                $this->liquidoConfig->isProductionModeActived()
             );
+
+            $payInRequest = new PayInRequest([
+                "idempotencyKey" => $liquidoIdempotencyKey,
+                "amount" => $this->boletoInputData->getData('grandTotal'),
+                "paymentMethod" => PaymentMethod::BOLETO,
+                "paymentFlow" => PaymentFlow::DIRECT,
+                "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
+                "payer" => [
+                    "name" => $this->boletoInputData->getData("customerName"),
+                    "document" => [
+                        "documentId" => $this->boletoInputData->getData("customerCpf"),
+                        "type" => "CPF"
+                    ],
+                    "billingAddress" => [
+                        "zipCode" => $this->boletoInputData->getData("customerBillingAddress")->getPostcode(),
+                        "state" => $this->boletoInputData->getData("customerBillingAddress")->getRegionCode(),
+                        "city" => $this->boletoInputData->getData("customerBillingAddress")->getCity(),
+                        "district" => "Unknown",
+                        "street" => $this->boletoInputData->getData("streetText"),
+                        "number" => "Unknown",
+                        "country" => $this->boletoInputData->getData("customerBillingAddress")->getCountryId()
+                    ],
+                    "email" => $this->boletoInputData->getData("customerBillingAddress")->getEmail()
+                ],
+                "paymentTerm" => [
+                    "paymentDeadline" => $this->boletoInputData->getData("paymentDeadline")
+                ],
+                "description" => "Module Magento 2 Boleto Request"
+            ]);
+
+            $boletoResponse = $this->payInService->createPayIn($config, $payInRequest);
 
             $this->manageBoletoResponse($boletoResponse);
 
@@ -234,11 +277,8 @@ class Boleto implements ActionInterface
                 && property_exists($boletoResponse, 'paymentMethod')
                 && $boletoResponse->transferStatus != null
             ) {
-                $boletoUrl = $this->boletoPayInService->getLiquidoBoletoPdfUrl(
-                    $liquidoIdempotencyKey
-                );
 
-                $this->boletoResultData->setData('boletoUrl', $boletoUrl);
+                // $this->boletoResultData->setData('boletoUrl', "");
 
                 $orderData = new DataObject(array(
                     "orderId" => $orderId,

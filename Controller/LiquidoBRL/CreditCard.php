@@ -10,11 +10,16 @@ use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlOrderData;
-use \Liquido\PayIn\Service\Brl\LiquidoBrlCreditCardPayInService;
 use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlSalesOrderHelper;
+use \Liquido\PayIn\Helper\Brl\LiquidoBrlConfigData;
+
+use \LiquidoBrl\PayInPhpSdk\Util\Config;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentFlow;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
+use \LiquidoBrl\PayInPhpSdk\Model\PayInRequest;
+use \LiquidoBrl\PayInPhpSdk\Service\PayInService;
 
 class CreditCard implements ActionInterface
 {
@@ -24,7 +29,8 @@ class CreditCard implements ActionInterface
     private LoggerInterface $logger;
     protected LiquidoBrlPayInSession $payInSession;
     private LiquidoBrlOrderData $liquidoOrderData;
-    private LiquidoBrlCreditCardPayInService $creditCardPayInService;
+    private PayInService $payInService;
+    private LiquidoBrlConfigData $liquidoConfig;
     private LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper;
     private DataObject $creditCardInputData;
     private DataObject $creditCardResultData;
@@ -37,7 +43,8 @@ class CreditCard implements ActionInterface
         LoggerInterface $logger,
         LiquidoBrlPayInSession $payInSession,
         LiquidoBrlOrderData $liquidoOrderData,
-        LiquidoBrlCreditCardPayInService $creditCardPayInService,
+        PayInService $payInService,
+        LiquidoBrlConfigData $liquidoConfig,
         RequestInterface $httpRequest,
         LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
     ) {
@@ -46,7 +53,8 @@ class CreditCard implements ActionInterface
         $this->logger = $logger;
         $this->payInSession = $payInSession;
         $this->liquidoOrderData = $liquidoOrderData;
-        $this->creditCardPayInService = $creditCardPayInService;
+        $this->payInService = $payInService;
+        $this->liquidoConfig = $liquidoConfig;
         $this->httpRequest = $httpRequest;
         $this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
         $this->creditCardInputData = new DataObject(array());
@@ -114,6 +122,12 @@ class CreditCard implements ActionInterface
             return false;
         }
 
+        $customerCpf = $creditCardFormInputData->getData('customer-cpf');
+        if ($customerCpf == null) {
+            $this->errorMessage = __('Erro ao obter o CPF do cliente.');
+            return false;
+        }
+
         $this->creditCardInputData = new DataObject(array(
             'orderId' => $orderId,
             'grandTotal' => $grandTotal,
@@ -125,6 +139,7 @@ class CreditCard implements ActionInterface
             'customerCardExpireYear' => $customerCardExpireDateArray[1],
             'customerCardCVV' => $customerCardCVV,
             'customerCardInstallments' => $customerCardInstallments,
+            'customerCpf' => $customerCpf
         ));
 
         return true;
@@ -138,15 +153,15 @@ class CreditCard implements ActionInterface
             && $creditCardResponse->transferStatusCode == 200
         ) {
             if (
-                $creditCardResponse->paymentMethod == LiquidoBrlPaymentMethodType::CREDIT_CARD
-                && $creditCardResponse->transferStatus == LiquidoBrlPayInStatus::IN_PROGRESS
+                $creditCardResponse->paymentMethod == PaymentMethod::CREDIT_CARD
+                && $creditCardResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
-                $successMessage = __('Pagamento em andamento aguardando aprovação.');
+                $successMessage = __('Pagamento aguardando aprovação.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
-            if ($creditCardResponse->transferStatus == LiquidoBrlPayInStatus::SETTLED) {
-                $successMessage = __('Pagamento já aprovado.');
+            if ($creditCardResponse->transferStatus == PayInStatus::SETTLED) {
+                $successMessage = __('Pagamento aprovado.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
@@ -154,7 +169,7 @@ class CreditCard implements ActionInterface
 
             $this->creditCardResultData->setData('paymentMethod', $creditCardResponse->paymentMethod);
 
-            if ($creditCardResponse->paymentMethod == LiquidoBrlPaymentMethodType::CREDIT_CARD) {
+            if ($creditCardResponse->paymentMethod == PaymentMethod::CREDIT_CARD) {
                 $this->creditCardResultData->setData(
                     'installments',
                     $creditCardResponse->transferDetails->card->installments
@@ -227,11 +242,53 @@ class CreditCard implements ActionInterface
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
 
-            $this->creditCardInputData->setData('idempotencyKey', $liquidoIdempotencyKey);
-
-            $creditCardResponse = $this->creditCardPayInService->createCreditCardPayIn(
-                $this->creditCardInputData
+            $config = new Config(
+                [
+                    'clientId' => $this->liquidoConfig->getClientId(),
+                    'clientSecret' => $this->liquidoConfig->getClientSecret(),
+                    'apiKey' => $this->liquidoConfig->getApiKey()
+                ],
+                $this->liquidoConfig->isProductionModeActived()
             );
+
+            $payInRequest = new PayInRequest([
+                "idempotencyKey" => $liquidoIdempotencyKey,
+                "amount" => $this->creditCardInputData->getData('grandTotal'),
+                "paymentMethod" => PaymentMethod::CREDIT_CARD,
+                "paymentFlow" => PaymentFlow::DIRECT,
+                "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
+                "payer" => [
+                    "name" => $this->creditCardInputData->getData("customerName"),
+                    "email" => $this->creditCardInputData->getData("customerEmail")
+                    // "document" => [
+                    //     "documentId" => $this->creditCardInputData->getData("customerCpf"),
+                    //     "type" => "CPF"
+                    // ],
+                    // "billingAddress" => [
+                    //     "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
+                    //     "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
+                    //     "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
+                    //     "district" => "Unknown",
+                    //     "street" => $this->creditCardInputData->getData("streetText"),
+                    //     "number" => "Unknown",
+                    //     "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
+                    // ]
+                ],
+                "card" => [
+                    "cardHolderName" => $this->creditCardInputData->getData("customerCardName"),
+                    "cardNumber" => $this->creditCardInputData->getData("customerCardNumber"),
+                    "expirationMonth" => $this->creditCardInputData->getData("customerCardExpireMonth"),
+                    "expirationYear" => $this->creditCardInputData->getData("customerCardExpireYear"),
+                    "cvc" => $this->creditCardInputData->getData("customerCardCVV")
+                ],
+                "installments" => $this->creditCardInputData->getData("customerCardInstallments"),
+                "description" => "Module Magento 2 Credit Card Request",
+                //  "riskData" => [
+                //      "ipAddress" => "192.168.0.1"
+                //  ],
+            ]);
+
+            $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
 
             $this->manageCreditCardResponse($creditCardResponse);
 

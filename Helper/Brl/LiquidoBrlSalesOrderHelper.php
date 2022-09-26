@@ -11,6 +11,7 @@ use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder as LiquidoBrlSal
 use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder\Collection as LiquidoBrlSalesOrderCollection;
 use \Liquido\PayIn\Model\MagentoSalesOrder;
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
 class LiquidoBrlSalesOrderHelper extends AbstractHelper
 {
@@ -93,7 +94,7 @@ class LiquidoBrlSalesOrderHelper extends AbstractHelper
         $liquidoSalesOrderAlreadyExists = $foundLiquidoSalesOrder->getData('order_id') != null;
         $liquidoSalesOrderAlreadyExistsAndResponseFailed = $liquidoSalesOrderAlreadyExists
             && ($foundLiquidoSalesOrder->getData('transfer_status') == null
-                || $foundLiquidoSalesOrder->getData('transfer_status') == LiquidoBrlPayInStatus::FAILED
+                || $foundLiquidoSalesOrder->getData('transfer_status') == PayInStatus::FAILED
             );
 
         if ($liquidoSalesOrderAlreadyExists && !$liquidoSalesOrderAlreadyExistsAndResponseFailed) {

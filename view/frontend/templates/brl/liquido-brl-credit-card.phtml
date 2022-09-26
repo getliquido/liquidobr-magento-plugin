@@ -1,21 +1,21 @@
 <?php
 
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType; ?>
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
 
 <div>
     <h1>Liquido Pagamentos</h1>
     <?php if (!$this->hasFailed()) : ?>
         <h3>Número do pedido: <?php echo $this->getOrderId() ?></h3>
         <?php if (
-            $this->getPaymentMethodType() == LiquidoBrlPaymentMethodType::CREDIT_CARD
-            && $this->getTransferStatus() != LiquidoBrlPayInStatus::SETTLED
+            $this->getPaymentMethodType() == PaymentMethod::CREDIT_CARD
+            && $this->getTransferStatus() != PayInStatus::SETTLED
         ) : ?>
             <h3>Você pagou: <?php echo $this->getHowCustomerPaid(); ?></h3>
             <h3>Valor total: R$ <?php echo $this->getOrderTotal(); ?></h3>
-        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::IN_PROGRESS) : ?>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
             <h3><strong>Você já gerou um pagamento com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
-        <?php elseif ($this->getTransferStatus() == LiquidoBrlPayInStatus::SETTLED) : ?>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>
             <h3><strong>Você já pagou com <?php echo __($this->getPaymentMethodName()) ?></strong></h3>
         <?php endif; ?>
     <?php else : ?>

@@ -9,11 +9,16 @@ use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlOrderData;
-use \Liquido\PayIn\Service\Brl\LiquidoBrlPixPayInService;
 use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
 use \Liquido\PayIn\Helper\Brl\LiquidoBrlSalesOrderHelper;
+use \Liquido\PayIn\Helper\Brl\LiquidoBrlConfigData;
+
+use \LiquidoBrl\PayInPhpSdk\Util\Config;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PaymentFlow;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
+use \LiquidoBrl\PayInPhpSdk\Model\PayInRequest;
+use \LiquidoBrl\PayInPhpSdk\Service\PayInService;
 
 class PixCode implements ActionInterface
 {
@@ -22,7 +27,8 @@ class PixCode implements ActionInterface
     private LoggerInterface $logger;
     protected LiquidoBrlPayInSession $payInSession;
     private LiquidoBrlOrderData $liquidoOrderData;
-    private LiquidoBrlPixPayInService $pixPayInService;
+    private PayInService $payInService;
+    private LiquidoBrlConfigData $liquidoConfig;
     private LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper;
     private DataObject $pixInputData;
     private DataObject $pixResultData;
@@ -34,7 +40,8 @@ class PixCode implements ActionInterface
         LoggerInterface $logger,
         LiquidoBrlPayInSession $payInSession,
         LiquidoBrlOrderData $liquidoOrderData,
-        LiquidoBrlPixPayInService $pixPayInService,
+        PayInService $payInService,
+        LiquidoBrlConfigData $liquidoConfig,
         LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
     ) {
         $this->resultPageFactory = $resultPageFactory;
@@ -42,7 +49,8 @@ class PixCode implements ActionInterface
         $this->logger = $logger;
         $this->payInSession = $payInSession;
         $this->liquidoOrderData = $liquidoOrderData;
-        $this->pixPayInService = $pixPayInService;
+        $this->payInService = $payInService;
+        $this->liquidoConfig = $liquidoConfig;
         $this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
         $this->pixInputData = new DataObject(array());
         $this->pixResultData = new DataObject(array());
@@ -87,21 +95,21 @@ class PixCode implements ActionInterface
             && $pixResponse->transferStatusCode == 200
         ) {
             if (
-                $pixResponse->paymentMethod == LiquidoBrlPaymentMethodType::PIX_STATIC_QR
-                && $pixResponse->transferStatus == LiquidoBrlPayInStatus::IN_PROGRESS
+                $pixResponse->paymentMethod == PaymentMethod::PIX_STATIC_QR
+                && $pixResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
                 $successMessage = __('Código PIX gerado.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
-            if ($pixResponse->transferStatus == LiquidoBrlPayInStatus::SETTLED) {
-                $successMessage = __('Pagamento já aprovado.');
+            if ($pixResponse->transferStatus == PayInStatus::SETTLED) {
+                $successMessage = __('Pagamento aprovado.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
             $this->pixResultData->setData('paymentMethod', $pixResponse->paymentMethod);
 
-            if ($pixResponse->paymentMethod == LiquidoBrlPaymentMethodType::PIX_STATIC_QR) {
+            if ($pixResponse->paymentMethod == PaymentMethod::PIX_STATIC_QR) {
                 $this->pixResultData->setData('pixCode', $pixResponse->transferDetails->pix->qrCode);
             }
 
@@ -171,11 +179,28 @@ class PixCode implements ActionInterface
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
 
-            $this->pixInputData->setData('idempotencyKey', $liquidoIdempotencyKey);
-
-            $pixResponse = $this->pixPayInService->createLiquidoPixPayIn(
-                $this->pixInputData
+            $config = new Config(
+                [
+                    'clientId' => $this->liquidoConfig->getClientId(),
+                    'clientSecret' => $this->liquidoConfig->getClientSecret(),
+                    'apiKey' => $this->liquidoConfig->getApiKey()
+                ],
+                $this->liquidoConfig->isProductionModeActived()
             );
+
+            $payInRequest = new PayInRequest([
+                "idempotencyKey" => $liquidoIdempotencyKey,
+                "amount" => $this->pixInputData->getData('grandTotal'),
+                "paymentMethod" => PaymentMethod::PIX_STATIC_QR,
+                "paymentFlow" => PaymentFlow::DIRECT,
+                "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
+                "payer" => [
+                    "email" => $this->pixInputData->getData('customerEmail')
+                ],
+                "description" => "Module Magento 2 PIX Request"
+            ]);
+
+            $pixResponse = $this->payInService->createPayIn($config, $payInRequest);
 
             $this->managePixResponse($pixResponse);
 

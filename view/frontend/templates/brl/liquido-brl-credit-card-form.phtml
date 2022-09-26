@@ -69,6 +69,12 @@
                 </div>
             </div>
             <div class="field required">
+                <label for="customer-cpf" class="label"><span><?php echo __('CPF') ?></span></label>
+                <div class="control">
+                    <input type="text" name="customer-cpf" id="customer-cpf" value="" title="<?php echo __('Cpf') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                </div>
+            </div>
+            <div class="field required">
                 <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
                 <div class="control">
                     <select name="card-installments" id="card-installments">
@@ -98,6 +104,7 @@
         ],
         function(jQuery) {
             jQuery("#card-expire-date").mask("99/9999");
+            jQuery("#customer-cpf").mask("999.999.999-99");
             /*jQuery(document).ready(function() {
                 jQuery('input[type=radio][name=flag]').change(function() {
                     jQuery('#flag-checked').val(this.value);
