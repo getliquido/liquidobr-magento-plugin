@@ -7,7 +7,7 @@
   "require": {
     "php": "~7.4.0||~8.1.0",
     "magento/framework": "103.0.*",
-    "liquido-brl/payin-php-sdk": "0.0.2"
+    "liquido-brl/payin-php-sdk": "0.0.3"
   },
   "autoload": {
     "files": [
