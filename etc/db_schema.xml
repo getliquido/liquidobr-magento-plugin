@@ -6,10 +6,10 @@
         <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id" />
 
         <!-- The reference to the order id. -->
-        <column xsi:type="text" name="order_id" padding="10" unsigned="true" nullable="false" comment="Order id" />
+        <column xsi:type="varchar" name="order_id" length="255" padding="10" unsigned="true" nullable="false" comment="Order id" />
 
         <!-- The column for a Liquido Idempotency Key. -->
-        <column xsi:type="text" name="idempotency_key" nullable="false" comment="Idempotency Key" />
+        <column xsi:type="varchar" name="idempotency_key" length="255" nullable="false" comment="Idempotency Key" />
 
         <!-- The column for a Liquido Transfer Status. -->
         <column xsi:type="text" name="transfer_status" nullable="false" comment="Transfer Status" />
