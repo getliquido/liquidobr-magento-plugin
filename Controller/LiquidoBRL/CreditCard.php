@@ -2,6 +2,7 @@
 
 namespace Liquido\PayIn\Controller\LiquidoBRL;
 
+use \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use \Magento\Framework\App\ActionInterface;
 use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
@@ -36,6 +37,7 @@ class CreditCard implements ActionInterface
     private DataObject $creditCardResultData;
     private RequestInterface $httpRequest;
     private String $errorMessage;
+    private $remoteAddress;
 
     public function __construct(
         PageFactory $resultPageFactory,
@@ -46,8 +48,10 @@ class CreditCard implements ActionInterface
         PayInService $payInService,
         LiquidoBrlConfigData $liquidoConfig,
         RequestInterface $httpRequest,
-        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
+        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper,
+        RemoteAddress $remoteAddress
     ) {
+        $this->remoteAddress = $remoteAddress;
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
         $this->logger = $logger;
@@ -89,6 +93,20 @@ class CreditCard implements ActionInterface
             return false;
         }
 
+        $billingAddress = $this->liquidoOrderData->getBillingAddress();
+        if ($billingAddress == null) {
+            $this->errorMessage = __('Erro ao obter o endereço de cobrança do pedido.');
+            return true;
+        }
+
+        $streetArray = $billingAddress->getStreet();
+        $streetString = $streetArray[0];
+        if (count($streetArray) == 2) {
+            $streetString .= " - " . $streetArray[1];
+        } else if (count($streetArray) == 3) {
+            $streetString .= " - " . $streetArray[1] . $streetArray[2];
+        }
+
         $creditCardFormInputData = new DataObject($this->httpRequest->getParams());
 
         $customerCardName = $creditCardFormInputData->getData('card-name');
@@ -128,6 +146,12 @@ class CreditCard implements ActionInterface
             return false;
         }
 
+        $customerIpAddress = $this->remoteAddress->getRemoteAddress();
+        if ($customerIpAddress == null) {
+            $this->errorMessage = __('Erro ao obter o IP do cliente.');
+            return false;
+        }
+
         $this->creditCardInputData = new DataObject(array(
             'orderId' => $orderId,
             'grandTotal' => $grandTotal,
@@ -139,7 +163,10 @@ class CreditCard implements ActionInterface
             'customerCardExpireYear' => $customerCardExpireDateArray[1],
             'customerCardCVV' => $customerCardCVV,
             'customerCardInstallments' => $customerCardInstallments,
-            'customerCpf' => $customerCpf
+            'customerCpf' => $customerCpf,
+            'customerBillingAddress' => $billingAddress,
+            'streetText' => $streetString,
+            'customerIpAddress' => $customerIpAddress
         ));
 
         return true;
@@ -259,20 +286,20 @@ class CreditCard implements ActionInterface
                 "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
                 "payer" => [
                     "name" => $this->creditCardInputData->getData("customerName"),
-                    "email" => $this->creditCardInputData->getData("customerEmail")
-                    // "document" => [
-                    //     "documentId" => $this->creditCardInputData->getData("customerCpf"),
-                    //     "type" => "CPF"
-                    // ],
-                    // "billingAddress" => [
-                    //     "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
-                    //     "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
-                    //     "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
-                    //     "district" => "Unknown",
-                    //     "street" => $this->creditCardInputData->getData("streetText"),
-                    //     "number" => "Unknown",
-                    //     "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
-                    // ]
+                    "email" => $this->creditCardInputData->getData("customerEmail"),
+                    "document" => [
+                        "documentId" => $this->creditCardInputData->getData("customerCpf"),
+                        "type" => "CPF"
+                    ],
+                    "billingAddress" => [
+                        "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
+                        "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
+                        "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
+                        "district" => "Unknown",
+                        "street" => $this->creditCardInputData->getData("streetText"),
+                        "number" => "Unknown",
+                        "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
+                    ]
                 ],
                 "card" => [
                     "cardHolderName" => $this->creditCardInputData->getData("customerCardName"),
@@ -283,9 +310,9 @@ class CreditCard implements ActionInterface
                 ],
                 "installments" => $this->creditCardInputData->getData("customerCardInstallments"),
                 "description" => "Module Magento 2 Credit Card Request",
-                //  "riskData" => [
-                //      "ipAddress" => "192.168.0.1"
-                //  ],
+                "riskData" => [
+                    "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
+                ]
             ]);
 
             $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);

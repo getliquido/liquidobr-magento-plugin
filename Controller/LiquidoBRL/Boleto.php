@@ -2,6 +2,7 @@
 
 namespace Liquido\PayIn\Controller\LiquidoBRL;
 
+use \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use \Magento\Framework\App\ActionInterface;
 use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
@@ -35,6 +36,7 @@ class Boleto implements ActionInterface
     private DataObject $boletoResultData;
     private RequestInterface $httpRequest;
     private String $errorMessage;
+    private $remoteAddress;
 
     /**
      * Boleto Controller constructor
@@ -48,8 +50,10 @@ class Boleto implements ActionInterface
         PayInService $payInService,
         LiquidoBrlConfigData $liquidoConfig,
         RequestInterface $httpRequest,
-        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
+        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper,
+        RemoteAddress $remoteAddress
     ) {
+        $this->remoteAddress = $remoteAddress;
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
         $this->logger = $logger;
@@ -112,6 +116,8 @@ class Boleto implements ActionInterface
             $this->errorMessage = __('Erro ao obter o CPF do cliente.');
             return false;
         }
+        
+        $customerIpAddress = $this->remoteAddress->getRemoteAddress();
 
         // Boleto date expiration (timestamp)
         $dateDeadline = date('Y-m-d H:i:s', strtotime('+5 days', time()));
@@ -125,7 +131,8 @@ class Boleto implements ActionInterface
             'customerCpf' => $customerCpf,
             'customerBillingAddress' => $billingAddress,
             'streetText' => $streetString,
-            'paymentDeadline' => $timestampDeadline
+            'paymentDeadline' => $timestampDeadline,
+            'customerIpAddress' => $customerIpAddress
         ));
 
         return true;
@@ -262,6 +269,9 @@ class Boleto implements ActionInterface
                 ],
                 "paymentTerm" => [
                     "paymentDeadline" => $this->boletoInputData->getData("paymentDeadline")
+                ],
+                "riskData" => [
+                    "ipAddress" => $this->boletoInputData->getData("customerIpAddress")
                 ],
                 "description" => "Module Magento 2 Boleto Request"
             ]);

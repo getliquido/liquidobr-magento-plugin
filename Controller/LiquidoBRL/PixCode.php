@@ -2,6 +2,7 @@
 
 namespace Liquido\PayIn\Controller\LiquidoBRL;
 
+use \Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use \Magento\Framework\App\ActionInterface;
 use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
@@ -33,6 +34,7 @@ class PixCode implements ActionInterface
     private DataObject $pixInputData;
     private DataObject $pixResultData;
     private String $errorMessage;
+    private $remoteAddress;
 
     public function __construct(
         PageFactory $resultPageFactory,
@@ -42,8 +44,10 @@ class PixCode implements ActionInterface
         LiquidoBrlOrderData $liquidoOrderData,
         PayInService $payInService,
         LiquidoBrlConfigData $liquidoConfig,
-        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
+        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper,
+        RemoteAddress $remoteAddress
     ) {
+        $this->remoteAddress = $remoteAddress;
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
         $this->logger = $logger;
@@ -78,10 +82,33 @@ class PixCode implements ActionInterface
             return false;
         }
 
+        $billingAddress = $this->liquidoOrderData->getBillingAddress();
+        if ($billingAddress == null) {
+            $this->errorMessage = __('Erro ao obter o endereço de cobrança do pedido.');
+            return true;
+        }
+
+        $streetArray = $billingAddress->getStreet();
+        $streetString = $streetArray[0];
+        if (count($streetArray) == 2) {
+            $streetString .= " - " . $streetArray[1];
+        } else if (count($streetArray) == 3) {
+            $streetString .= " - " . $streetArray[1] . $streetArray[2];
+        }
+
+        $customerIpAddress = $this->remoteAddress->getRemoteAddress();
+        if ($customerIpAddress == null) {
+            $this->errorMessage = __('Erro ao obter o IP do cliente.');
+            return false;
+        }
+
         $this->pixInputData = new DataObject(array(
             'orderId' => $orderId,
             'grandTotal' => $grandTotal,
-            'customerEmail' => $customerEmail
+            'customerEmail' => $customerEmail,
+            'customerBillingAddress' => $billingAddress,
+            'streetText' => $streetString,
+            'customerIpAddress' => $customerIpAddress
         ));
 
         return true;
@@ -195,9 +222,21 @@ class PixCode implements ActionInterface
                 "paymentFlow" => PaymentFlow::DIRECT,
                 "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
                 "payer" => [
-                    "email" => $this->pixInputData->getData('customerEmail')
+                    "email" => $this->pixInputData->getData('customerEmail'),
+                    "address" => [ 
+                        "zipCode" => $this->pixInputData->getData("customerBillingAddress")->getPostcode(),
+                        "state" => $this->pixInputData->getData("customerBillingAddress")->getRegionCode(),
+                        "city" => $this->pixInputData->getData("customerBillingAddress")->getCity(),
+                        "district" => "Unknown",
+                        "street" => $this->pixInputData->getData("streetText"),
+                        "number" => "Unknown",
+                        "country" => $this->pixInputData->getData("customerBillingAddress")->getCountryId()
+                    ]
                 ],
-                "description" => "Module Magento 2 PIX Request"
+                "description" => "Module Magento 2 PIX Request",
+                "riskData" => [
+                    "ipAddress" => $this->pixInputData->getData("customerIpAddress")
+                ]
             ]);
 
             $pixResponse = $this->payInService->createPayIn($config, $payInRequest);
