@@ -2,11 +2,11 @@
   "name": "liquido-brl/payin",
   "description": "Liquido Payments offers the best payment solutions with the lowest fees on the market.",
   "type": "magento2-module",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "license": "MIT",
   "require": {
     "php": "~7.4.0||~8.1.0",
-    "magento/framework": "103.0.5",
+    "magento/framework": "103.0.*",
     "liquido-brl/payin-php-sdk": "0.0.2"
   },
   "autoload": {
