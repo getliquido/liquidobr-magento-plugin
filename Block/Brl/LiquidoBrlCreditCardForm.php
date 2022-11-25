@@ -7,18 +7,18 @@ use \Magento\Framework\View\Element\Template\Context;
 use \Magento\Checkout\Model\Session;
 
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInMethod;
-use \Liquido\PayIn\Helper\Brl\LiquidoBrlOrderData;
+use \Liquido\PayIn\Helper\LiquidoOrderData;
 
 class LiquidoBrlCreditCardForm extends Template
 {
 
     protected Session $checkoutSession;
-    private LiquidoBrlOrderData $liquidoOrderData;
+    private LiquidoOrderData $liquidoOrderData;
 
     public function __construct(
         Context $context,
         Session $checkoutSession,
-        LiquidoBrlOrderData $liquidoOrderData,
+        LiquidoOrderData $liquidoOrderData,
         array $data = []
     ) {
         parent::__construct($context, $data);

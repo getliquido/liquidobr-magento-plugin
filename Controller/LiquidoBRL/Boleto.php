@@ -10,10 +10,10 @@ use \Magento\Framework\App\RequestInterface;
 use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
-use \Liquido\PayIn\Helper\Brl\LiquidoBrlOrderData;
+use \Liquido\PayIn\Helper\LiquidoOrderData;
 use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
-use \Liquido\PayIn\Helper\Brl\LiquidoBrlSalesOrderHelper;
-use \Liquido\PayIn\Helper\Brl\LiquidoBrlConfigData;
+use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
+use \Liquido\PayIn\Helper\LiquidoConfigData;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
 use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
@@ -28,10 +28,10 @@ class Boleto implements ActionInterface
     private ManagerInterface $messageManager;
     private LoggerInterface $logger;
     protected LiquidoBrlPayInSession $payInSession;
-    private LiquidoBrlOrderData $liquidoOrderData;
+    private LiquidoOrderData $liquidoOrderData;
     private PayInService $payInService;
-    private LiquidoBrlConfigData $liquidoConfig;
-    private LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper;
+    private LiquidoConfigData $liquidoConfig;
+    private LiquidoSalesOrderHelper $liquidoSalesOrderHelper;
     private DataObject $boletoInputData;
     private DataObject $boletoResultData;
     private RequestInterface $httpRequest;
@@ -46,11 +46,11 @@ class Boleto implements ActionInterface
         ManagerInterface $messageManager,
         LoggerInterface $logger,
         LiquidoBrlPayInSession $payInSession,
-        LiquidoBrlOrderData $liquidoOrderData,
+        LiquidoOrderData $liquidoOrderData,
         PayInService $payInService,
-        LiquidoBrlConfigData $liquidoConfig,
+        LiquidoConfigData $liquidoConfig,
         RequestInterface $httpRequest,
-        LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper,
+        LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         RemoteAddress $remoteAddress
     ) {
         $this->remoteAddress = $remoteAddress;

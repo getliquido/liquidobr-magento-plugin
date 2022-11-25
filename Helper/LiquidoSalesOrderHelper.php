@@ -1,6 +1,6 @@
 <?php
 
-namespace Liquido\PayIn\Helper\Brl;
+namespace Liquido\PayIn\Helper;
 
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
@@ -13,7 +13,7 @@ use \Liquido\PayIn\Model\MagentoSalesOrder;
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
-class LiquidoBrlSalesOrderHelper extends AbstractHelper
+class LiquidoSalesOrderHelper extends AbstractHelper
 {
 
     private LoggerInterface $logger;
@@ -21,7 +21,7 @@ class LiquidoBrlSalesOrderHelper extends AbstractHelper
     private LiquidoBrlSalesOrder $liquidoBrlSalesOrder;
     private LiquidoBrlSalesOrderResourceModel $liquidoBrlSalesOrderResourceModel;
     private LiquidoBrlSalesOrderCollection $liquidoBrlSalesOrderCollection;
-    private LiquidoBrlConfigData $liquidoBrlConfigData;
+    private LiquidoConfigData $liquidoConfigData;
 
     public function __construct(
         LoggerInterface $logger,
@@ -29,14 +29,14 @@ class LiquidoBrlSalesOrderHelper extends AbstractHelper
         LiquidoBrlSalesOrder $liquidoBrlSalesOrder,
         LiquidoBrlSalesOrderResourceModel $liquidoBrlSalesOrderResourceModel,
         LiquidoBrlSalesOrderCollection $liquidoBrlSalesOrderCollection,
-        LiquidoBrlConfigData $liquidoBrlConfigData
+        LiquidoConfigData $liquidoConfigData
     ) {
         $this->logger = $logger;
         $this->timezoneInterface = $timezoneInterface;
         $this->liquidoBrlSalesOrder = $liquidoBrlSalesOrder;
         $this->liquidoBrlSalesOrderResourceModel = $liquidoBrlSalesOrderResourceModel;
         $this->liquidoBrlSalesOrderCollection = $liquidoBrlSalesOrderCollection;
-        $this->liquidoBrlConfigData = $liquidoBrlConfigData;
+        $this->liquidoConfigData = $liquidoConfigData;
     }
 
     private function createNewLiquidoSalesOrder($orderData)
@@ -49,7 +49,7 @@ class LiquidoBrlSalesOrderHelper extends AbstractHelper
             $liquidoBrlSalesOrder->setData("transfer_status", $orderData->getData("transferStatus"));
             $liquidoBrlSalesOrder->setData("payment_method", $orderData->getData("paymentMethod"));
 
-            $environment = $this->liquidoBrlConfigData->isProductionModeActived() ? "PRODUCTION" : "STAGING";
+            $environment = $this->liquidoConfigData->isProductionModeActived() ? "PRODUCTION" : "STAGING";
             $liquidoBrlSalesOrder->setData("environment", $environment);
 
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');

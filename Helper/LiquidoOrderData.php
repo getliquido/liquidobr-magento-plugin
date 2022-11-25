@@ -1,13 +1,13 @@
 <?php
 
-namespace Liquido\PayIn\Helper\Brl;
+namespace Liquido\PayIn\Helper;
 
 use \Magento\Checkout\Model\Session;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\Math\Random;
 use \Psr\Log\LoggerInterface;
 
-class LiquidoBrlOrderData extends AbstractHelper
+class LiquidoOrderData extends AbstractHelper
 {
 
     private $orderData;

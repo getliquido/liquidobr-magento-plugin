@@ -1,0 +1,38 @@
+<?php
+
+use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
+
+<div>
+    <h1>Liquido Pagos</h1>
+    <?php if (!$this->hasFailed()) : ?>
+        <h3>Numéro del pedido: <?php echo $this->getOrderId() ?></h3>
+
+        <?php if (
+            $this->getPaymentMethodType() == PaymentMethod::CASH
+            && $this->getTransferStatus() != PayInStatus::SETTLED
+        ) : ?>
+            <h2>Utilice el siguiente código para realizar el pago</h2>
+            <hr />
+            <div id="cash-code-copy-paste">
+                <fieldset class="fieldset">
+                    <label for="cash-code">Código Cash: </label><br>
+                    <input type="text" id="cash-code" name="cash-code" readonly value="<?php echo $this->getCashCode() ?>"><br>
+                </fieldset>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button onclick="copyToClipboard('cash-code')" class="action primary" title="Copie el código">
+                            <span>Copie el código</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
+            <h3><strong>Ya has generado un pago con <?php echo $this->getPaymentMethodName() ?></strong></h3>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>
+            <h3><strong>Ya pagaste con <?php echo $this->getPaymentMethodName() ?></strong></h3>
+        <?php endif; ?>
+    <?php else : ?>
+        <a href="/checkout/liquidoco/index">Cambiar método de pago</a>
+    <?php endif; ?>
+</div>

@@ -1,13 +1,13 @@
 <?php
 
-namespace Liquido\PayIn\Helper\Brl;
+namespace Liquido\PayIn\Helper;
 
 use \Magento\Framework\App\ObjectManager;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\Encryption\EncryptorInterface as Encryptor;
 use \Magento\Framework\UrlInterface;
 
-class LiquidoBrlConfigData extends AbstractHelper
+class LiquidoConfigData extends AbstractHelper
 {
 
     private const LIQUIDO_SANDBOX_AUTH_URL = "https://auth-dev.liquido.com/oauth2/token";

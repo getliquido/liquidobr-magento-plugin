@@ -5,17 +5,17 @@ namespace Liquido\PayIn\Model\Brl;
 use \Magento\Framework\Webapi\Rest\Request;
 use \Magento\Framework\DataObject;
 
-use \Liquido\PayIn\Helper\Brl\LiquidoBrlSalesOrderHelper;
+use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 
 class LiquidoBrlWebhook
 {
 
 	private Request $request;
-	private LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper;
+	private LiquidoSalesOrderHelper $liquidoSalesOrderHelper;
 
 	public function __construct(
 		Request $request,
-		LiquidoBrlSalesOrderHelper $liquidoSalesOrderHelper
+		LiquidoSalesOrderHelper $liquidoSalesOrderHelper
 	) {
 		$this->request = $request;
 		$this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
