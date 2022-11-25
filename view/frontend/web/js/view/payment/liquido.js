@@ -10,8 +10,8 @@ define(
         'use strict';
         rendererList.push(
             {
-                type: 'liquidobrl',
-                component: 'Liquido_PayIn/js/view/payment/method-renderer/liquidobrl'
+                type: 'liquido',
+                component: 'Liquido_PayIn/js/view/payment/method-renderer/liquido'
             }
         );
         /** Add view logic here if needed */
