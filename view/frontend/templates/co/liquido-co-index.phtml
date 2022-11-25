@@ -1,0 +1,27 @@
+<div class="liquido-container">
+    <h1>Liquido Pagos</h1>
+    <h2>Elige cómo quieres pagar</h2>
+    <?php
+    use \Liquido\PayIn\Util\Common\LiquidoPayInMethod;
+
+    $colombia_payin_methods = $this->getLiquidoColombiaPayInMethods();
+    ?>
+
+    <ul id="payin-methods">
+        <?php foreach ($colombia_payin_methods as $payin_method) : ?>
+            <?php if ($payin_method == LiquidoPayInMethod::CREDIT_CARD) : ?>
+                <a class="payin-method-link-co" href="<?php echo $this->getUrl('checkout/liquidocommon/creditcardform') ?>">
+            <?php else : ?>
+                <a class="payin-method-link-co" href="<?php echo $this->getPayInMethodViewRoute($payin_method["title"]) ?>">
+            <?php endif?>
+                <li>
+                    <img src="<?php echo $this->getViewFileUrl($payin_method["image"]); ?>" alt="PayIn method image">
+                    <div class="payin-method-single">
+                        <p><?php echo __($payin_method["title"]); ?></p>
+                        <small><?php echo __($payin_method["description"]); ?></small>
+                    </div>
+                </li>
+            </a>
+        <?php endforeach; ?>
+    </ul>
+</div>
