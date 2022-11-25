@@ -1,0 +1,31 @@
+<?php
+
+use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
+
+<div>
+    <h1>Liquido Pagos</h1>
+    <?php if (!$this->hasFailed()) : ?>
+        <h3>Numéro del pedido: <?php echo $this->getOrderId() ?></h3>
+
+        <?php if (
+            $this->getPaymentMethodType() == PaymentMethod::PSE
+            && $this->getTransferStatus() != PayInStatus::SETTLED
+        ) : ?>
+            <h2>Clique en el siguiente link para realizar el pago</h2>
+            <hr />
+            <div id="pse-link">
+                <fieldset class="fieldset">
+                    <label for="pse-link">Link PSE: </label><br>
+                    <a id="pse-link" name="pse-link" href="<?php echo $this->getPseLink() ?>" target="_blank">Paga haciendo clic aquí.</a>
+                </fieldset>
+            </div>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
+            <h3><strong>Ya has generado un pago con <?php echo $this->getPaymentMethodName() ?></strong></h3>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>
+            <h3><strong>Ya pagaste con <?php echo $this->getPaymentMethodName() ?></strong></h3>
+        <?php endif; ?>
+    <?php else : ?>
+        <a href="/checkout/liquidoco/index">Cambiar método de pago</a>
+    <?php endif; ?>
+</div>

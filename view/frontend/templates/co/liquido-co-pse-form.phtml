@@ -1,0 +1,57 @@
+<div>
+    <h1>Liquido Pagos</h1>
+    <?php
+    $payin_method_name = $this->getPsePayInMethodName();
+    ?>
+    <h2>Pagar con <?php echo $payin_method_name ?></h2>
+    <form id="pse-customer-form" data-mage-init='{"validation": {}}' class="form" method="POST" action="<?php echo $this->getUrl('checkout/liquidoco/pse', ['_secure' => true]); ?>">
+        <fieldset class="fieldset">
+            <legend class="legend"><span>Datos Personales</span></legend><br>
+            <div class="field required">
+                <label for="customer-doc-type" class="label"><span>Tipo de Documento</span></label>
+                <div class="control">
+                    <select name="customer-doc-type" id="customer-doc-type">
+                        <option value="CC">CC</option>
+                        <option value="CE">CE</option>
+                        <option value="NIT">NIT</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field required">
+                <label for="customer-doc-number" class="label">Número del Documento</span></label>
+                <div class="control">
+                    <input type="text" name="customer-doc-number" id="customer-doc-number" value="" title="Número del Documento" class="input-text" data-validate="{'required-entry':true}">
+                </div>
+            </div>
+            <div class="field required">
+                <label for="customer-person-type" class="label"><span>Tipo de Persona</span></label>
+                <div class="control">
+                    <select name="customer-person-type" id="customer-person-type">
+                        <option value="NATURAL">NATURAL</option>
+                        <option value="LEGAL">LEGAL</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field required">
+                <label for="customer-financial-institution" class="label"><span><?php echo __('Institución Financiera') ?></span></label>
+                <div class="control">
+                    <select name="customer-financial-institution" id="customer-financial-institution">
+                        <?php 
+                            $financialInstitutions = $this->getPseFinancialInstitutionsList();
+                        ?>
+                        <?php foreach($financialInstitutions as $institution): ?>
+                            <option value="<?php echo $institution->financial_institution_code ?>">
+                                <?php echo $institution->financial_institution_code ?> - <?php echo $institution->financial_institution_name ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+        </fieldset>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button type="submit" class="action submit primary" title="Enviar"><span>Enviar</span></button>
+            </div>
+        </div>
+    </form>
+</div>
