@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-    <table name="liquido_brl_payin_sales_order" engine="innodb" comment="Liquido BRL Sales orders">
+    <table name="liquido_payin_sales_order" engine="innodb" comment="Liquido BRL Sales orders">
 
         <!-- The standard auto-incrementing id of the table. -->
         <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id" />
