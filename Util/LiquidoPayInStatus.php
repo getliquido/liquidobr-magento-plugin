@@ -1,11 +1,11 @@
 <?php
 
-namespace Liquido\PayIn\Util\Brl;
+namespace Liquido\PayIn\Util;
 
 use \Liquido\PayIn\Util\MagentoSaleOrderStatus;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
-abstract class LiquidoBrlPayInStatus
+abstract class LiquidoPayInStatus
 {
   public static function mapToMagentoSaleOrderStatus($liquidoPayInStatus)
   {

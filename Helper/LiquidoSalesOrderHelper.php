@@ -10,7 +10,7 @@ use \Liquido\PayIn\Model\Brl\LiquidoBrlSalesOrder;
 use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder as LiquidoBrlSalesOrderResourceModel;
 use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder\Collection as LiquidoBrlSalesOrderCollection;
 use \Liquido\PayIn\Model\MagentoSalesOrder;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInStatus;
+use \Liquido\PayIn\Util\LiquidoPayInStatus;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
 class LiquidoSalesOrderHelper extends AbstractHelper
@@ -183,7 +183,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
             $this->logger->info("[ {$className} ]: Updating a register in sales_order table (Magento core table)");
 
             $magentoSalesOrder = MagentoSalesOrder::findOrder($orderId);
-            $magentoOrderStatus = LiquidoBrlPayInStatus::mapToMagentoSaleOrderStatus($transferStatus);
+            $magentoOrderStatus = LiquidoPayInStatus::mapToMagentoSaleOrderStatus($transferStatus);
             if ($magentoSalesOrder->getStatus() != $magentoOrderStatus) {
                 MagentoSalesOrder::updateOrderStatus($magentoSalesOrder, $magentoOrderStatus);
             }

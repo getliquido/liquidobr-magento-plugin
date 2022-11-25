@@ -16,7 +16,7 @@ use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
-use \LiquidoBrl\PayInPhpSdk\Util\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\Brazil\PaymentMethod;
 use \LiquidoBrl\PayInPhpSdk\Util\PaymentFlow;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 use \LiquidoBrl\PayInPhpSdk\Model\PayInRequest;

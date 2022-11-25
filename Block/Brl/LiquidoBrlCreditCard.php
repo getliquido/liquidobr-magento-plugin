@@ -6,7 +6,7 @@ use \Magento\Framework\View\Element\Template;
 use \Magento\Framework\View\Element\Template\Context;
 
 use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
+use \Liquido\PayIn\Util\Common\LiquidoPaymentMethodType;
 
 class LiquidoBrlCreditCard extends Template
 {
@@ -46,7 +46,7 @@ class LiquidoBrlCreditCard extends Template
 
     public function getPaymentMethodName()
     {
-        return LiquidoBrlPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+        return LiquidoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
     }
 
     public function hasFailed()
@@ -56,7 +56,7 @@ class LiquidoBrlCreditCard extends Template
 
     public function getInstallments()
     {
-        if ($this->getPaymentMethodType() == LiquidoBrlPaymentMethodType::CREDIT_CARD) {
+        if ($this->getPaymentMethodType() == LiquidoPaymentMethodType::CREDIT_CARD) {
             return $this->payInSession->getData("creditCardResultData")->getData("installments");
         }
         return 1;

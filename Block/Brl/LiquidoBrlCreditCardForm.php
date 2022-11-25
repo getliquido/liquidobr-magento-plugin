@@ -6,7 +6,7 @@ use \Magento\Framework\View\Element\Template;
 use \Magento\Framework\View\Element\Template\Context;
 use \Magento\Checkout\Model\Session;
 
-use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInMethod;
+use \Liquido\PayIn\Util\Common\LiquidoPayInMethod;
 use \Liquido\PayIn\Helper\LiquidoOrderData;
 
 class LiquidoBrlCreditCardForm extends Template
@@ -28,7 +28,7 @@ class LiquidoBrlCreditCardForm extends Template
 
     public function getCardPayInMethodName()
     {
-        return LiquidoBrlPayInMethod::CREDIT_CARD["title"];
+        return LiquidoPayInMethod::CREDIT_CARD["title"];
     }
 
     private function getOrderTotal()

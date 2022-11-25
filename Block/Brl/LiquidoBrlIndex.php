@@ -5,6 +5,7 @@ namespace Liquido\PayIn\Block\Brl;
 use \Magento\Framework\View\Element\Template;
 
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInMethod;
+use \Liquido\PayIn\Util\Common\LiquidoPayInMethod;
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPayInViewRoute;
 
 class LiquidoBrlIndex extends Template
@@ -13,7 +14,7 @@ class LiquidoBrlIndex extends Template
     public function getLiquidoBrazilPayInMethods()
     {
         $brazil_payin_methods = [
-            LiquidoBrlPayInMethod::CREDIT_CARD,
+            LiquidoPayInMethod::CREDIT_CARD,
             LiquidoBrlPayInMethod::PIX,
             LiquidoBrlPayInMethod::BOLETO
         ];
@@ -29,7 +30,7 @@ class LiquidoBrlIndex extends Template
             case LiquidoBrlPayInMethod::BOLETO["title"]:
                 return LiquidoBrlPayInViewRoute::BOLETO;
                 break;
-            case LiquidoBrlPayInMethod::CREDIT_CARD["title"]:
+            case LiquidoPayInMethod::CREDIT_CARD["title"]:
                 return LiquidoBrlPayInViewRoute::CREDIT_CARD;
                 break;
             default:
