@@ -3,8 +3,13 @@
     <system>
         <!-- All data below are in "core_config_data" table in "path" column -->
         <section id="payment" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
-            <group id="liquidobrl" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="liquido" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Liquido BR Pagamentos</label>
+                <field id="country" translate="label comment" type="multiselect" sortOrder="16" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>País</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>0</can_be_empty>
+                </field>
                 <field id="active" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Habilitar este meio de pagamento?</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

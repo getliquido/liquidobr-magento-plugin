@@ -16,8 +16,8 @@ class LiquidoBrlConfigData extends AbstractHelper
     private const LIQUIDO_PRODUCTION_AUTH_URL = "https://authsg.liquido.com/oauth2/token";
     private const LIQUIDO_PRODUCTION_VIRGO_BASE_URL = "https://api.liquido.com";
 
-    public const CURRENCY = "BRL";
-    public const COUNTRY = "BR";
+    // public const CURRENCY = "BRL";
+    // public const COUNTRY = "BR";
     public const PAYMENT_FLOW_DIRECT = "DIRECT";
 
     protected $objectManager;
@@ -47,7 +47,7 @@ class LiquidoBrlConfigData extends AbstractHelper
     public function isProductionModeActived()
     {
         try {
-            $path = "payment/liquidobrl/production_mode";
+            $path = "payment/liquido/production_mode";
             $isProductionModeActived = $this->objectManager->get(
                 'Magento\Framework\App\Config\ScopeConfigInterface'
             )->getValue($path);
@@ -87,9 +87,9 @@ class LiquidoBrlConfigData extends AbstractHelper
     public function getClientId()
     {
         try {
-            $path = "payment/liquidobrl/sandbox_client_id";
+            $path = "payment/liquido/sandbox_client_id";
             if ($this->isProductionModeActived()) {
-                $path = "payment/liquidobrl/prod_client_id";
+                $path = "payment/liquido/prod_client_id";
             }
             $clientId = $this->objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue($path);
             return $clientId;
@@ -102,9 +102,9 @@ class LiquidoBrlConfigData extends AbstractHelper
     public function getClientSecret()
     {
         try {
-            $path = "payment/liquidobrl/sandbox_client_secret";
+            $path = "payment/liquido/sandbox_client_secret";
             if ($this->isProductionModeActived()) {
-                $path = "payment/liquidobrl/prod_client_secret";
+                $path = "payment/liquido/prod_client_secret";
             }
             $clientSecret = $this->objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue($path);
             $decryptedClientSecret = $this->encryptor->decrypt($clientSecret);
@@ -118,12 +118,24 @@ class LiquidoBrlConfigData extends AbstractHelper
     public function getApiKey()
     {
         try {
-            $path = "payment/liquidobrl/sandbox_api_key";
+            $path = "payment/liquido/sandbox_api_key";
             if ($this->isProductionModeActived()) {
-                $path = "payment/liquidobrl/prod_api_key";
+                $path = "payment/liquido/prod_api_key";
             }
             $apiKey = $this->objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue($path);
             return $apiKey;
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            return null;
+        }
+    }
+
+    public function getCountry()
+    {
+        try {
+            $path = "payment/liquido/country";
+            $country = $this->objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue($path);
+            return $country;
         } catch (\Exception $e) {
             echo $e->getMessage();
             return null;
