@@ -5,20 +5,20 @@ namespace Liquido\PayIn\Block\Brl;
 use \Magento\Framework\View\Element\Template;
 use \Magento\Framework\View\Element\Template\Context;
 
-use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
 
 class LiquidoBrlPixCode extends Template
 {
 
     /**
-     * @var LiquidoBrlPayInSession
+     * @var LiquidoPayInSession
      */
-    private LiquidoBrlPayInSession $payInSession;
+    private LiquidoPayInSession $payInSession;
 
     public function __construct(
         Context $context,
-        LiquidoBrlPayInSession $payInSession
+        LiquidoPayInSession $payInSession
     ) {
         $this->payInSession = $payInSession;
         parent::__construct($context);

@@ -10,11 +10,13 @@ use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
-use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
+use \LiquidoBrl\PayInPhpSdk\Util\Country;
+use \LiquidoBrl\PayInPhpSdk\Util\Currency;
 use \LiquidoBrl\PayInPhpSdk\Util\Brazil\PaymentMethod;
 use \LiquidoBrl\PayInPhpSdk\Util\PaymentFlow;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
@@ -26,7 +28,7 @@ class PixCode implements ActionInterface
     private PageFactory $resultPageFactory;
     private ManagerInterface $messageManager;
     private LoggerInterface $logger;
-    protected LiquidoBrlPayInSession $payInSession;
+    protected LiquidoPayInSession $payInSession;
     private LiquidoOrderData $liquidoOrderData;
     private PayInService $payInService;
     private LiquidoConfigData $liquidoConfig;
@@ -40,7 +42,7 @@ class PixCode implements ActionInterface
         PageFactory $resultPageFactory,
         ManagerInterface $messageManager,
         LoggerInterface $logger,
-        LiquidoBrlPayInSession $payInSession,
+        LiquidoPayInSession $payInSession,
         LiquidoOrderData $liquidoOrderData,
         PayInService $payInService,
         LiquidoConfigData $liquidoConfig,
@@ -221,6 +223,8 @@ class PixCode implements ActionInterface
                 "paymentMethod" => PaymentMethod::PIX_STATIC_QR,
                 "paymentFlow" => PaymentFlow::DIRECT,
                 "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
+                "currency" => Currency::BRL,
+                "country" => Country::BRAZIL,
                 "payer" => [
                     "email" => $this->pixInputData->getData('customerEmail'),
                     "address" => [ 
