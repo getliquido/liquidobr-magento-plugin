@@ -10,20 +10,20 @@
 "Erro ao obter o código de verificação do cartão.","Error al obtener el código de verificación de la tarjeta."
 "Erro ao obter o número de parcelas.","Error al obtener el número de cuotas."
 "Pagamento aguardando aprovação.","Pago pendiente de aprobación."
-"Erro ao obter o documento do cliente.", "Error al obtener el documento del cliente."
-"Falha.", "Falla"
-"Erro ao tentar gerar o pagamento", "Error al intentar generar el pago"
-
+"Erro ao obter o documento do cliente.","Error al obtener el documento del cliente."
+Falha.,Falla
+"Erro ao tentar gerar o pagamento","Error al intentar generar el pago"
+"Liquido BR Pagamentos","Liquido Pagos"
 "Liquido Pagamentos","Liquido Pagos"
-"Cartão de Crédito", "Tarjeta de Crédito"
-"O pagamento poderá ser aprovado na hora.", "El pago puede ser aprobado al instante."
+"Cartão de Crédito","Tarjeta de Crédito"
+"O pagamento poderá ser aprovado na hora.","El pago puede ser aprobado al instante."
 "Pagar com ","Pagar con "
 "Dados do Cartão","Datos de la tarjeta"
-"Nome do Titular", "Nombre del Titular"
+"Nome do Titular","Nombre del Titular"
 "Nome Completo","Nombre Completo"
 "Mês / Ano","Mes / Año"
 CVV,CVV
-CPF, "Número del Documento (CC)"
+CPF,CC
 "Número de Parcelas","Número de plazos"
 Pagar,Pagar
 "Número do pedido: ","Numéro del pedido: "
@@ -33,15 +33,6 @@ Pagar,Pagar
 "Você já pagou com ","Ya pagaste con "
 "Alterar método de pagamento","Cambiar método de pago"
 "Please enter a valid CPF number.","Por favor ingrese un número de documento válido."
-"Liquido BR Pagamentos","Liquido Pagos"
-
-
 País,País
 "Habilitar este meio de pagamento?","¿Habilitar este método de pago?"
 "Ativar modo produção?","¿Habilitar el modo de producción?"
-"Sandbox Client Id","Sandbox Client Id"
-"Sandbox Client Secret","Sandbox Client Secret"
-"Sandbox API Key","Sandbox API Key"
-"Production Client Id","Production Client Id"
-"Production Client Secret","Production Client Secret"
-"Production API Key","Production API Key"

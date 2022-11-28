@@ -7,7 +7,7 @@ use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
-use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
@@ -19,13 +19,13 @@ class PseForm implements ActionInterface
     private PageFactory $resultPageFactory;
     private DataObject $pseResultData;
     private PayInService $payInService;
-    protected LiquidoBrlPayInSession $payInSession;
+    protected LiquidoPayInSession $payInSession;
     private LiquidoConfigData $liquidoConfig;
 
     public function __construct(
         PageFactory $resultPageFactory,
         PayInService $payInService,
-        LiquidoBrlPayInSession $payInSession,
+        LiquidoPayInSession $payInSession,
         LoggerInterface $logger,
         LiquidoConfigData $liquidoConfig
     ) {

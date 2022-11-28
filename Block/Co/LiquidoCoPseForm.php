@@ -7,18 +7,18 @@ use \Magento\Framework\View\Element\Template\Context;
 use \Magento\Checkout\Model\Session;
 
 use \Liquido\PayIn\Util\Co\LiquidoCoPayInMethod;
-use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 
 class LiquidoCoPseForm extends Template
 {
 
     protected Session $checkoutSession;
-    private LiquidoBrlPayInSession $payInSession;
+    private LiquidoPayInSession $payInSession;
 
     public function __construct(
         Context $context,
         Session $checkoutSession,
-        LiquidoBrlPayInSession $payInSession,
+        LiquidoPayInSession $payInSession,
         array $data = []
     ) {
         parent::__construct($context, $data);

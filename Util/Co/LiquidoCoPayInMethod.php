@@ -6,7 +6,7 @@ abstract class LiquidoCoPayInMethod
 {
     public const PSE = [
         "title" => "PSE",
-        "description" => "El pago puede ser aprobado al instante.",
+        "description" => "El pago puede ser aprobado al instante. Valor mínimo 1500 COP.",
         "image" => "Liquido_PayIn::images/pse.png"
     ];
     public const CASH = [

@@ -38,7 +38,7 @@ class LiquidoConfigData extends AbstractHelper
         );
         return $storeManager->getStore()->getBaseUrl(
             UrlInterface::URL_TYPE_WEB
-        )  . "rest/V1/liquido-brl-webhook";
+        )  . "rest/V1/liquido-webhook";
     }
 
     /**

@@ -9,7 +9,7 @@ use \Magento\Framework\DataObject;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
-use \Liquido\PayIn\Model\Brl\LiquidoBrlPayInSession;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 
@@ -27,7 +27,7 @@ class Cash implements ActionInterface
     private PageFactory $resultPageFactory;
     private ManagerInterface $messageManager;
     private LoggerInterface $logger;
-    protected LiquidoBrlPayInSession $payInSession;
+    protected LiquidoPayInSession $payInSession;
     private LiquidoOrderData $liquidoOrderData;
     private PayInService $payInService;
     private LiquidoConfigData $liquidoConfig;
@@ -40,7 +40,7 @@ class Cash implements ActionInterface
         PageFactory $resultPageFactory,
         ManagerInterface $messageManager,
         LoggerInterface $logger,
-        LiquidoBrlPayInSession $payInSession,
+        LiquidoPayInSession $payInSession,
         LiquidoOrderData $liquidoOrderData,
         PayInService $payInService,
         LiquidoConfigData $liquidoConfig,
@@ -177,7 +177,6 @@ class Cash implements ActionInterface
             $this->logger->info("[ {$className} Controller ]: Valid input data:", (array) $this->cashInputData);
 
             $orderId = $this->cashInputData->getData("orderId");
-
             $this->cashResultData->setData('orderId', $orderId);
 
             /**
@@ -185,9 +184,12 @@ class Cash implements ActionInterface
              */
             $liquidoIdempotencyKey = $this->liquidoSalesOrderHelper
                 ->getAlreadyRegisteredIdempotencyKey($orderId);
+
             if ($liquidoIdempotencyKey == null) {
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
+
+            $this->logger->info("Idempotencykey {$liquidoIdempotencyKey}");
 
             $config = new Config(
                 [

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
-	<route url="/V1/liquido-brl-webhook" method="POST">
-		<service class="Liquido\PayIn\Api\Brl\LiquidoBrlCalbackInterface" method="processLiquidoBrlCallbackRequest" />
+	<route url="/V1/liquido-webhook" method="POST">
+		<service class="Liquido\PayIn\Api\LiquidoCalbackInterface" method="processLiquidoCallbackRequest" />
 		<resources>
 			<resource ref="anonymous" />
 		</resources>

@@ -6,9 +6,9 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Psr\Log\LoggerInterface;
 
-use \Liquido\PayIn\Model\Brl\LiquidoBrlSalesOrder;
-use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder as LiquidoBrlSalesOrderResourceModel;
-use \Liquido\PayIn\Model\Brl\ResourceModel\LiquidoBrlSalesOrder\Collection as LiquidoBrlSalesOrderCollection;
+use \Liquido\PayIn\Model\LiquidoSalesOrder;
+use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesOrder as LiquidoSalesOrderResourceModel;
+use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesOrder\Collection as LiquidoSalesOrderCollection;
 use \Liquido\PayIn\Model\MagentoSalesOrder;
 use \Liquido\PayIn\Util\LiquidoPayInStatus;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
@@ -18,45 +18,45 @@ class LiquidoSalesOrderHelper extends AbstractHelper
 
     private LoggerInterface $logger;
     private TimezoneInterface $timezoneInterface;
-    private LiquidoBrlSalesOrder $liquidoBrlSalesOrder;
-    private LiquidoBrlSalesOrderResourceModel $liquidoBrlSalesOrderResourceModel;
-    private LiquidoBrlSalesOrderCollection $liquidoBrlSalesOrderCollection;
+    private LiquidoSalesOrder $liquidoSalesOrder;
+    private LiquidoSalesOrderResourceModel $liquidoSalesOrderResourceModel;
+    private LiquidoSalesOrderCollection $liquidoSalesOrderCollection;
     private LiquidoConfigData $liquidoConfigData;
 
     public function __construct(
         LoggerInterface $logger,
         TimezoneInterface $timezoneInterface,
-        LiquidoBrlSalesOrder $liquidoBrlSalesOrder,
-        LiquidoBrlSalesOrderResourceModel $liquidoBrlSalesOrderResourceModel,
-        LiquidoBrlSalesOrderCollection $liquidoBrlSalesOrderCollection,
+        LiquidoSalesOrder $liquidoSalesOrder,
+        LiquidoSalesOrderResourceModel $liquidoSalesOrderResourceModel,
+        LiquidoSalesOrderCollection $liquidoSalesOrderCollection,
         LiquidoConfigData $liquidoConfigData
     ) {
         $this->logger = $logger;
         $this->timezoneInterface = $timezoneInterface;
-        $this->liquidoBrlSalesOrder = $liquidoBrlSalesOrder;
-        $this->liquidoBrlSalesOrderResourceModel = $liquidoBrlSalesOrderResourceModel;
-        $this->liquidoBrlSalesOrderCollection = $liquidoBrlSalesOrderCollection;
+        $this->liquidoSalesOrder = $liquidoSalesOrder;
+        $this->liquidoSalesOrderResourceModel = $liquidoSalesOrderResourceModel;
+        $this->liquidoSalesOrderCollection = $liquidoSalesOrderCollection;
         $this->liquidoConfigData = $liquidoConfigData;
     }
 
     private function createNewLiquidoSalesOrder($orderData)
     {
-        $liquidoBrlSalesOrder = $this->liquidoBrlSalesOrder;
+        $liquidoSalesOrder = $this->liquidoSalesOrder;
 
         try {
-            $liquidoBrlSalesOrder->setData("order_id", $orderData->getData("orderId"));
-            $liquidoBrlSalesOrder->setData("idempotency_key", $orderData->getData("idempotencyKey"));
-            $liquidoBrlSalesOrder->setData("transfer_status", $orderData->getData("transferStatus"));
-            $liquidoBrlSalesOrder->setData("payment_method", $orderData->getData("paymentMethod"));
+            $liquidoSalesOrder->setData("order_id", $orderData->getData("orderId"));
+            $liquidoSalesOrder->setData("idempotency_key", $orderData->getData("idempotencyKey"));
+            $liquidoSalesOrder->setData("transfer_status", $orderData->getData("transferStatus"));
+            $liquidoSalesOrder->setData("payment_method", $orderData->getData("paymentMethod"));
 
             $environment = $this->liquidoConfigData->isProductionModeActived() ? "PRODUCTION" : "STAGING";
-            $liquidoBrlSalesOrder->setData("environment", $environment);
+            $liquidoSalesOrder->setData("environment", $environment);
 
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');
-            $liquidoBrlSalesOrder->setData("created_at", $dateTimeNow);
-            $liquidoBrlSalesOrder->setData("updated_at", $dateTimeNow);
+            $liquidoSalesOrder->setData("created_at", $dateTimeNow);
+            $liquidoSalesOrder->setData("updated_at", $dateTimeNow);
 
-            $this->liquidoBrlSalesOrderResourceModel->save($liquidoBrlSalesOrder);
+            $this->liquidoSalesOrderResourceModel->save($liquidoSalesOrder);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -65,7 +65,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
     public function findLiquidoSalesOrderByIdempotencyKey($idempotencyKey)
     {
         try {
-            $foundLiquidoSalesOrder = $this->liquidoBrlSalesOrderCollection
+            $foundLiquidoSalesOrder = $this->liquidoSalesOrderCollection
                 ->addFieldToFilter('idempotency_key', $idempotencyKey)
                 ->getFirstItem();
             return $foundLiquidoSalesOrder;
@@ -77,7 +77,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
     private function findLiquidoSalesOrderByOrderId($orderId)
     {
         try {
-            $foundLiquidoSalesOrder = $this->liquidoBrlSalesOrderCollection
+            $foundLiquidoSalesOrder = $this->liquidoSalesOrderCollection
                 ->addFieldToFilter('order_id', $orderId)
                 ->getFirstItem();
             return $foundLiquidoSalesOrder;
@@ -88,6 +88,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
 
     public function getAlreadyRegisteredIdempotencyKey($orderId)
     {
+        $this->logger->info("getAlreadyRegisteredIdempotencyKey");
 
         $foundLiquidoSalesOrder = $this->findLiquidoSalesOrderByOrderId($orderId);
 
@@ -111,7 +112,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
             $foundLiquidoSalesOrder->setData("idempotency_key", $liquidoIdempotencyKey);
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');
             $foundLiquidoSalesOrder->setData("updated_at", $dateTimeNow);
-            $this->liquidoBrlSalesOrderResourceModel->save($foundLiquidoSalesOrder);
+            $this->liquidoSalesOrderResourceModel->save($foundLiquidoSalesOrder);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -123,7 +124,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
             $foundLiquidoSalesOrder->setData("transfer_status", $newTransferStatus);
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');
             $foundLiquidoSalesOrder->setData("updated_at", $dateTimeNow);
-            $this->liquidoBrlSalesOrderResourceModel->save($foundLiquidoSalesOrder);
+            $this->liquidoSalesOrderResourceModel->save($foundLiquidoSalesOrder);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }
@@ -135,7 +136,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
             $foundLiquidoSalesOrder->setData("payment_method", $newPaymentMethod);
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');
             $foundLiquidoSalesOrder->setData("updated_at", $dateTimeNow);
-            $this->liquidoBrlSalesOrderResourceModel->save($foundLiquidoSalesOrder);
+            $this->liquidoSalesOrderResourceModel->save($foundLiquidoSalesOrder);
         } catch (\Exception $e) {
             echo $e->getMessage();
         }

@@ -8,11 +8,11 @@ use \Magento\Framework\View\Element\Template\Context;
 use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Util\Co\LiquidoCoPaymentMethodType;
 
-class LiquidoCoCash extends Template
+class LiquidoCoPse extends Template
 {
 
     /**
-     * @var LiquidoPayInSession
+     * @var LiquidoBrlPayInSession
      */
     private LiquidoPayInSession $payInSession;
 
@@ -26,22 +26,22 @@ class LiquidoCoCash extends Template
 
     public function getOrderId()
     {
-        return $this->payInSession->getData("cashResultData")->getData("orderId");
+        return $this->payInSession->getData("pseResultData")->getData("orderId");
     }
 
-    public function getCashCode()
+    public function getPseLink()
     {
-        return $this->payInSession->getData("cashResultData")->getData("cashCode");
+        return $this->payInSession->getData("pseResultData")->getData("pseLink");
     }
 
     public function getTransferStatus()
     {
-        return $this->payInSession->getData("cashResultData")->getData("transferStatus");
+        return $this->payInSession->getData("pseResultData")->getData("transferStatus");
     }
 
     public function getPaymentMethodType()
     {
-        return $this->payInSession->getData("cashResultData")->getData("paymentMethod");
+        return $this->payInSession->getData("pseResultData")->getData("paymentMethod");
     }
 
     public function getPaymentMethodName()
@@ -51,6 +51,6 @@ class LiquidoCoCash extends Template
 
     public function hasFailed()
     {
-        return $this->payInSession->getData("cashResultData")->getData("hasFailed");
+        return $this->payInSession->getData("pseResultData")->getData("hasFailed");
     }
 }
