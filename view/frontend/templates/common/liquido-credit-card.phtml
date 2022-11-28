@@ -1,0 +1,23 @@
+<?php
+use \LiquidoBrl\PayInPhpSdk\Util\Common\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
+
+<div>
+    <h1><?php echo __('Liquido Pagamentos') ?></h1>
+    <?php if (!$this->hasFailed()) : ?>
+        <h3><?php echo __('Número do pedido: ') ?><?php echo $this->getOrderId() ?></h3>
+        <?php if (
+            $this->getPaymentMethodType() == PaymentMethod::CREDIT_CARD
+            && $this->getTransferStatus() != PayInStatus::SETTLED
+        ) : ?>
+            <h3><?php echo __('Você pagou: ') ?><?php echo $this->getHowCustomerPaid(); ?></h3>
+            <h3><?php echo __('Valor total: ') ?><?php echo $this->getOrderTotal(); ?></h3>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
+            <h3><strong><?php echo __('Você já gerou um pagamento com ') ?><?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>
+            <h3><strong><?php echo __('Você já pagou com ') ?><?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+        <?php endif; ?>
+    <?php else : ?>
+        <a href="<?php echo $this->getCountryRedirect() ?>"><?php echo __('Alterar método de pagamento') ?></a>
+    <?php endif; ?>
+</div>
