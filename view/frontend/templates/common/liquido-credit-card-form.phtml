@@ -69,26 +69,31 @@
                 </div>
             </div>
             <div class="field required">
-                <?php $document = ($this->getCountry() == 'BR') ? 'CPF' : 'CC' ?>
-                <label for="customer-doc-number" class="label"><span><?php echo __($document) ?></span></label>
+                <?php if ($this->getCountry() == 'CO') : ?>
+                    <label for="customer-cc" class="label"><span><?php echo __('CC') ?></span></label>
                     <div class="control">
-                        <input type="text" name="customer-doc-number" id="customer-doc-number" value="" title="<?php echo __($document) ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                        <input type="text" name="customer-cc" id="customer-cc" value="" title="<?php echo __('CC') ?>" class="input-text" data-validate="{'required-entry':true}">
                     </div>
-                </div>
+                <?php elseif ($this->getCountry() == 'BR') : ?>
+                    <label for="customer-cpf" class="label"><span><?php echo __('CPF') ?></span></label>
+                    <div class="control">
+                        <input type="text" name="customer-cpf" id="customer-cpf" value="" title="<?php echo __('CPF') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                    </div>
+                <?php endif ?>
             </div>
-            <div class="field required">
-                <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
+            <!-- <div class="field required">
+                <label for="card-installments" class="label"><span><?php //echo __('Número de Parcelas') ?></span></label>
                 <div class="control">
                     <select name="card-installments" id="card-installments">
                         <?php
-                        $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
+                        //$optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
                         ?>
-                        <?php foreach ($optionsInfoArray as $index => $optionInfo) : ?>
-                            <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
-                        <?php endforeach; ?>
+                        <?php //foreach ($optionsInfoArray as $index => $optionInfo) : ?>
+                            <option value="<?php //echo $index + 1 ?>"><?php //echo $optionInfo; ?></option>
+                        <?php //endforeach; ?>
                     </select>
                 </div>
-            </div>
+            </div> -->
         </fieldset>
         <div class="actions-toolbar">
             <div class="primary">

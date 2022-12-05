@@ -12,20 +12,23 @@ use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
             $this->getPaymentMethodType() == PaymentMethod::CASH
             && $this->getTransferStatus() != PayInStatus::SETTLED
         ) : ?>
-            <h2>Utilice el siguiente código para realizar el pago</h2>
+            <h3>Por favor copie el código y diríjase a uno de nuestro establecimientos aliados para realizar el pago.</h3>
+            <small style="color: #6E716E">
+                * Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, PSE, Superpagos, Sured.
+            </small>
             <hr />
             <div id="cash-code-copy-paste">
                 <fieldset class="fieldset">
                     <label for="cash-code">Código Cash: </label><br>
                     <input type="text" id="cash-code" name="cash-code" readonly value="<?php echo $this->getCashCode() ?>"><br>
                 </fieldset>
-                <div class="actions-toolbar">
+                <!-- <div class="actions-toolbar">
                     <div class="primary">
                         <button onclick="copyToClipboard('cash-code')" class="action primary" title="Copie el código">
                             <span>Copie el código</span>
                         </button>
                     </div>
-                </div>
+                </div> -->
             </div>
         <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
             <h3><strong>Ya has generado un pago con <?php echo $this->getPaymentMethodName() ?></strong></h3>

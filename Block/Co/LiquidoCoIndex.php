@@ -14,9 +14,9 @@ class LiquidoCoIndex extends Template
     public function getLiquidoColombiaPayInMethods()
     {
         $colombia_payin_methods = [
-            LiquidoPayInMethod::CREDIT_CARD,
+            //LiquidoPayInMethod::CREDIT_CARD,
             LiquidoCoPayInMethod::CASH,
-            LiquidoCoPayInMethod::PSE
+            //LiquidoCoPayInMethod::PSE
         ];
         return $colombia_payin_methods;
     }

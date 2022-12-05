@@ -12,14 +12,18 @@ use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
             $this->getPaymentMethodType() == PaymentMethod::PSE
             && $this->getTransferStatus() != PayInStatus::SETTLED
         ) : ?>
-            <h2>Clique en el siguiente link para realizar el pago</h2>
-            <hr />
-            <div id="pse-link">
-                <fieldset class="fieldset">
-                    <label for="pse-link">Link PSE: </label><br>
-                    <a id="pse-link" name="pse-link" href="<?php echo $this->getPseLink() ?>" target="_blank">Paga haciendo clic aquí.</a>
-                </fieldset>
-            </div>
+            <?php if ( !empty( $this->getPseLink() ) ) :?>
+                <h2>Clique en el siguiente link para realizar el pago</h2>
+                <hr />
+                <div id="pse-link">
+                    <fieldset class="fieldset">
+                        <label for="pse-link">Link PSE: </label><br>
+                        <a id="pse-link" name="pse-link" href="<?php echo $this->getPseLink() ?>" target="_blank">Paga haciendo clic aquí.</a>
+                    </fieldset>
+                </div>
+            <?php else : ?>
+                <h3>Tu pagaste: <?php echo $this->getOrderTotal() ?></h3>
+            <?php endif ?>
         <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
             <h3><strong>Ya has generado un pago con <?php echo $this->getPaymentMethodName() ?></strong></h3>
         <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>

@@ -29,6 +29,11 @@ class LiquidoCoPse extends Template
         return $this->payInSession->getData("pseResultData")->getData("orderId");
     }
 
+    public function getOrderTotal()
+    {
+        return $this->payInSession->getData("pseResultData")->getData("amount") / 100;
+    }
+
     public function getPseLink()
     {
         return $this->payInSession->getData("pseResultData")->getData("pseLink");

@@ -136,13 +136,19 @@ class CreditCard implements ActionInterface
             return false;
         }
 
-        $customerCardInstallments = $creditCardFormInputData->getData('card-installments');
-        if ($customerCardInstallments == null) {
-            $this->errorMessage = __('Erro ao obter o número de parcelas.');
-            return false;
-        }
+        // $customerCardInstallments = $creditCardFormInputData->getData('card-installments');
+        // if ($customerCardInstallments == null) {
+        //     $this->errorMessage = __('Erro ao obter o número de parcelas.');
+        //     return false;
+        // }
 
-        $customerDocument = $creditCardFormInputData->getData('customer-doc-number');
+        $customerDocument = null;
+        if ($this->liquidoConfig->getCountry() == 'BR') {
+            $customerDocument = $creditCardFormInputData->getData('customer-cpf');
+        } elseif ($this->liquidoConfig->getCountry() == 'CO') {
+            $customerDocument = $creditCardFormInputData->getData('customer-cc');
+        }
+        
         if ($customerDocument == null) {
             $this->errorMessage = __('Erro ao obter o documento do cliente.');
             return false;
@@ -164,7 +170,7 @@ class CreditCard implements ActionInterface
             'customerCardExpireMonth' => $customerCardExpireDateArray[0],
             'customerCardExpireYear' => $customerCardExpireDateArray[1],
             'customerCardCVV' => $customerCardCVV,
-            'customerCardInstallments' => $customerCardInstallments,
+            // 'customerCardInstallments' => $customerCardInstallments,
             'customerDocument' => $customerDocument,
             'customerBillingAddress' => $billingAddress,
             'streetText' => $streetString,
@@ -175,7 +181,7 @@ class CreditCard implements ActionInterface
     }
 
     private function manageCreditCardResponse($creditCardResponse)
-    {
+    {    
         if (
             $creditCardResponse != null
             && property_exists($creditCardResponse, 'transferStatusCode')
@@ -222,7 +228,7 @@ class CreditCard implements ActionInterface
             ) {
                 $errorMsg .= " ($creditCardResponse->transferStatusCode - $creditCardResponse->transferErrorMsg)";
             } else {
-                $errorMsg .= __(" (Erro ao tentar gerar o pagamento)");
+                $errorMsg .= __("Erro ao tentar gerar o pagamento");
             }
 
             $this->messageManager->addErrorMessage($errorMsg);
@@ -316,7 +322,7 @@ class CreditCard implements ActionInterface
             if ($country == 'BR') {
                 $payload["currency"] = Currency::BRL;
                 $payload["country"] = Country::BRAZIL;
-                $payload["installments"] = $this->creditCardInputData->getData("customerCardInstallments");
+                //$payload["installments"] = $this->creditCardInputData->getData("customerCardInstallments");
                 $payload["payer"]["document"] = [
                     "documentId" => $this->creditCardInputData->getData("customerDocument"),
                     "type" => "CPF"
@@ -324,12 +330,15 @@ class CreditCard implements ActionInterface
             } elseif ($country == 'CO') {
                 $payload["currency"] = Currency::COP;
                 $payload["country"] = Country::COLOMBIA;
-                $payload["payer"]["document"] = $this->creditCardInputData->getData("customerDocument");
+                //$payload["payer"]["document"] = $this->creditCardInputData->getData("customerDocument");
             }
 
-            $payInRequest = new PayInRequest($payload);
+            var_dump(json_encode($payload));
 
+            $payInRequest = new PayInRequest($payload);
             $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
+
+
 
             $this->manageCreditCardResponse($creditCardResponse);
 
