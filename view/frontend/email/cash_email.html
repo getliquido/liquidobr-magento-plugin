@@ -1,0 +1,20 @@
+<!--@subject {{trans "Aquí está su código de pago de PayCash"}} @-->
+{{template config_path="design/email/header_template"}}
+<table style="float:left; margin-right: 10px" class="fue-abc-items">
+    <tr>
+        <td>
+            <div class="greeting">Hola {{var customerName}},</div>
+            <!-- Custom Image with your email-->
+            <img src="{{var logo}" />
+            <div>
+                Aquí está su código de pago de PayCash: {{var cashCode}}
+                <br />
+                Puedes realizar tu pago en establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia,
+                Brinks, Davivienda, Efecty, Superpagos, Sured.
+                <br />
+                Si realizas tu pago en redes Efecty, no olvides presentar tu número de convenio.
+            </div>
+        </td>
+    </tr>
+</table>
+{{template config_path="design/email/footer_template"}}
