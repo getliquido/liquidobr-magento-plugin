@@ -152,11 +152,7 @@ class Pse implements ActionInterface
             $this->pseResultData->setData('paymentMethod', $pseResponse->paymentMethod);
 
             if ($pseResponse->paymentMethod == PaymentMethod::PSE) {
-                if (!$this->liquidoConfig->isProductionModeActived()){
-                    $this->pseResultData->setData('pseLink', '');
-                } else {
-                    $this->pseResultData->setData('pseLink', $pseResponse->transferDetails->pse->paymentUrl);
-                }
+                $this->pseResultData->setData('pseLink', $pseResponse->transferDetails->pse->paymentUrl);
             }
 
             $this->pseResultData->setData('transferStatus', $pseResponse->transferStatus);
@@ -256,7 +252,8 @@ class Pse implements ActionInterface
                 "description" => "Module Magento 2 Colombia, PSE Request"
             ]);
 
-            $pseResponse = $this->payInService->createPayIn($config, $payInRequest);
+            $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10);
+            
 
             $this->managePseResponse($pseResponse);
             if (
@@ -282,5 +279,30 @@ class Pse implements ActionInterface
         $this->payInSession->setData("pseResultData", $this->pseResultData);
 
         return $this->resultPageFactory->create();
+    }
+
+    public function setIntervalRequest($config, $payInRequest, $interval) {
+        $pseLink = false;
+        $pseResponse = null;
+        $startTime = microtime(true);
+        $executionTime = 0;
+
+        while ($pseLink == false && $executionTime < 2) {
+
+            $pseResponse = $this->payInService->createPayIn($config, $payInRequest);
+
+            $this->logger->info("[ Controller ]: PSE Response:", (array) $pseResponse);
+
+            if (property_exists($pseResponse->transferDetails->pse, 'paymentUrl')) {
+                $pseLink = true;
+            }
+
+            sleep($interval);
+
+            $endTime = microtime(true);
+            $executionTime += round(($endTime - $startTime) / 60);
+        }
+
+        return $pseResponse;
     }
 }
