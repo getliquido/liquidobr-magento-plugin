@@ -277,6 +277,8 @@ class CreditCard implements ActionInterface
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
 
+            $country = $this->liquidoConfig->getCountry();
+
             $config = new Config(
                 [
                     'clientId' => $this->liquidoConfig->getClientId(),
@@ -312,13 +314,30 @@ class CreditCard implements ActionInterface
                     "expirationYear" => $this->creditCardInputData->getData("customerCardExpireYear"),
                     "cvc" => $this->creditCardInputData->getData("customerCardCVV")
                 ],
+                "orderInfo" => [  
+                    "orderId" => $orderId,  
+                    "shippingInfo" => [ 
+                        "name" => $this->creditCardInputData->getData("customerName"),  
+                        "phone" => "Unknown",  
+                        "email" => $this->creditCardInputData->getData("customerEmail"),
+                        "address" => [ 
+                            "street" => $this->creditCardInputData->getData("streetText"),
+                            "number" => "Unknown",
+                            "complement" => "Unknown",
+                            "district" => "Unknown",
+                            "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
+                            "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
+                            "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
+                            "country" => $country
+                        ]   
+                    ]
+                ],
                 "description" => "Module Magento 2 Credit Card Request",
                 "riskData" => [
                     "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
                 ]
             ];
 
-            $country = $this->liquidoConfig->getCountry();
             if ($country == 'BR') {
                 $payload["currency"] = Currency::BRL;
                 $payload["country"] = Country::BRAZIL;
@@ -333,12 +352,12 @@ class CreditCard implements ActionInterface
                 //$payload["payer"]["document"] = $this->creditCardInputData->getData("customerDocument");
             }
 
-            var_dump(json_encode($payload));
+            $this->logger->info("[Controler Credit Card Payload]: ", $payload);
 
             $payInRequest = new PayInRequest($payload);
             $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
-
-
+            
+            $this->logger->info("[Controler Credit Card Response]: ", (array) $creditCardResponse);
 
             $this->manageCreditCardResponse($creditCardResponse);
 
