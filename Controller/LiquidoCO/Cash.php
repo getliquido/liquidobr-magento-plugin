@@ -12,6 +12,7 @@ use \Liquido\PayIn\Helper\LiquidoOrderData;
 use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
+use \Liquido\PayIn\Helper\LiquidoSendEmail;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
@@ -34,6 +35,7 @@ class Cash implements ActionInterface
     private LiquidoSalesOrderHelper $liquidoSalesOrderHelper;
     private DataObject $cashInputData;
     private DataObject $cashResultData;
+    private LiquidoSendEmail $sendEmail;
     private String $errorMessage;
 
     public function __construct(
@@ -44,7 +46,8 @@ class Cash implements ActionInterface
         LiquidoOrderData $liquidoOrderData,
         PayInService $payInService,
         LiquidoConfigData $liquidoConfig,
-        LiquidoSalesOrderHelper $liquidoSalesOrderHelper
+        LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
+        LiquidoSendEmail $sendEmail
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
@@ -57,6 +60,7 @@ class Cash implements ActionInterface
         $this->cashInputData = new DataObject(array());
         $this->cashResultData = new DataObject(array());
         $this->errorMessage = "";
+        $this->sendEmail = $sendEmail;
     }
 
     private function validateInputCashData()
@@ -200,7 +204,7 @@ class Cash implements ActionInterface
                 $this->liquidoConfig->isProductionModeActived()
             );
 
-            $payInRequest = new PayInRequest([
+            $payin = [
                 "idempotencyKey" => $liquidoIdempotencyKey,
                 "amount" => $this->cashInputData->getData('grandTotal'),
                 "currency" => Currency::COP,
@@ -214,7 +218,11 @@ class Cash implements ActionInterface
                 ],
                 "expirationDate" => $this->cashInputData->getData('expirationDate'),
                 "description" => "Module Magento 2 Colombia, Cash Request"
-            ]);
+            ];
+            
+            $this->logger->info("PayIn: ", $payin);
+
+            $payInRequest = new PayInRequest($payin);
 
             $cashResponse = $this->payInService->createPayIn($config, $payInRequest);
 
@@ -235,12 +243,25 @@ class Cash implements ActionInterface
                 ));
                 $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
             }
+
+            if (!$this->cashResultData->getData('hasFailed')) 
+            {
+                $params = array(
+                    'name' => $this->cashInputData->getData('customerName'), 
+                    'email' => $this->cashInputData->getData('customerEmail'),
+                    'cashCode' => $this->cashResultData->getData('cashCode'), 
+                    'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate')))
+                );
+                $this->sendEmail->sendEmail($params);
+            } 
         }
 
         $this->logger->info("[ {$className} Controller ]: Result data:", (array) $this->cashResultData);
         $this->logger->info("###################### END ######################");
 
         $this->payInSession->setData("cashResultData", $this->cashResultData);
+
+        $this->logger->info("PayInSession Result Data: ", (array) $this->payInSession->getData("cashResultData"));
 
         return $this->resultPageFactory->create();
     }
