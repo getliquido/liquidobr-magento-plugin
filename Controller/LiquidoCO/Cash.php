@@ -244,11 +244,15 @@ class Cash implements ActionInterface
                 $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
             }
 
-            if (!$this->cashResultData->getData('hasFailed')) {
-                $customerEmail = $this->cashInputData->getData('customerEmail');
-                $customerName = $this->cashInputData->getData('customerName');
-                $cashCode = $this->cashResultData->getData('cashCode');
-                $this->sendEmail->sendEmail($customerEmail, $customerName, $cashCode);
+            if (!$this->cashResultData->getData('hasFailed')) 
+            {
+                $params = array(
+                    'name' => $this->cashInputData->getData('customerName'), 
+                    'email' => $this->cashInputData->getData('customerEmail'),
+                    'cashCode' => $this->cashResultData->getData('cashCode'), 
+                    'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate')))
+                );
+                $this->sendEmail->sendEmail($params);
             } 
         }
 

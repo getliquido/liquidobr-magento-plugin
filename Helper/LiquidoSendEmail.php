@@ -2,71 +2,110 @@
 
 namespace Liquido\PayIn\Helper;
 
-use Magento\Framework\App\Helper\Context;
-use Magento\Framework\Mail\Template\TransportBuilder;
-use Magento\Framework\App\Helper\AbstractHelper;
-use Magento\Framework\Translate\Inline\StateInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Theme\Block\Html\Header\Logo;
+use \GuzzleHttp\Client;
+use \SendinBlue\Client\Configuration;
+use \SendinBlue\Client\Api\TransactionalEmailsApi;
+use \SendinBlue\Client\Model\SendSmtpEmail;
 
-class LiquidoSendEmail extends AbstractHelper
+use \Magento\Framework\App\Config\ScopeConfigInterface;
+use \Psr\Log\LoggerInterface;
+
+class LiquidoSendEmail
 {
-    protected $transportBuilder;
-    protected $storeManager;
-    protected $inlineTranslation;
-    protected $logo;
+    private LoggerInterface $logger;
+    private $scopeConfig;
 
-    public function __construct(
-        Context $context,
-        TransportBuilder $transportBuilder,
-        StoreManagerInterface $storeManager,
-        StateInterface $state,
-        Logo $logo
-    ) {
-        $this->transportBuilder = $transportBuilder;
-        $this->storeManager = $storeManager;
-        $this->inlineTranslation = $state;
-        $this->logo = $logo;
-        parent::__construct($context);
+    public function __construct(LoggerInterface $logger, ScopeConfigInterface $scopeConfig)
+    {
+        $this->logger = $logger;
+        $this->scopeConfig = $scopeConfig;
     }
 
-    public function sendEmail($customerEmail, $customerName, $cashCode = null)
+    private function getApiKey()
     {
-        $templateId = 'cash_email';
-        $fromEmail = $this->scopeConfig->getValue('trans_email/ident_general/email', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $fromName = $this->scopeConfig->getValue('general/store_information/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $toEmail = $customerEmail;
+        try {
+            $config = Configuration::getDefaultConfiguration()->setApiKey('api-key', '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');
+            return $config;
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            return null;
+        }
+    }
+
+    public function sendEmail($params = array(), $isWebhookUpdate = false)
+    {
+        $config = $this->getApiKey();
+        $apiInstance = new TransactionalEmailsApi(
+            new Client(),
+            $config
+        );
+
+        $senderEmail = $this->scopeConfig->getValue('trans_email/ident_general/email', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $senderName = $this->scopeConfig->getValue('general/store_information/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+        $sendSmtpEmail = new SendSmtpEmail();
+        if (!$isWebhookUpdate) {
+            $sendSmtpEmail['subject'] = 'Su código PayCash';
+            $sendSmtpEmail['htmlContent'] = '
+            <html>
+                <body>
+                    <div>
+                        <p>Hola {{params.name}}, </p>
+                        <p>Aquí está su código de pago de PayCash:  <strong> {{params.cashCode}} </strong> .</p>
+                        <p>La validez de pago de este código es: <strong> {{params.expiration}} </strong>.</p>
+                        <p>Por favor diríjase a uno de nuestro establecimientos aliados para realizar el pago.</p> 
+                        <br/>
+                        <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.</small> 
+                        <br/>
+                        <small>* Para pagos en redes Efecty se debe presentar el número de convenio.</small>
+                    </div>
+                </body>
+            </html>';
+            $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); //'soportecol@liquido.com'
+            $sendSmtpEmail['to'] = array(
+                array('email' => $params['email'], 'name' => $params['name'])
+            );
+        } else {
+            $paymentStatus = $this->getPaymentStatusAndDescription($params['statusCode']);
+            $params['description'] = $paymentStatus['description'];
+            $params['status'] = $paymentStatus['status'];
+            $sendSmtpEmail['subject'] = 'Pago {{params.status}}';
+            $sendSmtpEmail['htmlContent'] = '
+            <html>
+                <body>
+                    <div>
+                        <p>Hola {{params.name}},</p>
+                        <p>{{params.description}}</p>
+                    </div>
+                </body>  
+            </html>';
+            $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail);
+            $sendSmtpEmail['to'] = array(
+                array('email' => $params['email'], 'name' => $params['name'])
+            );
+        }
+        $sendSmtpEmail['params'] = $params;
 
         try {
-            $storeId = $this->storeManager->getStore()->getId();
-            $templateVars = [
-                'customerName' => $customerName,
-                'logo' => $this->logo->getLogoSrc(),
-                'cashCode' => $cashCode
-            ];
-
-            $from = [
-                'email' => $fromEmail,
-                'name' => $fromName
-            ];
-
-            $this->inlineTranslation->suspend();
-
-            $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
-            $templateOptions = [
-                'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                'store' => $storeId
-            ];
-            $transport = $this->transportBuilder->setTemplateIdentifier($templateId, $storeScope)
-                ->setTemplateOptions($templateOptions)
-                ->setTemplateVars($templateVars)
-                ->setFrom($from)
-                ->addTo($toEmail)
-                ->getTransport();
-            $transport->sendMessage();
-            $this->inlineTranslation->resume();
+            $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
+            $this->logger->info("E-mail sendded: ", (array) $result);
         } catch (\Exception $e) {
-            $this->_logger->info($e->getMessage());
+            echo 'Exception when calling TransactionalEmailsApi->sendTransacEmail: ', $e->getMessage(), PHP_EOL;
         }
+    }
+
+    public function getPaymentStatusAndDescription($status)
+    {
+        $paymentStatus = array();
+        if ($status == 200) {
+            $paymentStatus = array(
+                "description" => "¡Tu pago ha sido aprobado!",
+                "status" => "Aprobado"); 
+        } else {
+            $paymentStatus = array(
+                "description" => "Su pago ha sido rechazado o cancelado. Póngase en contacto con la tienda para verificar el motivo y, si es necesario, reordenar su compra.",
+                "status" => "Rechazado");
+        }
+
+        return $paymentStatus;
     }
 }
