@@ -38,6 +38,10 @@
                 <field id="prod_api_key" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
                     <label>Production API Key</label>
                 </field>
+                <field id="sendin_blue_key" translate="label comment" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="1">
+                    <label>E-mail Secret Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
             </group>
         </section>
     </system>

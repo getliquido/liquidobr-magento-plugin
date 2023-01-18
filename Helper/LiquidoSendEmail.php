@@ -13,18 +13,24 @@ use \Psr\Log\LoggerInterface;
 class LiquidoSendEmail
 {
     private LoggerInterface $logger;
+    private LiquidoConfigData $liquidoConfig;
     private $scopeConfig;
 
-    public function __construct(LoggerInterface $logger, ScopeConfigInterface $scopeConfig)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        ScopeConfigInterface $scopeConfig,
+        LiquidoConfigData $liquidoConfig
+    ) {
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
+        $this->liquidoConfig = $liquidoConfig;
     }
 
     private function getApiKey()
     {
         try {
-            $config = Configuration::getDefaultConfiguration()->setApiKey('api-key', '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');
+            $apiKey = $this->liquidoConfig->getEmailSecretKey();
+            $config = Configuration::getDefaultConfiguration()->setApiKey('api-key', $apiKey);
             return $config;
         } catch (\Exception $e) {
             echo $e->getMessage();
@@ -99,11 +105,13 @@ class LiquidoSendEmail
         if ($status == 200) {
             $paymentStatus = array(
                 "description" => "¡Tu pago ha sido aprobado!",
-                "status" => "Aprobado"); 
+                "status" => "Aprobado"
+            );
         } else {
             $paymentStatus = array(
                 "description" => "Su pago ha sido rechazado o cancelado. Póngase en contacto con la tienda para verificar el motivo y, si es necesario, reordenar su compra.",
-                "status" => "Rechazado");
+                "status" => "Rechazado"
+            );
         }
 
         return $paymentStatus;

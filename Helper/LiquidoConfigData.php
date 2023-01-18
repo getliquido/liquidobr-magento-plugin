@@ -141,4 +141,17 @@ class LiquidoConfigData extends AbstractHelper
             return null;
         }
     }
+
+    public function getEmailSecretKey()
+    {
+        try {
+            $path = "payment/liquido/sendin_blue_key";
+            $encryptedEmailKey = $this->objectManager->get('Magento\Framework\App\Config\ScopeConfigInterface')->getValue($path);
+            $decryptedEmailKey = $this->encryptor->decrypt($encryptedEmailKey);
+            return $decryptedEmailKey;
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+            return null;
+        }
+    }
 }
