@@ -287,7 +287,9 @@ class Pse implements ActionInterface
         $startTime = microtime(true);
         $executionTime = 0;
 
-        while ($pseLink == false && $executionTime < 2) {
+        while ($pseLink == false && $executionTime <= 2) {
+
+            $this->logger->info("[ Controller ]: PSE Time:", (array) $executionTime);
 
             $pseResponse = $this->payInService->createPayIn($config, $payInRequest);
 
@@ -302,6 +304,13 @@ class Pse implements ActionInterface
             $endTime = microtime(true);
             $executionTime += round(($endTime - $startTime) / 60);
         }
+
+        if ($pseLink == false)
+        {
+            $pseResponse = null;
+        }
+
+        $this->logger->info("[ Controller ]: PSE Response end:", (array) $pseResponse);
 
         return $pseResponse;
     }
