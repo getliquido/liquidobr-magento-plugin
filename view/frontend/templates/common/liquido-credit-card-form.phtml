@@ -81,19 +81,19 @@
                     </div>
                 <?php endif ?>
             </div>
-            <!-- <div class="field required">
-                <label for="card-installments" class="label"><span><?php //echo __('Número de Parcelas') ?></span></label>
+            <div class="field required">
+                <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
                 <div class="control">
                     <select name="card-installments" id="card-installments">
                         <?php
-                        //$optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
+                        $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
                         ?>
-                        <?php //foreach ($optionsInfoArray as $index => $optionInfo) : ?>
-                            <option value="<?php //echo $index + 1 ?>"><?php //echo $optionInfo; ?></option>
-                        <?php //endforeach; ?>
+                        <?php foreach ($optionsInfoArray as $index => $optionInfo) : ?>
+                            <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
-            </div> -->
+            </div> 
         </fieldset>
         <div class="actions-toolbar">
             <div class="primary">

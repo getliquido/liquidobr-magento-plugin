@@ -62,7 +62,7 @@ class LiquidoSendEmail
                         <br/>
                         <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.</small> 
                         <br/>
-                        <small>* Para pagos en redes Efecty se debe presentar el número de convenio.</small>
+                        <small>* Para pagos en redes Efecty se debe presentar el número de convenio <strong>112766</strong>.</small>
                     </div>
                 </body>
             </html>';
