@@ -85,6 +85,11 @@ class Boleto implements ActionInterface
             return false;
         }
 
+        if ($grandTotal < 500) {
+            $this->errorMessage = __('Para pagamentos com boleto o valor da compra não deve ser menor que R$5,00.');
+            return false;
+        }
+
         $customerName = $this->liquidoOrderData->getCustomerName();
         if ($customerName == null) {
             $this->errorMessage = __('Erro ao obter o nome do cliente.');
@@ -279,8 +284,12 @@ class Boleto implements ActionInterface
                 ],
                 "description" => "Module Magento 2 Boleto Request"
             ]);
+            
+            $this->logger->info("[ {$className} Controller ]: Request data:", $payInRequest->toArray());
 
             $boletoResponse = $this->payInService->createPayIn($config, $payInRequest);
+
+            $this->logger->info("[ {$className} Controller ]: Response data:", (array) $boletoResponse);
 
             $this->manageBoletoResponse($boletoResponse);
 

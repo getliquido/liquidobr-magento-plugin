@@ -252,8 +252,8 @@ class Pse implements ActionInterface
                 "description" => "Module Magento 2 Colombia, PSE Request"
             ]);
 
-            $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10);
-            
+            $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10000);
+
 
             $this->managePseResponse($pseResponse);
             if (
@@ -281,13 +281,14 @@ class Pse implements ActionInterface
         return $this->resultPageFactory->create();
     }
 
-    public function setIntervalRequest($config, $payInRequest, $interval) {
-        $pseLink = false;
+    public function setIntervalRequest($config, $payInRequest, $interval)
+    {
+        $exit = false;
         $pseResponse = null;
         $startTime = microtime(true);
         $executionTime = 0;
 
-        while ($pseLink == false && $executionTime <= 2) {
+        while ($exit == false && $executionTime <= 2) {
 
             $this->logger->info("[ Controller ]: PSE Time:", (array) $executionTime);
 
@@ -295,18 +296,19 @@ class Pse implements ActionInterface
 
             $this->logger->info("[ Controller ]: PSE Response:", (array) $pseResponse);
 
-            if (property_exists($pseResponse->transferDetails->pse, 'paymentUrl')) {
-                $pseLink = true;
+            if (!property_exists($pseResponse->transferDetails, 'pse')) {
+                $exit = true;
+            } elseif (property_exists($pseResponse->transferDetails->pse, 'paymentUrl')) {
+                $exit = true;
+            } else {
+                usleep($interval);
             }
 
-            sleep($interval);
-
             $endTime = microtime(true);
-            $executionTime += round(($endTime - $startTime) / 60);
+            $executionTime += floor(($endTime - $startTime) / 60);
         }
 
-        if ($pseLink == false)
-        {
+        if ($exit == false) {
             $pseResponse = null;
         }
 
