@@ -115,12 +115,18 @@ class Pse implements ActionInterface
             return false;
         }
 
+        $customerPhoneNumber =  $pseFormInputData->getData('customer-phone-number');
+        if ($customerPhoneNumber == null) {
+            $this->errorMessage = __('Error al obtener el número de teléfono');
+        }
+
         $this->pseInputData = new DataObject(array(
             'orderId' => $orderId,
             'grandTotal' => $grandTotal,
             'customerName' => $customerName,
             'customerEmail' => $customerEmail,
             'customerDocType' => $customerDocType,
+            'customerPhoneNumber' => "+57" . $customerPhoneNumber,
             'customerDocNumber' => $customerDocNumber,
             'customerPersonType' => $customerPersonType,
             'customerFinancialInstitution' => $customerFinancialInstitution
@@ -247,10 +253,13 @@ class Pse implements ActionInterface
                     "document" => [
                         "documentId" => $this->pseInputData->getData('customerDocNumber'),
                         "type" => $this->pseInputData->getData('customerDocType')
-                    ]
+                    ],
+                    "phone" => $this->pseInputData->getData('customerPhoneNumber')
                 ],
                 "description" => "Module Magento 2 Colombia, PSE Request"
             ]);
+
+            $this->logger->info("[ {$className} Controller ] PSE PayInRequest: ", $payInRequest->toArray());
 
             $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10000);
 

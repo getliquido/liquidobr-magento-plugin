@@ -2,8 +2,7 @@
 
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <!--<css src="Liquido_PayIn::css/liquido-brl/index.css" />-->
-        <!--<script src="Liquido_PayIn::js/lib/liquido-brl/checkout-index.js" />-->
+        <css src="Liquido_PayIn::css/liquido-co/index.css" />
         <script src="Liquido_PayIn::js/lib/liquido-co/pse-form.js" />
     </head>
     <body>
