@@ -246,11 +246,13 @@ class Cash implements ActionInterface
 
             if (!$this->cashResultData->getData('hasFailed')) 
             {
+                $amount = $this->cashInputData->getData('grandTotal') / 100;
                 $params = array(
                     'name' => $this->cashInputData->getData('customerName'), 
                     'email' => $this->cashInputData->getData('customerEmail'),
                     'cashCode' => $this->cashResultData->getData('cashCode'), 
-                    'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate')))
+                    'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate'))),
+                    'amount' => number_format($amount, 2, ',', ' ')
                 );
                 $this->sendEmail->sendEmail($params);
             } 

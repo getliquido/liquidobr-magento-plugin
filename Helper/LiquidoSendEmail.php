@@ -56,8 +56,9 @@ class LiquidoSendEmail
                 <body>
                     <div>
                         <p>Hola {{params.name}}, </p>
-                        <p>Aquí está su código de pago de PayCash:  <strong> {{params.cashCode}} </strong> .</p>
-                        <p>La validez de pago de este código es: <strong> {{params.expiration}} </strong>.</p>
+                        <p>Aquí está su código de pago de PayCash:  <strong> {{params.cashCode}} </strong></p>
+                        <p>La validez de pago de este código es: <strong> {{params.expiration}} </strong></p>
+                        <p>Total a pagar: <strong> $COP {{params.amount}} </strong></p>
                         <p>Por favor diríjase a uno de nuestro establecimientos aliados para realizar el pago.</p> 
                         <br/>
                         <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.</small> 
@@ -66,7 +67,7 @@ class LiquidoSendEmail
                     </div>
                 </body>
             </html>';
-            $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); //'soportecol@liquido.com'
+            $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); 
             $sendSmtpEmail['to'] = array(
                 array('email' => $params['email'], 'name' => $params['name'])
             );
