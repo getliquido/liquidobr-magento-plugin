@@ -143,12 +143,24 @@ class CreditCard implements ActionInterface
         }
 
         $customerDocument = null;
+        $currency = null;
+        $country = null;
         if ($this->liquidoConfig->getCountry() == 'BR') {
-            $customerDocument = $creditCardFormInputData->getData('customer-cpf');
+            $customerDocument = [
+                "documentId" => $creditCardFormInputData->getData('customer-doc'),
+                "type" => "CPF"
+            ];
+            $currency = Currency::BRL;
+            $country = Country::BRAZIL;
         } elseif ($this->liquidoConfig->getCountry() == 'CO') {
-            $customerDocument = $creditCardFormInputData->getData('customer-cc');
+            $customerDocument = [
+                "documentId" => $creditCardFormInputData->getData('customer-doc'),
+                "type" => $creditCardFormInputData->getData('customer-doc-type')
+            ];
+            $currency = Currency::COP;
+            $country = Country::COLOMBIA;
         }
-        
+
         if ($customerDocument == null) {
             $this->errorMessage = __('Erro ao obter o documento do cliente.');
             return false;
@@ -165,6 +177,8 @@ class CreditCard implements ActionInterface
             'grandTotal' => $grandTotal,
             'customerName' => $customerName,
             'customerEmail' => $customerEmail,
+            'currency' => $currency,
+            'country' => $country,
             'customerCardName' => $customerCardName,
             'customerCardNumber' => $customerCardNumber,
             'customerCardExpireMonth' => $customerCardExpireDateArray[0],
@@ -181,7 +195,7 @@ class CreditCard implements ActionInterface
     }
 
     private function manageCreditCardResponse($creditCardResponse)
-    {    
+    {
         if (
             $creditCardResponse != null
             && property_exists($creditCardResponse, 'transferStatusCode')
@@ -288,15 +302,18 @@ class CreditCard implements ActionInterface
                 $this->liquidoConfig->isProductionModeActived()
             );
 
-            $payload = [
+            $payInRequest = new PayInRequest([
                 "idempotencyKey" => $liquidoIdempotencyKey,
                 "amount" => $this->creditCardInputData->getData('grandTotal'),
+                "currency" => $this->creditCardInputData->getData('currency'),
+                "country" => $this->creditCardInputData->getData('country'),
                 "paymentMethod" => PaymentMethod::CREDIT_CARD,
                 "paymentFlow" => PaymentFlow::DIRECT,
                 "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
                 "payer" => [
                     "name" => $this->creditCardInputData->getData("customerName"),
                     "email" => $this->creditCardInputData->getData("customerEmail"),
+                    "document" => $this->creditCardInputData->getData("customerDocument"),
                     "billingAddress" => [
                         "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
                         "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
@@ -314,13 +331,14 @@ class CreditCard implements ActionInterface
                     "expirationYear" => $this->creditCardInputData->getData("customerCardExpireYear"),
                     "cvc" => $this->creditCardInputData->getData("customerCardCVV")
                 ],
-                "orderInfo" => [  
-                    "orderId" => $orderId,  
-                    "shippingInfo" => [ 
-                        "name" => $this->creditCardInputData->getData("customerName"),  
-                        "phone" => "Unknown",  
+                "installments" => $this->creditCardInputData->getData("customerCardInstallments"),
+                "orderInfo" => [
+                    "orderId" => $orderId,
+                    "shippingInfo" => [
+                        "name" => $this->creditCardInputData->getData("customerName"),
+                        "phone" => "Unknown",
                         "email" => $this->creditCardInputData->getData("customerEmail"),
-                        "address" => [ 
+                        "address" => [
                             "street" => $this->creditCardInputData->getData("streetText"),
                             "number" => "Unknown",
                             "complement" => "Unknown",
@@ -329,34 +347,19 @@ class CreditCard implements ActionInterface
                             "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
                             "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
                             "country" => $country
-                        ]   
+                        ]
                     ]
                 ],
                 "description" => "Module Magento 2 Credit Card Request",
                 "riskData" => [
                     "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
                 ]
-            ];
+            ]);
 
-            if ($country == 'BR') {
-                $payload["currency"] = Currency::BRL;
-                $payload["country"] = Country::BRAZIL;
-                $payload["installments"] = $this->creditCardInputData->getData("customerCardInstallments");
-                $payload["payer"]["document"] = [
-                    "documentId" => $this->creditCardInputData->getData("customerDocument"),
-                    "type" => "CPF"
-                ];
-            } elseif ($country == 'CO') {
-                $payload["currency"] = Currency::COP;
-                $payload["country"] = Country::COLOMBIA;
-                //$payload["payer"]["document"] = $this->creditCardInputData->getData("customerDocument");
-            }
+            $this->logger->info("[Controler Credit Card Payload]: ", $payInRequest->toArray());
 
-            $this->logger->info("[Controler Credit Card Payload]: ", $payload);
-
-            $payInRequest = new PayInRequest($payload);
             $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
-            
+
             $this->logger->info("[Controler Credit Card Response]: ", (array) $creditCardResponse);
 
             $this->manageCreditCardResponse($creditCardResponse);

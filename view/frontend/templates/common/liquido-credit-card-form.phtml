@@ -68,19 +68,31 @@
                     <input type="hidden" name="flag-checked" id="flag-checked" /> -->
                 </div>
             </div>
-            <div class="field required">
-                <?php if ($this->getCountry() == 'CO') : ?>
-                    <label for="customer-cc" class="label"><span><?php echo __('CC') ?></span></label>
+            <?php if ($this->getCountry() == 'CO') : ?>
+                <div class="field required">
+                    <label for="customer-doc-type" class="label"><span>Tipo de Documento</span></label>
                     <div class="control">
-                        <input type="text" name="customer-cc" id="customer-cc" value="" title="<?php echo __('CC') ?>" class="input-text" data-validate="{'required-entry':true}">
+                        <select name="customer-doc-type" id="customer-doc-type">
+                            <option value="CC">CC</option>
+                            <option value="CE">CE</option>
+                            <option value="NIT">NIT</option>
+                        </select>
                     </div>
-                <?php elseif ($this->getCountry() == 'BR') : ?>
-                    <label for="customer-cpf" class="label"><span><?php echo __('CPF') ?></span></label>
+                </div>
+                <div class="field required">
+                    <label for="customer-doc" class="label"><span>Número del Documento</span></label>
                     <div class="control">
-                        <input type="text" name="customer-cpf" id="customer-cpf" value="" title="<?php echo __('CPF') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                        <input type="text" name="customer-doc" id="customer-doc" value="" title="<?php echo __('CC') ?>" class="input-text" data-validate="{'required-entry':true}">
                     </div>
-                <?php endif ?>
-            </div>
+                </div>
+            <?php elseif ($this->getCountry() == 'BR') : ?>
+                <div class="field required">
+                    <label for="customer-doc" class="label"><span><?php echo __('CPF') ?></span></label>
+                    <div class="control">
+                        <input type="text" name="customer-doc" id="customer-doc" value="" title="<?php echo __('CPF') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
+                    </div>
+                </div>
+            <?php endif ?>
             <div class="field required">
                 <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
                 <div class="control">
