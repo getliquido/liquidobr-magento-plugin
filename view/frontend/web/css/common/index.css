@@ -1,0 +1,94 @@
+.column.main {
+    width: 75% !important;
+}
+
+.header-content h1,
+.header-content h2 {
+    color: #094DE7;
+}
+
+.header-content h1 {
+    font-weight: bold;
+    margin: 0;
+}
+
+.header-content h2 {
+    line-height: 30%;
+}
+
+#main-content {
+    margin-top: 60px;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+}
+
+.liquido-container #payin-methods {
+    list-style-type: none;
+    padding: 0;
+
+    margin-right: 18%;
+}
+
+.liquido-container #payin-methods a {
+    text-decoration: none;
+}
+
+.liquido-container #payin-methods li img {
+    width: 50px;
+}
+
+.liquido-container #payin-methods li {
+    margin-top: 8px;
+    padding: 20px;
+
+    border-radius: 3px;
+    background-color: #ecf0f1;
+    color: #2d3436;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+div.payin-method-single {
+    margin-left: 12px;
+}
+
+div.payin-method-single p {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+div.payin-method-single small {
+    color: #636e72;
+}
+
+.order-summary {
+    color: #97989B;
+}
+
+.order-summary h2 {
+    font-weight: bold;
+}
+
+.order-summary table tfoot {
+    margin-top: 23px;
+
+    border-top: 0.5px solid #97989B;
+}
+
+.order-summary .action-bar {
+    margin-top: 22px;
+    text-align: center;
+}
+
+.order-summary .action-bar #go-on-button {
+    background: none;
+    color: #82E2D8;
+    border-color: #6ADED0;
+    border-width: 2px;
+    border-radius: 7px;
+    font-weight: bold;
+}
