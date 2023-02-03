@@ -8,13 +8,13 @@ abstract class LiquidoCoPayInMethod
         "id" => "pse",
         "title" => "Transferencia bancaria",
         "description" => "El pago puede ser aprobado al instante.",
-        "image" => "Liquido_PayIn::images/pse.png"
+        "image" => "Liquido_PayIn::images/col/pse.png"
     ];
     public const CASH = [
         "id" => "cash",
         "title" => "Pago en efectivo",
         "description" => "El pago puede ser aprobado al instante.",
-        "image" => "Liquido_PayIn::images/efecty.png"
+        "image" => "Liquido_PayIn::images/col/efecty.png"
     ];
 // public const CREDIT_CARD = [
 //     "title" => "Tarjeta de crédito",

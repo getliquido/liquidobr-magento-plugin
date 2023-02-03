@@ -8,6 +8,6 @@ abstract class LiquidoPayInMethod
         "id" => "credit-card",
         "title" => "Cartão de Crédito",
         "description" => "O pagamento poderá ser aprovado na hora.",
-        "image" => "Liquido_PayIn::images/credit-card.png"
+        "image" => "Liquido_PayIn::images/common/credit-card.png"
     ];
 }
