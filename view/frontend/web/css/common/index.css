@@ -3,7 +3,8 @@
 }
 
 .header-content h1,
-.header-content h2 {
+.header-content h2,
+#main-content form h2 {
     color: #094DE7;
 }
 
@@ -14,6 +15,12 @@
 
 .header-content h2 {
     line-height: 30%;
+}
+
+.header-content img {
+    margin: 16px 0;
+    height: 60px;
+    width: 100px;
 }
 
 #main-content {
@@ -134,4 +141,50 @@ div.payin-method-single small {
     border-width: 2px;
     border-radius: 7px;
     font-weight: bold;
+}
+
+.action-bar .pay-button {
+    background-image: linear-gradient(to right, #010D99, #0975ED);
+    color: #FFFFFF;
+    width: 100%;
+    border-radius: 8px;
+    border-width: 0;
+    font-size: 18px;
+    line-height: 22px;
+}
+
+#main-content form {
+    color: #97989B;
+    font-size: 16px;
+}
+
+#main-content form label {
+    font-weight: bold;
+}
+
+#main-content form input,
+#main-content form select,
+#main-content form select option {
+    color: #97989B;
+    font-size: 18px;
+    padding: 0 10px 10px;
+    line-height: 28px;
+}
+
+form .form-row,
+form .control {
+    display: flex;
+}
+
+form .form-row {
+    margin-bottom: 32px;
+    justify-content: space-between;
+}
+
+form .form-row .second {
+    margin-left: 52px;
+}
+
+form .control #customer-ddi-number {
+    width: 60px;
 }
