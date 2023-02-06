@@ -108,7 +108,7 @@ class LiquidoOrderData extends AbstractHelper
     {
         $className = static::class;
         try {
-            return $this->orderData->getSubTotal();
+            return $this->formatDecimalNumber($this->orderData->getSubTotal());
         } catch (\Exception $e) {
             $this->logger->error("[ {$className} ]: Error while getting sub total");
             $this->logger->error($e->getMessage());
@@ -120,7 +120,7 @@ class LiquidoOrderData extends AbstractHelper
     {
         $className = static::class;
         try {
-            return $this->orderData->getDiscountAmount();
+            return $this->formatDecimalNumber($this->orderData->getDiscountAmount());
         } catch (\Exception $e) {
             $this->logger->error("[ {$className} ]: Error while getting discounts");
             $this->logger->error($e->getMessage());
@@ -132,7 +132,7 @@ class LiquidoOrderData extends AbstractHelper
     {
         $className = static::class;
         try {
-            return $this->orderData->getShippingAmount();
+            return $this->formatDecimalNumber($this->orderData->getShippingAmount());
         } catch (\Exception $e) {
             $this->logger->error("[ {$className} ]: Error while getting shipping amount");
             $this->logger->error($e->getMessage());
@@ -144,12 +144,17 @@ class LiquidoOrderData extends AbstractHelper
     {
         $className = static::class;
         try {
-            return $this->orderData->getGrandTotal();
+            return $this->formatDecimalNumber($this->orderData->getGrandTotal());
         } catch (\Exception $e) {
             $this->logger->error("[ {$className} ]: Error while getting grand total");
             $this->logger->error($e->getMessage());
             return null;
         }
+    }
+
+    public function formatDecimalNumber($value)
+    {
+        return number_format((float) $value, 2, '.', '');
     }
 
     public function getOrderCurrencyCode()

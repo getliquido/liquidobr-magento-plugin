@@ -41,7 +41,7 @@ class PseForm implements ActionInterface
     {
         $className = static::class;
         $this->logger->info("###################### BEGIN ######################");
-        $this->logger->info("[ {$className} Controller ]: BOLETO Request received.");
+        $this->logger->info("[ {$className} Controller ]: PSE Form Request received.");
 
         $this->pseResultData = new DataObject(array(
             'banks' => []
