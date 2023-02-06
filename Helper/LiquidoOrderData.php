@@ -19,11 +19,17 @@ class LiquidoOrderData extends AbstractHelper
         Session $customerSession,
         Random $mathRandom,
         LoggerInterface $logger
-    ) {
+    )
+    {
         $this->customerSession = $customerSession;
         $this->mathRandom = $mathRandom;
         $this->logger = $logger;
         $this->orderData = $customerSession->getLastRealOrder();
+
+        // echo '<pre>';
+        // print_r($this->orderData->getData());
+        // echo '</pre>';
+
     }
 
     public function getCustomerName()
@@ -96,5 +102,65 @@ class LiquidoOrderData extends AbstractHelper
     public function generateUniqueToken()
     {
         return $this->mathRandom->getUniqueHash();
+    }
+
+    public function getSubtotal()
+    {
+        $className = static::class;
+        try {
+            return $this->orderData->getSubTotal();
+        } catch (\Exception $e) {
+            $this->logger->error("[ {$className} ]: Error while getting sub total");
+            $this->logger->error($e->getMessage());
+            return null;
+        }
+    }
+
+    public function getDiscountAmount()
+    {
+        $className = static::class;
+        try {
+            return $this->orderData->getDiscountAmount();
+        } catch (\Exception $e) {
+            $this->logger->error("[ {$className} ]: Error while getting discounts");
+            $this->logger->error($e->getMessage());
+            return null;
+        }
+    }
+
+    public function getShippingAmount()
+    {
+        $className = static::class;
+        try {
+            return $this->orderData->getShippingAmount();
+        } catch (\Exception $e) {
+            $this->logger->error("[ {$className} ]: Error while getting shipping amount");
+            $this->logger->error($e->getMessage());
+            return null;
+        }
+    }
+
+    public function getOriginalGrandTotal()
+    {
+        $className = static::class;
+        try {
+            return $this->orderData->getGrandTotal();
+        } catch (\Exception $e) {
+            $this->logger->error("[ {$className} ]: Error while getting grand total");
+            $this->logger->error($e->getMessage());
+            return null;
+        }
+    }
+
+    public function getOrderCurrencyCode()
+    {
+        $className = static::class;
+        try {
+            return $this->orderData->getOrderCurrencyCode();
+        } catch (\Exception $e) {
+            $this->logger->error("[ {$className} ]: Error while getting order currency code");
+            $this->logger->error($e->getMessage());
+            return null;
+        }
     }
 }

@@ -1,0 +1,45 @@
+<?php
+$liquidoOrderData = $this->helper('Liquido\PayIn\Helper\LiquidoOrderData');
+?>
+<div class="order-summary">
+    <table>
+        <thead>
+            <h2>Resumen de pedido</h2>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Subtotal</td>
+                <td>.....................</td>
+                <td>
+                    <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getSubTotal(); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>Descuento</td>
+                <td>.....................</td>
+                <td>
+                    <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getDiscountAmount(); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>Envio</td>
+                <td>.....................</td>
+                <td>
+                    <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getShippingAmount(); ?>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr id="total">
+                <td>Total</td>
+                <td></td>
+                <td>
+                    <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getOriginalGrandTotal(); ?>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    <!-- <div class="action-bar">
+        <button id="go-on-button" onclick="onClickGoOnButton();">Continuar</button>
+    </div> -->
+</div>

@@ -45,7 +45,15 @@
                 <?php endforeach; ?>
             </ul>
         </div>
-        <div class="order-summary">
+
+        <div>
+            <?php
+            echo $this->getLayout()
+                ->createBlock("Magento\Framework\View\Element\Template")
+                ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                ?>
+
+            <!-- <div class="order-summary">
             <table>
                 <thead>
                     <h2>Resumen de pedido</h2>
@@ -75,6 +83,10 @@
                     </tr>
                 </tfoot>
             </table>
+            <div class="action-bar">
+                <button id="go-on-button" onclick="onClickGoOnButton();">Continuar</button>
+            </div>
+        </div> -->
             <div class="action-bar">
                 <button id="go-on-button" onclick="onClickGoOnButton();">Continuar</button>
             </div>
