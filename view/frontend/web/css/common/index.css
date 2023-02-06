@@ -122,22 +122,6 @@ div.payin-method-single small {
     color: #636e72;
 }
 
-.order-summary {
-    /* background-color: orange; */
-
-    color: #97989B;
-}
-
-.order-summary h2 {
-    font-weight: bold;
-}
-
-.order-summary table tfoot {
-    margin-top: 23px;
-
-    border-top: 0.5px solid #97989B;
-}
-
 .action-bar {
     margin-top: 22px;
     text-align: center;
