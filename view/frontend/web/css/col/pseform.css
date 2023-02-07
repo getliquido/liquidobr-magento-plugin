@@ -1,0 +1,11 @@
+#field-phone .same-row {
+    position: relative;
+}
+
+#field-phone .same-row #customer-ddi-number {
+    position: absolute;
+}
+
+#field-phone .same-row #customer-phone-number {
+    padding-left: 62px;
+}
