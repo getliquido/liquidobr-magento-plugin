@@ -29,8 +29,12 @@
                         <?php endif ?>
                         <label for="<?php echo __($payin_method["id"]); ?>">
                             <div class="option-container">
-                                <img src="<?php echo $this->getViewFileUrl($payin_method["image"]); ?>"
+                                <img id="unselected-image-<?php echo __($payin_method["id"]); ?>"
+                                    src="<?php echo $this->getViewFileUrl($payin_method["image"]); ?>"
                                     alt="<?php echo __($payin_method["title"]); ?> Image">
+                                <!-- <img id="selected-image-<?php // echo __($payin_method["id"]); ?>"
+                                    src="<?php // echo $this->getViewFileUrl($payin_method["image-selected"]); ?>"
+                                    alt="<?php // echo __($payin_method["title"]); ?> Image"> -->
                                 <div>
                                     <h3>
                                         <?php echo __($payin_method["title"]); ?>
@@ -85,6 +89,11 @@
 
     function onCheckRadio() {
         document.querySelector('button[id="go-on-button"]').disabled = false;
+
+        // const selectedValue = document.querySelector('input[name="radio-payment-method"]:checked').id;
+        // console.log(selectedValue);
+        // const elementId = `img[id="unselected-image-${selectedValue}"]`;
+        // document.querySelector(elementId).style.display = 'none';
     }
 
     function onClickGoOnButton() {
