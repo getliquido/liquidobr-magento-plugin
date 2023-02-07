@@ -17,17 +17,28 @@
     line-height: 30%;
 }
 
+.header-content .images-row {
+    display: flex;
+    justify-content: start;
+
+}
+
 .header-content img {
     margin-top: 16px;
-    height: 60px;
-    width: 100px;
+    margin-right: 26px;
+    height: 55px;
+    width: 70px;
 }
 
 #main-content {
     width: 100%;
 
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+}
+
+#main-content form {
+    width: 60%;
 }
 
 #payin-methods {
@@ -189,6 +200,10 @@ div .same-row {
 form .form-row {
     margin-bottom: 32px;
     justify-content: space-between;
+}
+
+form .control div {
+    width: 100%;
 }
 
 form .form-row .second {

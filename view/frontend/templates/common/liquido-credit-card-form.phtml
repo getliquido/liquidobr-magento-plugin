@@ -1,14 +1,37 @@
-<div>
-    <h1><?php echo __('Liquido Pagamentos') ?></h1>
-    <?php
-    $payin_method_name = $this->getCardPayInMethodName();
-    ?>
-    <h2><?php echo __('Pagar com ') ?><?php echo __($payin_method_name) ?></h2>
+<div class="liquido-container">
 
-    <form id="credit-card-customer-form" data-mage-init='{"validation": {}}' class="form" action="<?php echo $this->getUrl('checkout/liquido/creditcard', ['_secure' => true]); ?>" method="post">
-        <fieldset class="fieldset">
-            <legend class="legend"><span><?php echo __('Dados do Cartão') ?></span></legend><br>
-            <!-- <div>
+    <div class="header-content">
+        <h1>
+            <?php echo __('Liquido Pagamentos') ?>
+        </h1>
+        <?php
+        $payin_method_name = $this->getCardPayInMethodName();
+        ?>
+        <h2>
+            <?php echo __('Pagar com ') ?>
+            <?php echo __($payin_method_name) ?>
+        </h2>
+        <div class="images-row">
+            <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/mastercard.png"); ?>"
+                alt="Master Card Image">
+            <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/visa.png"); ?>" alt="Visa Image">
+            <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/americanexpress.png"); ?>"
+                alt="AExpress Image">
+            <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/dinersclub.png"); ?>"
+                alt="Diners Club Image">
+        </div>
+    </div>
+
+    <div id="main-content">
+
+        <form id="credit-card-customer-form" data-mage-init='{"validation": {}}' class="form"
+            action="<?php echo $this->getUrl('checkout/liquido/creditcard', ['_secure' => true]); ?>" method="post">
+            <fieldset class="fieldset">
+
+                <h2>
+                    <?php echo __('Dados do Cartão') ?>
+                </h2>
+                <!-- <div>
                 <table>
                     <tr>
                         <td>
@@ -42,77 +65,129 @@
                     </tr>
                 </table>
             </div> -->
-            <div class="field required">
-                <label for="card-number" class="label"><span><?php echo __('Número') ?></span></label>
-                <div class="control">
-                    <input type="number" name="card-number" id="card-number" value="" title="<?php echo __('Número') ?>" class="" data-validate="{required:true, 'validate-cc-number':true}">
-                </div>
-            </div>
-            <div class="field required">
-                <label for="card-name" class="label"><span><?php echo __('Nome do Titular') ?></span></label>
-                <div class="control">
-                    <input type="text" name="card-name" id="card-name" value="" title="<?php echo __('Nome do Titular') ?>" data-validate="{required:true}">
-                </div>
-            </div>
-            <div class="field required">
-                <label for="card-expire-date" class="label"><span><?php echo __('Mês / Ano') ?></span></label>
-                <div class="control">
-                    <input type="text" name="card-expire-date" id="card-expire-date" placeholder="MM/YYYY" value="" title="<?php echo __('Mês / Ano') ?>" class="minimum-length-7 maximum-length-7" data-validate="{required:true, 'pattern':'(0[1-9]|10|11|12)/20[0-9]{2}$', 'validate-length':true}">
-                </div>
-            </div>
-            <div class="field required">
-                <label for="card-cvv" class="label"><span><?php echo __('CVV') ?></span></label>
-                <div class="control">
-                    <input type="number" name="card-cvv" id="card-cvv" value="" title="<?php echo __('CVV') ?>" class="minimum-length-3 maximum-length-4" data-validate="{required:true, 'validate-digits':true, 'validate-length':true}">
-                    <!-- <input type="number" name="card-cvv" id="card-cvv" value="" class="" data-validate="{required:true, 'validate-cc-cvn':'#flag-checked'}">
-                    <input type="hidden" name="flag-checked" id="flag-checked" /> -->
-                </div>
-            </div>
-            <?php if ($this->getCountry() == 'CO') : ?>
                 <div class="field required">
-                    <label for="customer-doc-type" class="label"><span>Tipo de Documento</span></label>
                     <div class="control">
-                        <select name="customer-doc-type" id="customer-doc-type">
-                            <option value="CC">CC</option>
-                            <option value="CE">CE</option>
-                            <option value="NIT">NIT</option>
+                        <div>
+                            <input type="number" name="card-number" id="card-number" value=""
+                                title="<?php echo __('Número') ?>" class=""
+                                data-validate="{required:true, 'validate-cc-number':true}">
+                        </div>
+                    </div>
+                    <label for="card-number" class="label"><span>
+                            <?php echo __('Número do cartão') ?>
+                        </span></label>
+                </div>
+                <div class="field required">
+                    <div class="control">
+                        <div>
+                            <input type="text" name="card-name" id="card-name" value=""
+                                title="<?php echo __('Nome do Titular') ?>" data-validate="{required:true}">
+                        </div>
+                    </div>
+                    <label for="card-name" class="label"><span>
+                            <?php echo __('Nome do titular') ?>
+                        </span></label>
+                </div>
+                <div class="form-row">
+                    <div class="field required">
+                        <div class="control">
+                            <div>
+                                <input type="text" name="card-expire-date" id="card-expire-date" placeholder="MM/YYYY"
+                                    value="" title="<?php echo __('Mês / Ano') ?>"
+                                    class="minimum-length-7 maximum-length-7"
+                                    data-validate="{required:true, 'pattern':'(0[1-9]|10|11|12)/20[0-9]{2}$', 'validate-length':true}">
+                            </div>
+                        </div>
+                        <label for="card-expire-date" class="label"><span>
+                                <?php echo __('Mês / Ano') ?>
+                            </span></label>
+                    </div>
+                    <div class="field required">
+                        <div class="control">
+                            <div>
+                                <input type="number" name="card-cvv" id="card-cvv" value="" title="<?php echo __('CVV') ?>"
+                                    class="minimum-length-3 maximum-length-4"
+                                    data-validate="{required:true, 'validate-digits':true, 'validate-length':true}">
+                            </div>
+                        </div>
+                        <label for="card-cvv" class="label"><span>
+                                <?php echo __('CVV') ?>
+                            </span></label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <?php if ($this->getCountry() == 'CO'): ?>
+                        <div class="field required">
+                            <div class="control">
+                                <select name="customer-doc-type" id="customer-doc-type">
+                                    <option value="CC">CC</option>
+                                    <option value="CE">CE</option>
+                                    <option value="NIT">NIT</option>
+                                </select>
+                            </div>
+                            <label for="customer-doc-type" class="label"><span>Tipo de documento</span></label>
+                        </div>
+                        <div class="field required">
+                            <div class="control">
+                                <div>
+                                    <input type="text" name="customer-doc" id="customer-doc" value=""
+                                        title="<?php echo __('CC') ?>" class="input-text"
+                                        data-validate="{'required-entry':true}">
+                                </div>
+                            </div>
+                            <label for="customer-doc" class="label"><span>Número del documento</span></label>
+                        </div>
+                    <?php elseif ($this->getCountry() == 'BR'): ?>
+                        <div class="field required">
+                            <div class="control">
+                                <input type="text" name="customer-doc" id="customer-doc" value=""
+                                    title="<?php echo __('CPF') ?>" class="input-text"
+                                    data-validate="{'required-entry':true, 'validate-cpf':true}">
+                            </div>
+                            <label for="customer-doc" class="label"><span>
+                                    <?php echo __('CPF') ?>
+                                </span></label>
+                        </div>
+                    <?php endif ?>
+                </div>
+                <div class="field required">
+                    <div class="control">
+                        <select name="card-installments" id="card-installments">
+                            <?php
+                            $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
+                            ?>
+                            <?php foreach ($optionsInfoArray as $index => $optionInfo): ?>
+                                <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
+                    <label for="card-installments" class="label"><span>
+                            <?php echo __('Número de parcelas') ?>
+                        </span></label>
                 </div>
-                <div class="field required">
-                    <label for="customer-doc" class="label"><span>Número del Documento</span></label>
-                    <div class="control">
-                        <input type="text" name="customer-doc" id="customer-doc" value="" title="<?php echo __('CC') ?>" class="input-text" data-validate="{'required-entry':true}">
-                    </div>
+            </fieldset>
+            <!-- <div class="actions-toolbar">
+                <div class="primary">
+                    <button type="submit" id="credit-card-submit-button" class="action submit primary"
+                        title="<?php // echo __('Pagar') ?>"><span>
+                            <?php // echo __('Pagar') ?>
+                        </span></button>
                 </div>
-            <?php elseif ($this->getCountry() == 'BR') : ?>
-                <div class="field required">
-                    <label for="customer-doc" class="label"><span><?php echo __('CPF') ?></span></label>
-                    <div class="control">
-                        <input type="text" name="customer-doc" id="customer-doc" value="" title="<?php echo __('CPF') ?>" class="input-text" data-validate="{'required-entry':true, 'validate-cpf':true}">
-                    </div>
-                </div>
-            <?php endif ?>
-            <div class="field required">
-                <label for="card-installments" class="label"><span><?php echo __('Número de Parcelas') ?></span></label>
-                <div class="control">
-                    <select name="card-installments" id="card-installments">
-                        <?php
-                        $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
-                        ?>
-                        <?php foreach ($optionsInfoArray as $index => $optionInfo) : ?>
-                            <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div> 
-        </fieldset>
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button type="submit" id="credit-card-submit-button" class="action submit primary" title="<?php echo __('Pagar') ?>"><span><?php echo __('Pagar') ?></span></button>
+            </div> -->
+        </form>
+
+        <div>
+            <?php
+            echo $this->getLayout()
+                ->createBlock("Magento\Framework\View\Element\Template")
+                // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
+                ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                ?>
+            <div class="action-bar">
+                <button type="submit" form="credit-card-customer-form" class="pay-button">Pagar</button>
             </div>
         </div>
-    </form>
+    </div>
 </div>
 <script>
     require(
@@ -121,15 +196,10 @@
             'jquery/ui',
             'Liquido_PayIn/js/lib/jquery.maskedinput.min'
         ],
-        function(jQuery) {
+        function (jQuery) {
             jQuery("#card-expire-date").mask("99/9999");
-            jQuery("#customer-cpf").mask("999.999.999-99");
-            /*jQuery(document).ready(function() {
-                jQuery('input[type=radio][name=flag]').change(function() {
-                    jQuery('#flag-checked').val(this.value);
-                });
-
-            });*/
+            jQuery("#customer-cpf").mask("999.999.999-99");             /*jQuery(document).ready(function() {                 jQuery('input[type=radio][name=flag]').change(function() {                     jQuery('#flag-checked').val(this.value);                 });
+             });*/
 
         }
     );
