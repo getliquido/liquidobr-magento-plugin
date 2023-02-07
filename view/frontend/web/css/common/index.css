@@ -163,17 +163,27 @@ div.payin-method-single small {
 }
 
 #main-content form input,
-#main-content form select,
-#main-content form select option {
+#main-content form select {
     color: #97989B;
+
+    border: none;
+    border-bottom: 2px solid #B3F3F0;
+
     font-size: 18px;
-    padding: 0 10px 10px;
-    line-height: 28px;
+    height: 42px;
 }
 
+#main-content form input:focus,
+#main-content form select:focus {}
+
 form .form-row,
-form .control {
+form .control,
+div .same-row {
     display: flex;
+}
+
+.mage-error {
+    
 }
 
 form .form-row {

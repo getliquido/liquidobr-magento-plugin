@@ -22,31 +22,40 @@
                 <div class="form-row">
 
                     <div class="field required" id="field-phone">
-                        <label for="customer-phone-number" class="label"><span>Número de teléfono</span></label>
                         <div class="control">
-                            <span id="customer-ddi-number"><input type="text" name="customer-ddi-number"
-                                    id="customer-ddi-number" value="+57" title="Teléfono" class="input-text"
-                                    data-validate="{'required-entry':true}" disabled></span>
-                            <span id="customer-phone-number"><input type="text" name="customer-phone-number"
-                                    id="customer-phone-number" value="" title="Teléfono" class="input-text"
-                                    data-validate="{'required-entry':true, 'validate-number':true}"></span>
+                            <!-- <span id="customer-ddi-number"><input type="text" name="customer-ddi-number"
+                                    id="customer-ddi-number" value="+57" title="Teléfono" class="input-text outline-none"
+                                    data-validate="{'required-entry':true}" disabled></span> -->
+                            <div class="same-row">
+                                <input type="text" name="customer-ddi-number" id="customer-ddi-number" value="+57"
+                                    title="Teléfono" class="input-text" data-validate="{'required-entry':true}"
+                                    readonly>
+                                <!-- <span id="customer-phone-number"><input type="text" name="customer-phone-number"
+                                    id="customer-phone-number" value="" title="Teléfono" class="input-text outline-none"
+                                    data-validate="{'required-entry':true, 'validate-number':true}"></span> -->
+                                <div>
+                                    <input type="text" name="customer-phone-number" id="customer-phone-number" value=""
+                                        title="Teléfono" class="input-text"
+                                        data-validate="{'required-entry':true, 'validate-number':true}">
+                                </div>
+                            </div>
                         </div>
+                        <label for="customer-phone-number" class="label"><span>Número de teléfono</span></label>
                     </div>
 
                     <div class="field required second">
-                        <label for="customer-person-type" class="label"><span>Tipo de persona</span></label>
                         <div class="control">
                             <select name="customer-person-type" id="customer-person-type">
-                                <option value="NATURAL">NATURAL</option>
-                                <option value="LEGAL">LEGAL</option>
+                                <option value="NATURAL">Natural</option>
+                                <option value="LEGAL">Legal</option>
                             </select>
                         </div>
+                        <label for="customer-person-type" class="label"><span>Tipo de persona</span></label>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="field required">
-                        <label for="customer-doc-type" class="label"><span>Tipo de documento</span></label>
                         <div class="control">
                             <select name="customer-doc-type" id="customer-doc-type">
                                 <option value="CC">CC</option>
@@ -54,21 +63,22 @@
                                 <option value="NIT">NIT</option>
                             </select>
                         </div>
+                        <label for="customer-doc-type" class="label"><span>Tipo de documento</span></label>
                     </div>
 
                     <div class="field required second">
-                        <label for="customer-doc-number" class="label">Número de documento</span></label>
                         <div class="control">
-                            <input type="text" name="customer-doc-number" id="customer-doc-number" value=""
-                                title="Número del Documento" class="input-text" data-validate="{'required-entry':true}">
+                            <div>
+                                <input type="text" name="customer-doc-number" id="customer-doc-number" value=""
+                                    title="Número del Documento" class="input-text"
+                                    data-validate="{'required-entry':true}">
+                            </div>
                         </div>
+                        <label for="customer-doc-number" class="label">Número de documento</span></label>
                     </div>
                 </div>
 
                 <div class="field required">
-                    <label for="customer-financial-institution" class="label"><span>
-                            <?php echo __('Institución financiera') ?>
-                        </span></label>
                     <div class="control">
                         <select name="customer-financial-institution" id="customer-financial-institution">
                             <?php
@@ -81,6 +91,9 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <label for="customer-financial-institution" class="label"><span>
+                            <?php echo __('Institución financiera') ?>
+                        </span></label>
                 </div>
             </fieldset>
             <!-- <div class="actions-toolbar">
@@ -98,7 +111,7 @@
                 ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
                 ?>
             <div class="action-bar">
-                <button class="pay-button" onclick="onClickGoOnButton();">Ir al banco</button>
+                <button type="submit" form="pse-customer-form" class="pay-button">Ir al banco</button>
             </div>
         </div>
     </div>
