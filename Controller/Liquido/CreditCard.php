@@ -38,7 +38,7 @@ class CreditCard implements ActionInterface
     private DataObject $creditCardInputData;
     private DataObject $creditCardResultData;
     private RequestInterface $httpRequest;
-    private String $errorMessage;
+    private string $errorMessage;
     private $remoteAddress;
 
     public function __construct(
@@ -52,7 +52,8 @@ class CreditCard implements ActionInterface
         RequestInterface $httpRequest,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         RemoteAddress $remoteAddress
-    ) {
+    )
+    {
         $this->remoteAddress = $remoteAddress;
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
@@ -172,24 +173,26 @@ class CreditCard implements ActionInterface
             return false;
         }
 
-        $this->creditCardInputData = new DataObject(array(
-            'orderId' => $orderId,
-            'grandTotal' => $grandTotal,
-            'customerName' => $customerName,
-            'customerEmail' => $customerEmail,
-            'currency' => $currency,
-            'country' => $country,
-            'customerCardName' => $customerCardName,
-            'customerCardNumber' => $customerCardNumber,
-            'customerCardExpireMonth' => $customerCardExpireDateArray[0],
-            'customerCardExpireYear' => $customerCardExpireDateArray[1],
-            'customerCardCVV' => $customerCardCVV,
-            'customerCardInstallments' => $customerCardInstallments,
-            'customerDocument' => $customerDocument,
-            'customerBillingAddress' => $billingAddress,
-            'streetText' => $streetString,
-            'customerIpAddress' => $customerIpAddress
-        ));
+        $this->creditCardInputData = new DataObject(
+            array(
+                'orderId' => $orderId,
+                'grandTotal' => $grandTotal,
+                'customerName' => $customerName,
+                'customerEmail' => $customerEmail,
+                'currency' => $currency,
+                'country' => $country,
+                'customerCardName' => $customerCardName,
+                'customerCardNumber' => $customerCardNumber,
+                'customerCardExpireMonth' => $customerCardExpireDateArray[0],
+                'customerCardExpireYear' => $customerCardExpireDateArray[1],
+                'customerCardCVV' => $customerCardCVV,
+                'customerCardInstallments' => $customerCardInstallments,
+                'customerDocument' => $customerDocument,
+                'customerBillingAddress' => $billingAddress,
+                'streetText' => $streetString,
+                'customerIpAddress' => $customerIpAddress
+            )
+        );
 
         return true;
     }
@@ -249,6 +252,65 @@ class CreditCard implements ActionInterface
         }
     }
 
+    private function mountCreditCardPayloadRequest($liquidoIdempotencyKey)
+    {
+        $payInRequest = new PayInRequest([
+            "idempotencyKey" => $liquidoIdempotencyKey,
+            "amount" => $this->creditCardInputData->getData('grandTotal'),
+            "currency" => $this->creditCardInputData->getData('currency'),
+            "country" => $this->creditCardInputData->getData('country'),
+            "paymentMethod" => PaymentMethod::CREDIT_CARD,
+            "paymentFlow" => PaymentFlow::DIRECT,
+            "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
+            "payer" => [
+                "name" => $this->creditCardInputData->getData("customerName"),
+                "email" => $this->creditCardInputData->getData("customerEmail"),
+                "document" => $this->creditCardInputData->getData("customerDocument"),
+                "billingAddress" => [
+                    "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
+                    "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
+                    "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
+                    "district" => "Unknown",
+                    "street" => $this->creditCardInputData->getData("streetText"),
+                    "number" => "Unknown",
+                    "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
+                ]
+            ],
+            "card" => [
+                "cardHolderName" => $this->creditCardInputData->getData("customerCardName"),
+                "cardNumber" => $this->creditCardInputData->getData("customerCardNumber"),
+                "expirationMonth" => $this->creditCardInputData->getData("customerCardExpireMonth"),
+                "expirationYear" => $this->creditCardInputData->getData("customerCardExpireYear"),
+                "cvc" => $this->creditCardInputData->getData("customerCardCVV")
+            ],
+            "installments" => $this->creditCardInputData->getData("customerCardInstallments"),
+            "orderInfo" => [
+                "orderId" => $this->creditCardInputData->getData("orderId"),
+                "shippingInfo" => [
+                    "name" => $this->creditCardInputData->getData("customerName"),
+                    "phone" => "Unknown",
+                    "email" => $this->creditCardInputData->getData("customerEmail"),
+                    "address" => [
+                        "street" => $this->creditCardInputData->getData("streetText"),
+                        "number" => "Unknown",
+                        "complement" => "Unknown",
+                        "district" => "Unknown",
+                        "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
+                        "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
+                        "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
+                        "country" => $this->creditCardInputData->getData("country")
+                    ]
+                ]
+            ],
+            "description" => "Module Magento 2 Credit Card Request",
+            "riskData" => [
+                "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
+            ]
+        ]);
+
+        return $payInRequest;
+    }
+
     public function execute()
     {
 
@@ -259,14 +321,16 @@ class CreditCard implements ActionInterface
         /**
          * Data to pass from Controller to Block
          */
-        $this->creditCardResultData = new DataObject(array(
-            'orderId' => null,
-            'amount' => null,
-            'installments' => null,
-            'transferStatus' => null,
-            'paymentMethod' => null,
-            'hasFailed' => false
-        ));
+        $this->creditCardResultData = new DataObject(
+            array(
+                'orderId' => null,
+                'amount' => null,
+                'installments' => null,
+                'transferStatus' => null,
+                'paymentMethod' => null,
+                'hasFailed' => false
+            )
+        );
 
         $areValidData = $this->validateInputCreditCardData();
         if (!$areValidData) {
@@ -278,20 +342,19 @@ class CreditCard implements ActionInterface
 
             $this->logger->info("[ {$className} Controller ]: Valid input data:", (array) $this->creditCardInputData);
 
-            $orderId = $this->creditCardInputData->getData("orderId");
-
-            $this->creditCardResultData->setData('orderId', $orderId);
+            $this->creditCardResultData->setData(
+                'orderId',
+                $this->creditCardInputData->getData("orderId")
+            );
 
             /**
              * Don't generate a new idempotency key if a request was already done successfuly before.
              */
             $liquidoIdempotencyKey = $this->liquidoSalesOrderHelper
-                ->getAlreadyRegisteredIdempotencyKey($orderId);
+                ->getAlreadyRegisteredIdempotencyKey($this->creditCardInputData->getData("orderId"));
             if ($liquidoIdempotencyKey == null) {
                 $liquidoIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
             }
-
-            $country = $this->liquidoConfig->getCountry();
 
             $config = new Config(
                 [
@@ -302,83 +365,42 @@ class CreditCard implements ActionInterface
                 $this->liquidoConfig->isProductionModeActived()
             );
 
-            $payInRequest = new PayInRequest([
-                "idempotencyKey" => $liquidoIdempotencyKey,
-                "amount" => $this->creditCardInputData->getData('grandTotal'),
-                "currency" => $this->creditCardInputData->getData('currency'),
-                "country" => $this->creditCardInputData->getData('country'),
-                "paymentMethod" => PaymentMethod::CREDIT_CARD,
-                "paymentFlow" => PaymentFlow::DIRECT,
-                "callbackUrl" => $this->liquidoConfig->getCallbackUrl(),
-                "payer" => [
-                    "name" => $this->creditCardInputData->getData("customerName"),
-                    "email" => $this->creditCardInputData->getData("customerEmail"),
-                    "document" => $this->creditCardInputData->getData("customerDocument"),
-                    "billingAddress" => [
-                        "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
-                        "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
-                        "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
-                        "district" => "Unknown",
-                        "street" => $this->creditCardInputData->getData("streetText"),
-                        "number" => "Unknown",
-                        "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
-                    ]
-                ],
-                "card" => [
-                    "cardHolderName" => $this->creditCardInputData->getData("customerCardName"),
-                    "cardNumber" => $this->creditCardInputData->getData("customerCardNumber"),
-                    "expirationMonth" => $this->creditCardInputData->getData("customerCardExpireMonth"),
-                    "expirationYear" => $this->creditCardInputData->getData("customerCardExpireYear"),
-                    "cvc" => $this->creditCardInputData->getData("customerCardCVV")
-                ],
-                "installments" => $this->creditCardInputData->getData("customerCardInstallments"),
-                "orderInfo" => [
-                    "orderId" => $orderId,
-                    "shippingInfo" => [
-                        "name" => $this->creditCardInputData->getData("customerName"),
-                        "phone" => "Unknown",
-                        "email" => $this->creditCardInputData->getData("customerEmail"),
-                        "address" => [
-                            "street" => $this->creditCardInputData->getData("streetText"),
-                            "number" => "Unknown",
-                            "complement" => "Unknown",
-                            "district" => "Unknown",
-                            "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
-                            "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
-                            "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
-                            "country" => $country
-                        ]
-                    ]
-                ],
-                "description" => "Module Magento 2 Credit Card Request",
-                "riskData" => [
-                    "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
-                ]
-            ]);
+            $payInRequest = $this->mountCreditCardPayloadRequest($liquidoIdempotencyKey);
 
             $this->logger->info("[Controler Credit Card Payload]: ", $payInRequest->toArray());
 
-            $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
+            try {
+                $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
 
-            $this->logger->info("[Controler Credit Card Response]: ", (array) $creditCardResponse);
+                $this->logger->info("[Controler Credit Card Response]: ", (array) $creditCardResponse);
 
-            $this->manageCreditCardResponse($creditCardResponse);
-
-            if (
-                $creditCardResponse != null
-                && property_exists($creditCardResponse, 'transferStatus')
-                && $creditCardResponse->transferStatus != null
-                && property_exists($creditCardResponse, 'paymentMethod')
-                && $creditCardResponse->transferStatus != null
-            ) {
-                $orderData = new DataObject(array(
-                    "orderId" => $orderId,
-                    "idempotencyKey" => $liquidoIdempotencyKey,
-                    "transferStatus" => $creditCardResponse->transferStatus,
-                    "paymentMethod" => $creditCardResponse->paymentMethod
-                ));
-                $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+                $this->manageCreditCardResponse($creditCardResponse);
+            } catch (\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
+
+            try {
+                if (
+                    $creditCardResponse != null
+                    && property_exists($creditCardResponse, 'transferStatus')
+                    && $creditCardResponse->transferStatus != null
+                    && property_exists($creditCardResponse, 'paymentMethod')
+                    && $creditCardResponse->transferStatus != null
+                ) {
+                    $orderData = new DataObject(
+                        array(
+                            "orderId" => $this->creditCardInputData->getData("orderId"),
+                            "idempotencyKey" => $liquidoIdempotencyKey,
+                            "transferStatus" => $creditCardResponse->transferStatus,
+                            "paymentMethod" => $creditCardResponse->paymentMethod
+                        )
+                    );
+                    $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+                }
+            } catch (\Exception $e) {
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
+
         }
 
         $this->logger->info("[ {$className} Controller ]: Result data:", (array) $this->creditCardResultData);

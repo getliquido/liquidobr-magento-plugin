@@ -161,7 +161,11 @@ class LiquidoOrderData extends AbstractHelper
     {
         $className = static::class;
         try {
-            return $this->orderData->getOrderCurrencyCode();
+            $currencyCode = $this->orderData->getOrderCurrencyCode();
+            if ($currencyCode == "BRL") {
+                return "R$";
+            }
+            return "$";
         } catch (\Exception $e) {
             $this->logger->error("[ {$className} ]: Error while getting order currency code");
             $this->logger->error($e->getMessage());

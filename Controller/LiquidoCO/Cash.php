@@ -254,7 +254,7 @@ class Cash implements ActionInterface
                     'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate'))),
                     'amount' => number_format($amount, 2, ',', ' ')
                 );
-                $this->sendEmail->sendEmail($params);
+                // $this->sendEmail->sendEmail($params);
             } 
         }
 

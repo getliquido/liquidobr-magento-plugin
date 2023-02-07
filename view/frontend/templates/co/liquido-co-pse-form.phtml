@@ -2,11 +2,8 @@
 
     <div class="header-content">
         <h1>Liquido Pagos</h1>
-        <?php
-        $payin_method_name = $this->getPsePayInMethodName();
-        ?>
         <h2>
-            <?php echo $payin_method_name ?>
+            <?php echo $this->getPsePayInMethodName(); ?>
         </h2>
         <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/col/pse.png"); ?>" alt="PSE Image">
     </div>
