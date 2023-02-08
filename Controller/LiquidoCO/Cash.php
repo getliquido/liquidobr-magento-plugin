@@ -36,7 +36,7 @@ class Cash implements ActionInterface
     private DataObject $cashInputData;
     private DataObject $cashResultData;
     private LiquidoSendEmail $sendEmail;
-    private String $errorMessage;
+    private string $errorMessage;
 
     public function __construct(
         PageFactory $resultPageFactory,
@@ -48,7 +48,8 @@ class Cash implements ActionInterface
         LiquidoConfigData $liquidoConfig,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         LiquidoSendEmail $sendEmail
-    ) {
+    )
+    {
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
         $this->logger = $logger;
@@ -91,13 +92,15 @@ class Cash implements ActionInterface
 
         $dateDeadline = date('Y-m-d', strtotime('+2 days', time()));
 
-        $this->cashInputData = new DataObject(array(
-            'orderId' => $orderId,
-            'grandTotal' => $grandTotal,
-            'customerName' => $customerName,
-            'customerEmail' => $customerEmail,
-            'expirationDate' => $dateDeadline
-        ));
+        $this->cashInputData = new DataObject(
+            array(
+                'orderId' => $orderId,
+                'grandTotal' => $grandTotal,
+                'customerName' => $customerName,
+                'customerEmail' => $customerEmail,
+                'expirationDate' => $dateDeadline
+            )
+        );
 
         return true;
     }
@@ -113,13 +116,15 @@ class Cash implements ActionInterface
                 $cashResponse->paymentMethod == PaymentMethod::CASH
                 && $cashResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
-                $successMessage = __('Código CASH generado.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                $successMessage = __('Referencia de pago generada con êxito');
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->cashResultData->setData('successMessage', $successMessage);
             }
 
             if ($cashResponse->transferStatus == PayInStatus::SETTLED) {
                 $successMessage = __('Pago aceptado.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->cashResultData->setData('successMessage', $successMessage);
             }
 
             $this->cashResultData->setData('paymentMethod', $cashResponse->paymentMethod);
@@ -130,9 +135,11 @@ class Cash implements ActionInterface
 
             $this->cashResultData->setData('transferStatus', $cashResponse->transferStatus);
         } else {
+
             $this->cashResultData->setData('hasFailed', true);
 
             $errorMsg = "Falla.";
+
             if (
                 $cashResponse != null
                 && property_exists($cashResponse, 'status')
@@ -149,7 +156,8 @@ class Cash implements ActionInterface
                 $errorMsg .= " (Error al intentar generar el pago)";
             }
 
-            $this->messageManager->addErrorMessage($errorMsg);
+            // $this->messageManager->addErrorMessage($errorMsg);
+            $this->cashResultData->setData('errorMessage', $errorMsg);
         }
     }
 
@@ -162,18 +170,23 @@ class Cash implements ActionInterface
         /**
          * Data to pass from Controller to Block
          */
-        $this->cashResultData = new DataObject(array(
-            'orderId' => null,
-            'cashCode' => null,
-            'transferStatus' => null,
-            'paymentMethod' => null,
-            'hasFailed' => false
-        ));
+        $this->cashResultData = new DataObject(
+            array(
+                'orderId' => null,
+                'cashCode' => null,
+                'transferStatus' => null,
+                'paymentMethod' => null,
+                'hasFailed' => false,
+                'errorMessage' => null,
+                'successMessage' => null
+            )
+        );
 
         $areValidData = $this->validateInputCashData();
         if (!$areValidData) {
             $this->cashResultData->setData('hasFailed', true);
-            $this->messageManager->addErrorMessage($this->errorMessage);
+            $this->cashResultData->setData('errorMessage', $this->errorMessage);
+            // $this->messageManager->addErrorMessage($this->errorMessage);
             $this->logger->warning("[ {$className} Controller ]: Invalid input data:", (array) $this->cashInputData);
             $this->logger->warning("[ {$className} Controller ]: Error message: {$this->errorMessage}");
         } else {
@@ -219,7 +232,7 @@ class Cash implements ActionInterface
                 "expirationDate" => $this->cashInputData->getData('expirationDate'),
                 "description" => "Module Magento 2 Colombia, Cash Request"
             ];
-            
+
             $this->logger->info("PayIn: ", $payin);
 
             $payInRequest = new PayInRequest($payin);
@@ -235,27 +248,28 @@ class Cash implements ActionInterface
                 && property_exists($cashResponse, 'paymentMethod')
                 && $cashResponse->paymentMethod != null
             ) {
-                $orderData = new DataObject(array(
-                    "orderId" => $orderId,
-                    "idempotencyKey" => $liquidoIdempotencyKey,
-                    "transferStatus" => $cashResponse->transferStatus,
-                    "paymentMethod" => $cashResponse->paymentMethod
-                ));
+                $orderData = new DataObject(
+                    array(
+                        "orderId" => $orderId,
+                        "idempotencyKey" => $liquidoIdempotencyKey,
+                        "transferStatus" => $cashResponse->transferStatus,
+                        "paymentMethod" => $cashResponse->paymentMethod
+                    )
+                );
                 $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
             }
 
-            if (!$this->cashResultData->getData('hasFailed')) 
-            {
+            if (!$this->cashResultData->getData('hasFailed')) {
                 $amount = $this->cashInputData->getData('grandTotal') / 100;
                 $params = array(
-                    'name' => $this->cashInputData->getData('customerName'), 
+                    'name' => $this->cashInputData->getData('customerName'),
                     'email' => $this->cashInputData->getData('customerEmail'),
-                    'cashCode' => $this->cashResultData->getData('cashCode'), 
+                    'cashCode' => $this->cashResultData->getData('cashCode'),
                     'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate'))),
                     'amount' => number_format($amount, 2, ',', ' ')
                 );
                 // $this->sendEmail->sendEmail($params);
-            } 
+            }
         }
 
         $this->logger->info("[ {$className} Controller ]: Result data:", (array) $this->cashResultData);

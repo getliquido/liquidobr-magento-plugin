@@ -49,7 +49,9 @@ $liquidoOrderData = $this->helper('Liquido\PayIn\Helper\LiquidoOrderData');
                 <td>Total</td>
                 <td></td>
                 <td>
-                    <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getOriginalGrandTotal(); ?>
+                    <strong>
+                        <?php echo $liquidoOrderData->getOrderCurrencyCode() . " " . $liquidoOrderData->getOriginalGrandTotal(); ?>
+                    </strong>
                 </td>
             </tr>
         </tfoot>

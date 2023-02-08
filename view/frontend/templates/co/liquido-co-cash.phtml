@@ -3,98 +3,99 @@
 use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
 use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
+$successfulResult = true;
+$resultCssClass = "success";
+$resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png");
+$resultHeaderInfoDescription = $this->getSuccessMessage();
+
+if ($this->hasFailed()) {
+    $successfulResult = false;
+    $resultCssClass = "failed";
+    $resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/error-icon-2.png");
+    $resultHeaderInfoDescription = $this->getErrorMessage();
+}
+
 ?>
 
 <div class="result-container">
 
-    <div class="result-header">
+    <div class="result-header <?php echo $resultCssClass; ?>">
         <h1>Liquido Pagos</h1>
         <h2>Pago en efectivo</h2>
         <div class="result-header-info">
-            <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png"); ?>"
-                alt="Result Image">
-            <h3>Referencia de pago generada con êxito</h3>
+            <img src="<?php echo $resultHeaderInfoImage ?>" alt="Result Info Image">
+            <h3>
+                <?php echo $resultHeaderInfoDescription; ?>
+            </h3>
         </div>
     </div>
 
     <div id="result-main-content">
 
-        <div class="result-content">
+        <?php if (!$this->hasFailed()): ?>
 
-            <div class="result-card">
-                <header>
-                    <h3>Referencia para pago:</h3>
-                    <h2>
-                        <?php echo $this->getCashCode() ?>
-                    </h2>
-                </header>
-                <hr>
-                <h3>Número de pedido:
-                    <?php echo $this->getOrderId() ?>
-                </h3>
-                <h4>Acércate con la referencia de pago a uno de nuestros establecimientos aliados para realizar el pago
-                </h4>
-            </div>
-            <div class="result-instructions">
-                <small>*Establecimientos aliados:...</small>
-                <small>*Para pagos en establecimientos Efecty presentar el número de convenio: XXXXXXXXX</small>
-            </div>
-            <?php if (!$this->hasFailed()): ?>
-                <!-- <h3>Número de pedido:
-                            <?php // echo $this->getOrderId() ?>
-                        </h3> -->
+            <div class="result-content">
 
                 <?php if (
                     $this->getPaymentMethodType() == PaymentMethod::CASH
                     && $this->getTransferStatus() != PayInStatus::SETTLED
                 ): ?>
-                    <h3>Por favor copie el código y diríjase a uno de nuestro establecimientos aliados para realizar el pago.
-                    </h3>
-                    <small style="color: #6E716E">
-                        * Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty,
-                        Superpagos,
-                        Sured.
-                    </small>
-                    <br />
-                    <small style="color: #6E716E">
-                        * Para pagos en redes Efecty se debe presentar el número de convenio <strong>112766</strong>.
-                    </small>
-                    <hr />
-                    <div id="cash-code-copy-paste">
-                        <fieldset class="fieldset">
-                            <label for="cash-code">Código Cash: </label><br>
-                            <input type="text" id="cash-code" name="cash-code" readonly
-                                value="<?php echo $this->getCashCode() ?>"><br>
-                        </fieldset>
-                        <!-- <div class="actions-toolbar">
-                                                                                                                                            <div class="primary">
-                                                                                                                                                <button onclick="copyToClipboard('cash-code')" class="action primary" title="Copie el código">
-                                                                                                                                                    <span>Copie el código</span>
-                                                                                                                                                </button>
-                                                                                                                                            </div>
-                                                                                                                                        </div> -->
+
+                    <div class="result-card">
+                        <header>
+                            <h3><strong>Referencia para pago:</strong></h3>
+                            <h2>
+                                <?php echo $this->getCashCode() ?>
+                            </h2>
+                        </header>
+                        <h3>
+                            Número de pedido:
+                            <strong>
+                                <?php echo $this->getOrderId() ?>
+                            </strong>
+                        </h3>
+                        <h4>Acércate con la referencia de pago a uno de nuestros establecimientos aliados para realizar el pago
+                        </h4>
+                    </div>
+                    <div class="result-instructions">
+                        <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty,
+                            Superpagos, Sured.</small>
+                        <small>* Para pagos en establecimientos Efecty presentar el número de convenio:
+                            <strong>112766</strong></small>
                     </div>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
-                    <h3><strong>Ya has generado un pago con
-                            <?php echo $this->getPaymentMethodName() ?>
-                        </strong></h3>
+                    <div class="result-warning">
+                        <h3><strong>Ya has generado un pago con
+                                <?php echo $this->getPaymentMethodName() ?>!
+                            </strong></h3>
+                    </div>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED): ?>
-                    <h3><strong>Ya pagaste con
-                            <?php echo $this->getPaymentMethodName() ?>
-                        </strong></h3>
+                    <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
+                        <h3>
+                            <strong>
+                                Ya pagaste con
+                                <?php echo $this->getPaymentMethodName() ?>!
+                            </strong>
+                        </h3>
+                    </div>
                 <?php endif; ?>
-            <?php else: ?>
-                <a href="/checkout/liquidoco/index">Cambiar método de pago</a>
-            <?php endif; ?>
-        </div>
 
-        <div>
-            <?php
-            echo $this->getLayout()
-                ->createBlock("Magento\Framework\View\Element\Template")
-                // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
-                ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
-                ?>
-        </div>
+            </div>
+
+            <div>
+                <?php
+                echo $this->getLayout()
+                    ->createBlock("Magento\Framework\View\Element\Template")
+                    // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
+                    ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                    ?>
+            </div>
+
+        <?php else: ?>
+            <a class="action submit primary" href="/checkout/liquidoco/index">Cambiar método de pago</a>
+        <?php endif; ?>
+
     </div>
 </div>

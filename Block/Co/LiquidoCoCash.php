@@ -19,7 +19,8 @@ class LiquidoCoCash extends Template
     public function __construct(
         Context $context,
         LiquidoPayInSession $payInSession
-    ) {
+    )
+    {
         $this->payInSession = $payInSession;
         parent::__construct($context);
     }
@@ -49,8 +50,18 @@ class LiquidoCoCash extends Template
         return LiquidoCoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
     }
 
+    public function getSuccessMessage()
+    {
+        return $this->payInSession->getData("cashResultData")->getData("successMessage");
+    }
+
     public function hasFailed()
     {
         return $this->payInSession->getData("cashResultData")->getData("hasFailed");
+    }
+
+    public function getErrorMessage()
+    {
+        return $this->payInSession->getData("cashResultData")->getData("errorMessage");
     }
 }

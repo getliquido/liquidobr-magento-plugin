@@ -3,8 +3,15 @@
 }
 
 div.result-header {
-    background-color: green;
     padding: 38px 12px 24px;
+}
+
+div.result-header.success {
+    background-color: #00a650;
+}
+
+div.result-header.failed {
+    background-color: #c0392b;
 }
 
 div.result-header h1,
@@ -51,17 +58,28 @@ div#result-main-content .result-content {
 }
 
 div#result-main-content .result-content .result-card {
-    width: 70%;
+    width: 80%;
     background-color: #FFFFFF;
-    border-radius: 12px;
-    border: 1px solid gray;
-    padding: 12px;
+    border-radius: 22px;
+
+    padding: 22px;
+    color: #97989B;
+
+    box-shadow: 0 0 5px #97989B;
 }
 
 div#result-main-content .result-content .result-card header {
+    border-bottom: 2px solid #6ADED0;
+    color: #01a3a4;
+
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+div#result-main-content .result-content .result-card h2 {
+    color: #094DE7;
+    font-weight: bold;
 }
 
 div#result-main-content .result-content .result-instructions {
@@ -69,4 +87,24 @@ div#result-main-content .result-content .result-instructions {
 
     display: flex;
     flex-direction: column;
+}
+
+.result-instructions {
+    color: #97989B;
+    font-style: italic;
+}
+
+.result-warning {
+    background-color: #ff9f43;
+    color: #000000;
+    padding: 8px 16px;
+    border-radius: 5px;
+
+    display: flex;
+}
+
+.result-warning img {
+    width: 60px;
+    height: 60px;
+    margin-right: 12px;
 }
