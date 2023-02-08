@@ -108,3 +108,9 @@ div#result-main-content .result-content .result-instructions {
     height: 60px;
     margin-right: 12px;
 }
+
+.back-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
