@@ -47,20 +47,12 @@
 }
 
 #main-content .payment-methods-container {
-    /* background-color: red; */
-
-    width: 45%;
-
     display: flex;
     align-items: center;
-
-    /* margin-right: 18%; */
 }
 
 .liquido-container #payin-methods {
     width: 100%;
-
-    /* background-color: yellow; */
 
     list-style-type: none;
     padding: 0;
@@ -194,10 +186,6 @@ div .same-row {
     display: flex;
 }
 
-.mage-error {
-    
-}
-
 form .form-row {
     margin-bottom: 32px;
     justify-content: space-between;
@@ -208,9 +196,22 @@ form .control div {
 }
 
 form .form-row .second {
-    margin-left: 52px;
+    /* margin-left: 52px; */
 }
 
 form .control #customer-ddi-number {
     width: 60px;
+}
+
+@media only screen and (max-width: 1172px) {
+    #main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media only screen and (max-width: 1125px) {
+    .form-row {
+        flex-direction: column;
+    }
 }

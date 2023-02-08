@@ -114,3 +114,10 @@ div#result-main-content .result-content .result-instructions {
     display: flex;
     justify-content: center;
 }
+
+@media only screen and (max-width: 1172px) {
+    #result-main-content {
+        flex-direction: column;
+        align-items: center;
+    }
+}
