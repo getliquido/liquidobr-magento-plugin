@@ -48,22 +48,24 @@ if ($this->hasFailed()) {
                     )
                 ): ?>
                     <div class="result-card">
+                        <header>
+                            <h3>
+                                <?php echo __('Você pagou com: ') ?>
+                            </h3>
+                            <h2>
+                                <?php echo $this->getCardInfo(); ?>
+                            </h2>
+                            <!-- <h3>
+                                                                    <?php // echo __('Você pagou: ') ?>
+                                                                    <?php // echo $this->getHowCustomerPaid(); ?>
+                                                                </h3> -->
+                        </header>
                         <h3>
                             <?php echo __('Número do pedido: ') ?>
                             <strong>
                                 <?php echo $this->getOrderId() ?>
                             </strong>
                         </h3>
-                        <h3>
-                            <?php echo __('Você pagou com: ') ?>
-                            <strong>
-                                <?php echo $this->getCardInfo(); ?>
-                            </strong>
-                        </h3>
-                        <!-- <h3>
-                                            <?php // echo __('Você pagou: ') ?>
-                                            <?php // echo $this->getHowCustomerPaid(); ?>
-                                        </h3> -->
                     </div>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
                     <div class="result-warning">
