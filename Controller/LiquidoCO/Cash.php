@@ -237,26 +237,35 @@ class Cash implements ActionInterface
 
             $payInRequest = new PayInRequest($payin);
 
-            $cashResponse = $this->payInService->createPayIn($config, $payInRequest);
+            try {
+                $cashResponse = $this->payInService->createPayIn($config, $payInRequest);
+                $this->manageCashResponse($cashResponse);
+            } catch (\Exception $e) {
+                $this->cashResultData->setData('hasFailed', true);
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
 
-            $this->manageCashResponse($cashResponse);
-
-            if (
-                $cashResponse != null
-                && property_exists($cashResponse, 'transferStatus')
-                && $cashResponse->transferStatus != null
-                && property_exists($cashResponse, 'paymentMethod')
-                && $cashResponse->paymentMethod != null
-            ) {
-                $orderData = new DataObject(
-                    array(
-                        "orderId" => $orderId,
-                        "idempotencyKey" => $liquidoIdempotencyKey,
-                        "transferStatus" => $cashResponse->transferStatus,
-                        "paymentMethod" => $cashResponse->paymentMethod
-                    )
-                );
-                $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+            try {
+                if (
+                    $cashResponse != null
+                    && property_exists($cashResponse, 'transferStatus')
+                    && $cashResponse->transferStatus != null
+                    && property_exists($cashResponse, 'paymentMethod')
+                    && $cashResponse->paymentMethod != null
+                ) {
+                    $orderData = new DataObject(
+                        array(
+                            "orderId" => $orderId,
+                            "idempotencyKey" => $liquidoIdempotencyKey,
+                            "transferStatus" => $cashResponse->transferStatus,
+                            "paymentMethod" => $cashResponse->paymentMethod
+                        )
+                    );
+                    $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+                }
+            } catch (\Exception $e) {
+                $this->cashResultData->setData('hasFailed', true);
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
 
             if (!$this->cashResultData->getData('hasFailed')) {
