@@ -36,7 +36,7 @@ class Pse implements ActionInterface
     private DataObject $pseInputData;
     private DataObject $pseResultData;
     private RequestInterface $httpRequest;
-    private String $errorMessage;
+    private string $errorMessage;
 
     public function __construct(
         PageFactory $resultPageFactory,
@@ -48,7 +48,8 @@ class Pse implements ActionInterface
         LiquidoConfigData $liquidoConfig,
         RequestInterface $httpRequest,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper
-    ) {
+    )
+    {
         $this->resultPageFactory = $resultPageFactory;
         $this->messageManager = $messageManager;
         $this->logger = $logger;
@@ -115,22 +116,24 @@ class Pse implements ActionInterface
             return false;
         }
 
-        $customerPhoneNumber =  $pseFormInputData->getData('customer-phone-number');
+        $customerPhoneNumber = $pseFormInputData->getData('customer-phone-number');
         if ($customerPhoneNumber == null) {
             $this->errorMessage = __('Error al obtener el número de teléfono');
         }
 
-        $this->pseInputData = new DataObject(array(
-            'orderId' => $orderId,
-            'grandTotal' => $grandTotal,
-            'customerName' => $customerName,
-            'customerEmail' => $customerEmail,
-            'customerDocType' => $customerDocType,
-            'customerPhoneNumber' => "+57" . $customerPhoneNumber,
-            'customerDocNumber' => $customerDocNumber,
-            'customerPersonType' => $customerPersonType,
-            'customerFinancialInstitution' => $customerFinancialInstitution
-        ));
+        $this->pseInputData = new DataObject(
+            array(
+                'orderId' => $orderId,
+                'grandTotal' => $grandTotal,
+                'customerName' => $customerName,
+                'customerEmail' => $customerEmail,
+                'customerDocType' => $customerDocType,
+                'customerPhoneNumber' => "+57" . $customerPhoneNumber,
+                'customerDocNumber' => $customerDocNumber,
+                'customerPersonType' => $customerPersonType,
+                'customerFinancialInstitution' => $customerFinancialInstitution
+            )
+        );
 
         return true;
     }
@@ -147,12 +150,14 @@ class Pse implements ActionInterface
                 && $pseResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
                 $successMessage = __('Link PSE generado.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->pseResultData->setData('successMessage', $successMessage);
             }
 
             if ($pseResponse->transferStatus == PayInStatus::SETTLED) {
                 $successMessage = __('Pago aceptado.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->pseResultData->setData('successMessage', $successMessage);
             }
 
             $this->pseResultData->setData('paymentMethod', $pseResponse->paymentMethod);
@@ -182,7 +187,8 @@ class Pse implements ActionInterface
                 $errorMsg .= " (Error al intentar generar el pago)";
             }
 
-            $this->messageManager->addErrorMessage($errorMsg);
+            // $this->messageManager->addErrorMessage($errorMsg);
+            $this->pseResultData->setData('errorMessage', $errorMsg);
         }
     }
 
@@ -195,18 +201,23 @@ class Pse implements ActionInterface
         /**
          * Data to pass from Controller to Block
          */
-        $this->pseResultData = new DataObject(array(
-            'orderId' => null,
-            'pseLink' => null,
-            'transferStatus' => null,
-            'paymentMethod' => null,
-            'hasFailed' => false
-        ));
+        $this->pseResultData = new DataObject(
+            array(
+                'orderId' => null,
+                'pseLink' => null,
+                'transferStatus' => null,
+                'paymentMethod' => null,
+                'hasFailed' => false,
+                'errorMessage' => null,
+                'successMessage' => null
+            )
+        );
 
         $areValidData = $this->validateInputPseData();
         if (!$areValidData) {
             $this->pseResultData->setData('hasFailed', true);
-            $this->messageManager->addErrorMessage($this->errorMessage);
+            $this->pseResultData->setData('errorMessage', $this->errorMessage);
+            // $this->messageManager->addErrorMessage($this->errorMessage);
             $this->logger->warning("[ {$className} Controller ]: Invalid input data:", (array) $this->pseInputData);
             $this->logger->warning("[ {$className} Controller ]: Error message: {$this->errorMessage}");
         } else {
@@ -261,24 +272,35 @@ class Pse implements ActionInterface
 
             $this->logger->info("[ {$className} Controller ] PSE PayInRequest: ", $payInRequest->toArray());
 
-            $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10000);
+            try {
+                $pseResponse = $this->setIntervalRequest($config, $payInRequest, 10000);
+                $this->managePseResponse($pseResponse);
+            } catch (\Exception $e) {
+                $this->pseResultData->setData('hasFailed', true);
+                $this->messageManager->addErrorMessage($e->getMessage());
+            }
 
-
-            $this->managePseResponse($pseResponse);
-            if (
-                $pseResponse != null
-                && property_exists($pseResponse, 'transferStatus')
-                && $pseResponse->transferStatus != null
-                && property_exists($pseResponse, 'paymentMethod')
-                && $pseResponse->paymentMethod != null
-            ) {
-                $orderData = new DataObject(array(
-                    "orderId" => $orderId,
-                    "idempotencyKey" => $liquidoIdempotencyKey,
-                    "transferStatus" => $pseResponse->transferStatus,
-                    "paymentMethod" => $pseResponse->paymentMethod
-                ));
-                $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+            try {
+                if (
+                    $pseResponse != null
+                    && property_exists($pseResponse, 'transferStatus')
+                    && $pseResponse->transferStatus != null
+                    && property_exists($pseResponse, 'paymentMethod')
+                    && $pseResponse->paymentMethod != null
+                ) {
+                    $orderData = new DataObject(
+                        array(
+                            "orderId" => $orderId,
+                            "idempotencyKey" => $liquidoIdempotencyKey,
+                            "transferStatus" => $pseResponse->transferStatus,
+                            "paymentMethod" => $pseResponse->paymentMethod
+                        )
+                    );
+                    $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+                }
+            } catch (\Exception $e) {
+                $this->pseResultData->setData('hasFailed', true);
+                $this->messageManager->addErrorMessage($e->getMessage());
             }
         }
 

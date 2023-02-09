@@ -19,7 +19,8 @@ class LiquidoCoPse extends Template
     public function __construct(
         Context $context,
         LiquidoPayInSession $payInSession
-    ) {
+    )
+    {
         $this->payInSession = $payInSession;
         parent::__construct($context);
     }
@@ -57,5 +58,15 @@ class LiquidoCoPse extends Template
     public function hasFailed()
     {
         return $this->payInSession->getData("pseResultData")->getData("hasFailed");
+    }
+
+    public function getSuccessMessage()
+    {
+        return $this->payInSession->getData("pseResultData")->getData("successMessage");
+    }
+
+    public function getErrorMessage()
+    {
+        return $this->payInSession->getData("pseResultData")->getData("errorMessage");
     }
 }
