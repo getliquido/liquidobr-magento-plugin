@@ -65,6 +65,8 @@ if ($this->hasFailed()) {
                     </div>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
                     <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
                         <h3><strong>Ya has generado un pago con
                                 <?php echo $this->getPaymentMethodName() ?>!
                             </strong></h3>

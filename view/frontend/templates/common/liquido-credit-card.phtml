@@ -1,23 +1,107 @@
 <?php
-use \LiquidoBrl\PayInPhpSdk\Util\Common\PaymentMethod;
-use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus; ?>
 
-<div>
-    <h1><?php echo __('Liquido Pagamentos') ?></h1>
-    <?php if (!$this->hasFailed()) : ?>
-        <h3><?php echo __('Número do pedido: ') ?><?php echo $this->getOrderId() ?></h3>
-        <?php if (
-            $this->getPaymentMethodType() == PaymentMethod::CREDIT_CARD
-            && $this->getTransferStatus() != PayInStatus::SETTLED
-        ) : ?>
-            <h3><?php echo __('Você pagou: ') ?><?php echo $this->getHowCustomerPaid(); ?></h3>
-            <h3><?php echo __('Valor total: ') ?><?php echo $this->getOrderTotal(); ?></h3>
-        <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS) : ?>
-            <h3><strong><?php echo __('Você já gerou um pagamento com ') ?><?php echo __($this->getPaymentMethodName()) ?></strong></h3>
-        <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED) : ?>
-            <h3><strong><?php echo __('Você já pagou com ') ?><?php echo __($this->getPaymentMethodName()) ?></strong></h3>
+use \LiquidoBrl\PayInPhpSdk\Util\Common\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
+
+$successfulResult = true;
+$resultCssClass = "success";
+$resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png");
+$resultHeaderInfoDescription = $this->getSuccessMessage();
+
+if ($this->hasFailed()) {
+    $successfulResult = false;
+    $resultCssClass = "failed";
+    $resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/error-icon-2.png");
+    $resultHeaderInfoDescription = $this->getErrorMessage();
+}
+
+?>
+
+<div class="result-container">
+
+    <div class="result-header <?php echo $resultCssClass; ?>">
+        <h1>
+            <?php echo __('Liquido Pagamentos') ?>
+        </h1>
+        <h2>
+            <?php echo __('Cartão de crédito') ?>
+        </h2>
+        <div class="result-header-info">
+            <img src="<?php echo $resultHeaderInfoImage ?>" alt="Result Info Image">
+            <h3>
+                <?php echo $resultHeaderInfoDescription; ?>
+            </h3>
+        </div>
+    </div>
+
+    <div id="result-main-content">
+
+        <?php if (!$this->hasFailed()): ?>
+
+            <div class="result-content">
+
+                <?php if (
+                    $this->getPaymentMethodType() == PaymentMethod::CREDIT_CARD
+                    && (
+                        $this->getTransferStatus() == PayInStatus::IN_PROGRESS
+                        || $this->getTransferStatus() == PayInStatus::SETTLED
+                    )
+                ): ?>
+                    <div class="result-card">
+                        <h3>
+                            <?php echo __('Número do pedido: ') ?>
+                            <strong>
+                                <?php echo $this->getOrderId() ?>
+                            </strong>
+                        </h3>
+                        <h3>
+                            <?php echo __('Você pagou com: ') ?>
+                            <strong>
+                                <?php echo $this->getCardInfo(); ?>
+                            </strong>
+                        </h3>
+                        <!-- <h3>
+                                            <?php // echo __('Você pagou: ') ?>
+                                            <?php // echo $this->getHowCustomerPaid(); ?>
+                                        </h3> -->
+                    </div>
+                <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
+                    <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
+                        <h3><strong>
+                                <?php echo __('Você já gerou um pagamento com ') ?>
+                                <?php echo __($this->getPaymentMethodName()) ?>
+                            </strong></h3>
+                    </div>
+                <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED): ?>
+                    <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
+                        <h3><strong>
+                                <?php echo __('Você já pagou com ') ?>
+                                <?php echo __($this->getPaymentMethodName()) ?>
+                            </strong></h3>
+                    </div>
+                <?php endif; ?>
+
+            </div>
+
+            <div>
+                <?php
+                echo $this->getLayout()
+                    ->createBlock("Magento\Framework\View\Element\Template")
+                    // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
+                    ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                    ?>
+            </div>
+
+        <?php else: ?>
+            <div class="back-button-container">
+                <a class="action submit primary" href="<?php echo $this->getCountryRedirect() ?>"><?php echo __('Alterar método de pagamento') ?></a>
+            </div>
         <?php endif; ?>
-    <?php else : ?>
-        <a href="<?php echo $this->getCountryRedirect() ?>"><?php echo __('Alterar método de pagamento') ?></a>
-    <?php endif; ?>
+
+    </div>
+
 </div>

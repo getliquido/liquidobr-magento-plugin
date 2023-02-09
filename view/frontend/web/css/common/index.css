@@ -195,10 +195,6 @@ form .control div {
     width: 100%;
 }
 
-form .form-row .second {
-    /* margin-left: 52px; */
-}
-
 form .control #customer-ddi-number {
     width: 60px;
 }

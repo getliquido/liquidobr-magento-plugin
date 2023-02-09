@@ -209,26 +209,41 @@ class CreditCard implements ActionInterface
                 && $creditCardResponse->transferStatus == PayInStatus::IN_PROGRESS
             ) {
                 $successMessage = __('Pagamento aguardando aprovação.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->creditCardResultData->setData('successMessage', $successMessage);
             }
 
             if ($creditCardResponse->transferStatus == PayInStatus::SETTLED) {
                 $successMessage = __('Pagamento aprovado.');
-                $this->messageManager->addSuccessMessage($successMessage);
+                // $this->messageManager->addSuccessMessage($successMessage);
+                $this->creditCardResultData->setData('successMessage', $successMessage);
             }
 
             $this->creditCardResultData->setData('amount', $creditCardResponse->amount);
 
             $this->creditCardResultData->setData('paymentMethod', $creditCardResponse->paymentMethod);
 
+            $this->creditCardResultData->setData('country', $creditCardResponse->country);
+
             if ($creditCardResponse->paymentMethod == PaymentMethod::CREDIT_CARD) {
-                $this->creditCardResultData->setData(
-                    'installments',
-                    $creditCardResponse->transferDetails->card->installments
-                );
+
+                if (property_exists($creditCardResponse->transferDetails, 'card')) {
+                    // $this->creditCardResultData->setData(
+                    //     'installments',
+                    //     $creditCardResponse->transferDetails->card->installments
+                    // );
+                    $brand = $creditCardResponse->transferDetails->card->cardInfo->brand;
+                    $last4Digits = $creditCardResponse->transferDetails->card->cardInfo->last4;
+                    $this->creditCardResultData->setData(
+                        'cardInfo',
+                        __("Cartão " . $brand . " ****" . $last4Digits)
+                    );
+                }
             }
             $this->creditCardResultData->setData('transferStatus', $creditCardResponse->transferStatus);
+
         } else {
+
             $this->creditCardResultData->setData('hasFailed', true);
 
             $errorMsg = __("Falha.");
@@ -248,7 +263,8 @@ class CreditCard implements ActionInterface
                 $errorMsg .= __("Erro ao tentar gerar o pagamento");
             }
 
-            $this->messageManager->addErrorMessage($errorMsg);
+            // $this->messageManager->addErrorMessage($errorMsg);
+            $this->creditCardResultData->setData('errorMessage', $errorMsg);
         }
     }
 
@@ -326,16 +342,21 @@ class CreditCard implements ActionInterface
                 'orderId' => null,
                 'amount' => null,
                 'installments' => null,
+                'cardInfo' => null,
                 'transferStatus' => null,
                 'paymentMethod' => null,
-                'hasFailed' => false
+                'country' => null,
+                'hasFailed' => false,
+                'errorMessage' => null,
+                'successMessage' => null
             )
         );
 
         $areValidData = $this->validateInputCreditCardData();
         if (!$areValidData) {
             $this->creditCardResultData->setData('hasFailed', true);
-            $this->messageManager->addErrorMessage($this->errorMessage);
+            $this->creditCardResultData->setData('errorMessage', $this->errorMessage);
+            // $this->messageManager->addErrorMessage($this->errorMessage);
             $this->logger->warning("[ {$className} Controller ]: Invalid input data:", (array) $this->creditCardInputData);
             $this->logger->warning("[ {$className} Controller ]: Error message: {$this->errorMessage}");
         } else {
@@ -376,6 +397,7 @@ class CreditCard implements ActionInterface
 
                 $this->manageCreditCardResponse($creditCardResponse);
             } catch (\Exception $e) {
+                $this->creditCardResultData->setData('hasFailed', true);
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
 
@@ -398,6 +420,7 @@ class CreditCard implements ActionInterface
                     $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
                 }
             } catch (\Exception $e) {
+                $this->creditCardResultData->setData('hasFailed', true);
                 $this->messageManager->addErrorMessage($e->getMessage());
             }
 

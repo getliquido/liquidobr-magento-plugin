@@ -13,7 +13,7 @@ abstract class LiquidoPaymentMethodType
                 return LiquidoPayInMethod::CREDIT_CARD["title"];
                 break;
             default:
-                return "";
+                return null;
         }
     }
 }

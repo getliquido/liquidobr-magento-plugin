@@ -8,8 +8,11 @@ use \Magento\Framework\View\Element\Template\Context;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Util\Common\LiquidoPaymentMethodType;
+use \Liquido\PayIn\Util\Brl\LiquidoBrlPaymentMethodType;
+use \Liquido\PayIn\Util\Co\LiquidoCoPaymentMethodType;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Common\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\Country;
 
 class LiquidoCreditCard extends Template
 {
@@ -24,7 +27,8 @@ class LiquidoCreditCard extends Template
         Context $context,
         LiquidoPayInSession $payInSession,
         LiquidoConfigData $liquidoConfig
-    ) {
+    )
+    {
         $this->payInSession = $payInSession;
         parent::__construct($context);
         $this->liquidoConfig = $liquidoConfig;
@@ -52,7 +56,22 @@ class LiquidoCreditCard extends Template
 
     public function getPaymentMethodName()
     {
-        return LiquidoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+        $paymentMethodName = LiquidoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+        if ($paymentMethodName != null) {
+            return $paymentMethodName;
+        }
+
+        $country = $this->payInSession->getData("creditCardResultData")->getData("country");
+        switch ($country) {
+            case Country::BRAZIL:
+                return LiquidoBrlPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+                break;
+            case Country::COLOMBIA:
+                return LiquidoCoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+                break;
+            default:
+                return null;
+        }
     }
 
     public function hasFailed()
@@ -81,16 +100,29 @@ class LiquidoCreditCard extends Template
         $country = $this->liquidoConfig->getCountry();
 
         $link = '';
-        if ($country == 'BR')
-        {
+        if ($country == 'BR') {
             $link = '/checkout/liquidobrl/index';
         }
 
-        if ($country == 'CO')
-        {
+        if ($country == 'CO') {
             $link = '/checkout/liquidoco/index';
         }
 
         return $link;
+    }
+
+    public function getSuccessMessage()
+    {
+        return $this->payInSession->getData("creditCardResultData")->getData("successMessage");
+    }
+
+    public function getErrorMessage()
+    {
+        return $this->payInSession->getData("creditCardResultData")->getData("errorMessage");
+    }
+
+    public function getCardInfo()
+    {
+        return $this->payInSession->getData("creditCardResultData")->getData("cardInfo");
     }
 }
