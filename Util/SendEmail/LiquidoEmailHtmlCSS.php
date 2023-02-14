@@ -105,6 +105,10 @@ class LiquidoEmailHtmlCSS
             position: relative;
         }
 
+        .content-footer p span {
+            color: #FFFFFF;
+        }
+
         .content-img img {
             width: 150px;
             height: 150px;
@@ -183,9 +187,11 @@ class LiquidoEmailHtmlCSS
             position: relative;
         }
 
-        .content-body-info p 
+        .content-body-title p,
+        .content-body-info p, 
+        .content-body-info span p,
         .content-body-footer p {
-            color: #000;
+            color: #000000;
             font-weight: 900;
         }
 
@@ -199,6 +205,7 @@ class LiquidoEmailHtmlCSS
             line-height: 45px;
         }
 
+        .content-body-footer,
         .content-body-footer span {
             color: #FF0000;
         }
