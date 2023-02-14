@@ -199,15 +199,29 @@ form .control #customer-ddi-number {
     width: 60px;
 }
 
+.liquido-container input:not([disabled]):focus,
+.liquido-container textarea:not([disabled]):focus,
+.liquido-container select:not([disabled]):focus {
+    box-shadow: none;
+}
+
 @media only screen and (max-width: 1172px) {
     #main-content {
         flex-direction: column;
         align-items: center;
+    }
+
+    #main-content form {
+        width: 100%;
     }
 }
 
 @media only screen and (max-width: 1125px) {
     .form-row {
         flex-direction: column;
+    }
+
+    .form-row div.field:nth-child(2) {
+        margin-top: 22px;
     }
 }

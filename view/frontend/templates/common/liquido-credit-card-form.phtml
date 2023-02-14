@@ -117,37 +117,37 @@
                 </div>
                 <div class="form-row">
                     <?php if ($this->getCountry() == 'CO'): ?>
-                        <div class="field required">
-                            <div class="control">
-                                <select name="customer-doc-type" id="customer-doc-type">
-                                    <option value="CC">CC</option>
-                                    <option value="CE">CE</option>
-                                    <option value="NIT">NIT</option>
-                                </select>
-                            </div>
-                            <label for="customer-doc-type" class="label"><span>Tipo de documento</span></label>
-                        </div>
-                        <div class="field required">
-                            <div class="control">
-                                <div>
-                                    <input type="text" name="customer-doc" id="customer-doc" value=""
-                                        title="<?php echo __('CC') ?>" class="input-text"
-                                        data-validate="{'required-entry':true}">
+                            <div class="field required">
+                                <div class="control">
+                                    <select name="customer-doc-type" id="customer-doc-type">
+                                        <option value="CC">CC</option>
+                                        <option value="CE">CE</option>
+                                        <option value="NIT">NIT</option>
+                                    </select>
                                 </div>
+                                <label for="customer-doc-type" class="label"><span>Tipo de documento</span></label>
                             </div>
-                            <label for="customer-doc" class="label"><span>Número del documento</span></label>
-                        </div>
+                            <div class="field required">
+                                <div class="control">
+                                    <div>
+                                        <input type="text" name="customer-doc" id="customer-doc" value=""
+                                            title="<?php echo __('CC') ?>" class="input-text"
+                                            data-validate="{'required-entry':true}">
+                                    </div>
+                                </div>
+                                <label for="customer-doc" class="label"><span>Número del documento</span></label>
+                            </div>
                     <?php elseif ($this->getCountry() == 'BR'): ?>
-                        <div class="field required">
-                            <div class="control">
-                                <input type="text" name="customer-doc" id="customer-doc" value=""
-                                    title="<?php echo __('CPF') ?>" class="input-text"
-                                    data-validate="{'required-entry':true, 'validate-cpf':true}">
+                            <div class="field required">
+                                <div class="control">
+                                    <input type="text" name="customer-doc" id="customer-doc" value=""
+                                        title="<?php echo __('CPF') ?>" class="input-text"
+                                        data-validate="{'required-entry':true, 'validate-cpf':true}">
+                                </div>
+                                <label for="customer-doc" class="label"><span>
+                                        <?php echo __('CPF') ?>
+                                    </span></label>
                             </div>
-                            <label for="customer-doc" class="label"><span>
-                                    <?php echo __('CPF') ?>
-                                </span></label>
-                        </div>
                     <?php endif ?>
                 </div>
                 <div class="field required">
@@ -157,7 +157,7 @@
                             $optionsInfoArray = $this->getCardInstallmentsTextsForOptions();
                             ?>
                             <?php foreach ($optionsInfoArray as $index => $optionInfo): ?>
-                                <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
+                                    <option value="<?php echo $index + 1 ?>"><?php echo $optionInfo; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

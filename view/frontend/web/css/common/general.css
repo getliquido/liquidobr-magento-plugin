@@ -121,3 +121,15 @@ div#result-main-content .result-content .result-instructions {
         align-items: center;
     }
 }
+
+@media (min-width: 769px),
+print {
+    .fieldset>.field:not(.choice)>.control {
+        width: 100% !important;
+    }
+
+    .fieldset>.field:not(.choice)>.label {
+        text-align: left !important;
+        width: 100% !important;
+    }
+}
