@@ -2,10 +2,12 @@
 
 namespace Liquido\PayIn\Controller\LiquidoCO;
 
+use \Magento\Framework\UrlInterface;
 use \Magento\Framework\App\ActionInterface;
 use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
 use \Magento\Framework\DataObject;
+use \Magento\Store\Model\StoreManagerInterface;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
@@ -36,6 +38,8 @@ class Cash implements ActionInterface
     private DataObject $cashInputData;
     private DataObject $cashResultData;
     private LiquidoSendEmail $sendEmail;
+    private StoreManagerInterface $storeManager;
+    private UrlInterface $urlInterface;
     private string $errorMessage;
 
     public function __construct(
@@ -47,7 +51,9 @@ class Cash implements ActionInterface
         PayInService $payInService,
         LiquidoConfigData $liquidoConfig,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
-        LiquidoSendEmail $sendEmail
+        LiquidoSendEmail $sendEmail,
+        StoreManagerInterface $storeManager,
+        UrlInterface $urlInterface
     )
     {
         $this->resultPageFactory = $resultPageFactory;
@@ -60,8 +66,11 @@ class Cash implements ActionInterface
         $this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
         $this->cashInputData = new DataObject(array());
         $this->cashResultData = new DataObject(array());
-        $this->errorMessage = "";
         $this->sendEmail = $sendEmail;
+        $this->storeManager = $storeManager;
+        $this->urlInterface = $urlInterface;
+        $this->errorMessage = "";
+        
     }
 
     private function validateInputCashData()
@@ -275,9 +284,12 @@ class Cash implements ActionInterface
                     'email' => $this->cashInputData->getData('customerEmail'),
                     'cashCode' => $this->cashResultData->getData('cashCode'),
                     'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate'))),
-                    'amount' => number_format($amount, 2, ',', ' ')
+                    'amount' => number_format($amount, 2, ',', ' '),
+                    'orderId' => $this->cashInputData->getData('orderId'),
+                    'storeName' => strtoupper($this->storeManager->getStore()->getName()),
+                    'storeURL' => $this->urlInterface->getUrl()
                 );
-                // $this->sendEmail->sendEmail($params);
+                $this->sendEmail->sendEmail($params);
             }
         }
 

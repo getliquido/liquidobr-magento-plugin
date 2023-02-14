@@ -10,20 +10,25 @@ use \SendinBlue\Client\Model\SendSmtpEmail;
 use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Psr\Log\LoggerInterface;
 
+use \Liquido\PayIn\Util\SendEmail\LiquidoEmailHtmlCSS;
+
 class LiquidoSendEmail
 {
     private LoggerInterface $logger;
     private LiquidoConfigData $liquidoConfig;
     private $scopeConfig;
+    private LiquidoEmailHtmlCSS $liquidoEmailHtmlCSS;
 
     public function __construct(
         LoggerInterface $logger,
         ScopeConfigInterface $scopeConfig,
-        LiquidoConfigData $liquidoConfig
+        LiquidoConfigData $liquidoConfig,
+        LiquidoEmailHtmlCSS $liquidoEmailHtmlCSS
     ) {
         $this->logger = $logger;
         $this->scopeConfig = $scopeConfig;
         $this->liquidoConfig = $liquidoConfig;
+        $this->liquidoEmailHtmlCSS = $liquidoEmailHtmlCSS;
     }
 
     private function getApiKey()
@@ -49,24 +54,10 @@ class LiquidoSendEmail
         $senderEmail = $this->scopeConfig->getValue('trans_email/ident_general/email', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $senderName = $this->scopeConfig->getValue('general/store_information/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $sendSmtpEmail = new SendSmtpEmail();
+        $sendSmtpEmail['params'] = $params;
         if (!$isWebhookUpdate) {
-            $sendSmtpEmail['subject'] = 'Su código PayCash';
-            $sendSmtpEmail['htmlContent'] = '
-            <html>
-                <body>
-                    <div>
-                        <p>Hola {{params.name}}, </p>
-                        <p>Aquí está su código de pago de PayCash:  <strong> {{params.cashCode}} </strong></p>
-                        <p>La validez de pago de este código es: <strong> {{params.expiration}} </strong></p>
-                        <p>Total a pagar: <strong> $COP {{params.amount}} </strong></p>
-                        <p>Por favor diríjase a uno de nuestro establecimientos aliados para realizar el pago.</p> 
-                        <br/>
-                        <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.</small> 
-                        <br/>
-                        <small>* Para pagos en redes Efecty se debe presentar el número de convenio <strong>112766</strong>.</small>
-                    </div>
-                </body>
-            </html>';
+            $sendSmtpEmail['subject'] = 'Referência de Pago';
+            $sendSmtpEmail['htmlContent'] = $this->liquidoEmailHtmlCSS->getEmailHtml($sendSmtpEmail['params']);
             $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); 
             $sendSmtpEmail['to'] = array(
                 array('email' => $params['email'], 'name' => $params['name'])
@@ -90,7 +81,6 @@ class LiquidoSendEmail
                 array('email' => $params['email'], 'name' => $params['name'])
             );
         }
-        $sendSmtpEmail['params'] = $params;
 
         try {
             $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
