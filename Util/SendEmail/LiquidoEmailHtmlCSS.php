@@ -19,7 +19,7 @@ class LiquidoEmailHtmlCSS
         <body>
             <div class="content">
                 <div class="content-img">
-                    <!--<img src="{{params.imageTop}}" alt="Liquido Pagos"/>-->
+                    <img src="https://img.mailinblue.com/5577006/images/content_library/original/63ebe726d717e6759c3712d7.png" alt="Liquido Pagos"/>
                 </div>
                 <div class="content-title">
                     <p><span>¡Hola {{params.email}}!</span><br/>Finaliza el pago de tu compra a {{params.storeName}}</p>
@@ -54,7 +54,7 @@ class LiquidoEmailHtmlCSS
                         <small>$ {{params.amount}}</small>
                     </div>
                     <div class="content-body-logo">
-                        <!--<img src="{{params.imageLogo}}" alt="Liquido Pagos">-->
+                        <img src="https://img.mailinblue.com/5577006/images/content_library/original/63ebe7260fa5cf265b2e279c.png" alt="Liquido Pagos">
                     </div>
                 </div>
                 <div class="content-footer">
