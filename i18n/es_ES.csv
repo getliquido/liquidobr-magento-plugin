@@ -15,16 +15,17 @@ Falha.,Falla
 "Erro ao tentar gerar o pagamento","Error al intentar generar el pago"
 "Liquido BR Pagamentos","Liquido Pagos"
 "Liquido Pagamentos","Liquido Pagos"
-"Cartão de Crédito","Tarjeta de Crédito"
+"Cartão de crédito","Tarjeta de Crédito"
 "O pagamento poderá ser aprovado na hora.","El pago puede ser aprobado al instante."
 "Pagar com ","Pagar con "
-"Dados do Cartão","Datos de la tarjeta"
-"Nome do Titular","Nombre del Titular"
+"Número do cartão", "Número de tarjeta"
+"Dados do cartão","Datos de la tarjeta"
+"Nome do titular","Nombre del titular"
 "Nome Completo","Nombre Completo"
 "Mês / Ano","Mes / Año"
 CVV,CVV
 CPF,CC
-"Número de Parcelas","Número de plazos"
+"Número de parcelas","Número de plazos"
 Pagar,Pagar
 "Número do pedido: ","Numéro del pedido: "
 "Você pagou: ","Tu pagaste: "

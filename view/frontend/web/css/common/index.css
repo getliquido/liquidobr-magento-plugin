@@ -3,7 +3,7 @@
 }
 
 .header-content h1,
-.header-content h2,
+.header-content h3,
 #main-content form h2 {
     color: #094DE7;
 }
@@ -13,7 +13,7 @@
     margin: 0;
 }
 
-.header-content h2 {
+.header-content h3 {
     line-height: 30%;
     font-style: italic;
 }
@@ -155,6 +155,7 @@ div.payin-method-single small {
     border-width: 0;
     font-size: 18px;
     line-height: 22px;
+    font-family: "POPPINS", sans-serif !important;
 }
 
 #main-content form {

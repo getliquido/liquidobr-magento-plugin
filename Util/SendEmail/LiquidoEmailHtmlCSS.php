@@ -30,8 +30,8 @@ class LiquidoEmailHtmlCSS
                         <small>Puedes hacerlo hasta el {{params.expiration}}</small>
                     </div>
                     <div class="content-body-instructions">
-                        <p><span>1</span> <small> Dirigete a cualquer punto Efecty.</small></p>
-                        <p><span>2</span> <small> Notifica que quieres realizar un pago através de Liquido Pagos y dictas los siguientes dados:</small></p>
+                        <p><span>1</span> <small> Dirígete a cualquier punto Efecty.</small></p>
+                        <p><span>2</span> <small> Notifica que quieres realizar un pago a través de Liquido Pagos y dictas los siguientes datos:</small></p>
                     </div>
                     <div class="content-body-info">
                         <small>Código de convenio:</small>
@@ -58,7 +58,8 @@ class LiquidoEmailHtmlCSS
                     </div>
                 </div>
                 <div class="content-footer">
-                    <p>Cuando tengas dudas con la compra ponte en contacto com <br/> {{params.storeName}}</p>
+                    <p>Si tienes dudas de la compra, por favor ponte en contacto con:
+                    <br/> {{params.storeName}}</p>
                 </div>
             </div>
         </body>
@@ -211,7 +212,7 @@ class LiquidoEmailHtmlCSS
         }
 
         .content-body-logo img {
-            width: 120px;
+            width: 170px;
             height: 50px;
         }";
 

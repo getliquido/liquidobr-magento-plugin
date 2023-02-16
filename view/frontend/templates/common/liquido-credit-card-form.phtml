@@ -7,10 +7,10 @@
         <?php
         $payin_method_name = $this->getCardPayInMethodName();
         ?>
-        <h2>
+        <h3>
             <?php echo __('Pagar com ') ?>
             <?php echo __($payin_method_name) ?>
-        </h2>
+        </h3>
         <div class="images-row">
             <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/mastercard.png"); ?>"
                 alt="Master Card Image">
@@ -29,7 +29,7 @@
             <fieldset class="fieldset">
 
                 <h2>
-                    <?php echo __('Dados do Cartão') ?>
+                    <?php echo __('Dados do cartão') ?>
                 </h2>
                 <!-- <div>
                 <table>
@@ -81,12 +81,14 @@
                     <div class="control">
                         <div>
                             <input type="text" name="card-name" id="card-name" value=""
-                                title="<?php echo __('Nome do Titular') ?>" data-validate="{required:true}">
+                                title="<?php echo __('Nome do titular') ?>" data-validate="{required:true}">
                         </div>
                     </div>
-                    <label for="card-name" class="label"><span>
+                    <label for="card-name" class="label">
+                        <span>
                             <?php echo __('Nome do titular') ?>
-                        </span></label>
+                        </span>
+                    </label>
                 </div>
                 <div class="form-row">
                     <div class="field required">
@@ -98,9 +100,11 @@
                                     data-validate="{required:true, 'pattern':'(0[1-9]|10|11|12)/20[0-9]{2}$', 'validate-length':true}">
                             </div>
                         </div>
-                        <label for="card-expire-date" class="label"><span>
+                        <label for="card-expire-date" class="label">
+                            <span>
                                 <?php echo __('Mês / Ano') ?>
-                            </span></label>
+                            </span>
+                        </label>
                     </div>
                     <div class="field required">
                         <div class="control">

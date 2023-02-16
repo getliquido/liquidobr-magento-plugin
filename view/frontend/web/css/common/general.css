@@ -1,3 +1,7 @@
+.liquido-container {
+    font-family: "Poppins", sans-serif;
+}
+
 .column.main {
     width: 75% !important;
 }
