@@ -28,6 +28,11 @@ class LiquidoBrlBoleto extends Template
         return $this->payInSession->getData("boletoResultData")->getData("orderId");
     }
 
+    public function getBoletoBarCode()
+    {
+        return $this->payInSession->getData("boletoResultData")->getData("boletoBarCode");
+    }
+
     public function getBoletoDigitalLine()
     {
         return $this->payInSession->getData("boletoResultData")->getData("boletoDigitalLine");

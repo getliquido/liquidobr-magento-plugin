@@ -169,6 +169,10 @@ class Boleto implements ActionInterface
 
             if ($boletoResponse->paymentMethod == PaymentMethod::BOLETO) {
                 $this->boletoResultData->setData(
+                    'boletoBarCode',
+                    $boletoResponse->transferDetails->boleto->barcode
+                );
+                $this->boletoResultData->setData(
                     'boletoDigitalLine',
                     $boletoResponse->transferDetails->boleto->digitalLine
                 );
@@ -212,6 +216,7 @@ class Boleto implements ActionInterface
          */
         $this->boletoResultData = new DataObject(array(
             'orderId' => null,
+            'boletoBarCode' => null,
             'boletoDigitalLine' => null,
             'boletoUrl' => null,
             'transferStatus' => null,
