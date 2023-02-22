@@ -54,7 +54,7 @@ class LiquidoEmailHtmlCSS
                         <small>$ {{params.amount}}</small>
                     </div>
                     <div class="content-body-logo">
-                        <img src="https://img.mailinblue.com/5577006/images/content_library/original/63ebe7260fa5cf265b2e279c.png" alt="Liquido Pagos">
+                        <img src="https://img.mailinblue.com/5577006/images/content_library/original/63f663e6b2cee42b486c017d.png" alt="Liquido Pagos">
                     </div>
                 </div>
                 <div class="content-footer">

@@ -56,7 +56,7 @@ class LiquidoSendEmail
         $sendSmtpEmail = new SendSmtpEmail();
         $sendSmtpEmail['params'] = $params;
         if (!$isWebhookUpdate) {
-            $sendSmtpEmail['subject'] = 'Referência de Pago';
+            $sendSmtpEmail['subject'] = 'Referência de Pago de Efectivo - Liquido Pay';
             $sendSmtpEmail['htmlContent'] = $this->liquidoEmailHtmlCSS->getEmailHtml($sendSmtpEmail['params']);
             $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); 
             $sendSmtpEmail['to'] = array(
