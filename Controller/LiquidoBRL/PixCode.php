@@ -78,6 +78,11 @@ class PixCode implements ActionInterface
             return false;
         }
 
+        $customerName = $this->liquidoOrderData->getCustomerName();
+        if ($customerName == null) {
+            $this->errorMessage = __('Erro ao obter o nome do cliente.');
+        }
+
         $customerEmail = $this->liquidoOrderData->getCustomerEmail();
         if ($customerEmail == null) {
             $this->errorMessage = __('Erro ao obter o email do cliente.');
@@ -107,6 +112,7 @@ class PixCode implements ActionInterface
         $this->pixInputData = new DataObject(array(
             'orderId' => $orderId,
             'grandTotal' => $grandTotal,
+            'customerName' => $customerName,
             'customerEmail' => $customerEmail,
             'customerBillingAddress' => $billingAddress,
             'streetText' => $streetString,
@@ -226,7 +232,12 @@ class PixCode implements ActionInterface
                 "currency" => Currency::BRL,
                 "country" => Country::BRAZIL,
                 "payer" => [
+                    "name" => $this->pixInputData->getData('customerName'),
                     "email" => $this->pixInputData->getData('customerEmail'),
+                    // "document" => [
+                    //     "documentId" => "00000000000",
+                    //     "type" => "CPF"
+                    // ],
                     "address" => [ 
                         "zipCode" => $this->pixInputData->getData("customerBillingAddress")->getPostcode(),
                         "state" => $this->pixInputData->getData("customerBillingAddress")->getRegionCode(),
@@ -237,11 +248,16 @@ class PixCode implements ActionInterface
                         "country" => $this->pixInputData->getData("customerBillingAddress")->getCountryId()
                     ]
                 ],
+                "orderInfo" => [
+                    "orderId" => $this->pixInputData->getData('orderId')
+                ],
                 "description" => "Module Magento 2 PIX Request",
                 "riskData" => [
                     "ipAddress" => $this->pixInputData->getData("customerIpAddress")
                 ]
             ]);
+
+            $this->logger->info("[Controler PIX Payload]: ", $payInRequest->toArray());
 
             $pixResponse = $this->payInService->createPayIn($config, $payInRequest);
 
