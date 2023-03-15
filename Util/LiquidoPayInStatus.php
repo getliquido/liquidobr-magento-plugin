@@ -19,6 +19,8 @@ abstract class LiquidoPayInStatus
       case PayInStatus::CANCELLED || PayInStatus::FAILED:
         return MagentoSaleOrderStatus::CANCELLED;
         break;
+      case PayInStatus::REFUNDED:
+        return MagentoSaleOrderStatus::CLOSED;
       default:
         return MagentoSaleOrderStatus::PENDING_PAYMENT;
         break;
