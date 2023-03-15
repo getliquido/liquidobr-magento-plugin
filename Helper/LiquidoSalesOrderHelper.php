@@ -80,6 +80,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
             $foundLiquidoSalesOrder = $this->liquidoSalesOrderCollection
                 ->addFieldToFilter('order_id', $orderId)
                 ->getFirstItem();
+            $this->logger->info("findLiquidoSalesOrderByOrderId", (array) $foundLiquidoSalesOrder->getData('order_id'));
             return $foundLiquidoSalesOrder;
         } catch (\Exception $e) {
             echo $e->getMessage();
@@ -101,6 +102,29 @@ class LiquidoSalesOrderHelper extends AbstractHelper
         if ($liquidoSalesOrderAlreadyExists && !$liquidoSalesOrderAlreadyExistsAndResponseFailed) {
             $liquidoIdempotencyKey = $foundLiquidoSalesOrder->getData('idempotency_key');
             return $liquidoIdempotencyKey;
+        }
+
+        return null;
+    }
+
+    public function getPaymentInfoByOrderId($orderId)
+    {
+        $this->logger->info("getPaymentStatusByOrderId");
+
+        $foundLiquidoSalesOrder = $this->findLiquidoSalesOrderByOrderId($orderId);
+
+        $liquidoSalesOrderAlreadyExists = $foundLiquidoSalesOrder->getData('order_id') != null;
+        $liquidoSalesOrderAlreadyExistsAndResponseFailed = $liquidoSalesOrderAlreadyExists
+            && ($foundLiquidoSalesOrder->getData('transfer_status') == null
+                || $foundLiquidoSalesOrder->getData('transfer_status') == PayInStatus::FAILED
+            );
+
+        if ($liquidoSalesOrderAlreadyExists && !$liquidoSalesOrderAlreadyExistsAndResponseFailed) {
+            $liquidoPaymentInfo = [
+                'transfer_status' => $foundLiquidoSalesOrder->getData('transfer_status'),
+                'payment_method' => $foundLiquidoSalesOrder->getData('payment_method')
+            ];
+            return $liquidoPaymentInfo;
         }
 
         return null;

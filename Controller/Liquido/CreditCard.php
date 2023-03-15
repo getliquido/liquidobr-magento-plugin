@@ -8,6 +8,10 @@ use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
 use \Magento\Framework\App\RequestInterface;
 use \Magento\Framework\DataObject;
+use \Magento\Framework\App\ObjectManager;
+use \Magento\Sales\Model\Service\InvoiceService;
+use \Magento\Sales\Model\Order\Invoice;
+use \Magento\Framework\DB\Transaction;
 use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
@@ -38,6 +42,9 @@ class CreditCard implements ActionInterface
     private DataObject $creditCardInputData;
     private DataObject $creditCardResultData;
     private RequestInterface $httpRequest;
+	private ObjectManager $objectManager;
+	private InvoiceService $invoiceService;
+	private Transaction $transaction;
     private string $errorMessage;
     private $remoteAddress;
 
@@ -51,7 +58,9 @@ class CreditCard implements ActionInterface
         LiquidoConfigData $liquidoConfig,
         RequestInterface $httpRequest,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
-        RemoteAddress $remoteAddress
+        RemoteAddress $remoteAddress,
+		InvoiceService $invoiceService,
+		Transaction $transaction
     )
     {
         $this->remoteAddress = $remoteAddress;
@@ -67,6 +76,10 @@ class CreditCard implements ActionInterface
         $this->creditCardInputData = new DataObject(array());
         $this->creditCardResultData = new DataObject(array());
         $this->errorMessage = "";
+		$this->invoiceService = $invoiceService;
+		$this->transaction = $transaction;
+		$this->logger = $logger;
+		$this->objectManager = ObjectManager::getInstance();
     }
 
     private function validateInputCreditCardData()
@@ -417,6 +430,9 @@ class CreditCard implements ActionInterface
                             "paymentMethod" => $creditCardResponse->paymentMethod
                         )
                     );
+
+                    
+                    $this->createInvoice($creditCardResponse->transferStatus);
                     $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
                 }
             } catch (\Exception $e) {
@@ -432,5 +448,28 @@ class CreditCard implements ActionInterface
         $this->payInSession->setData("creditCardResultData", $this->creditCardResultData);
 
         return $this->resultPageFactory->create();
+    }
+
+    private function createInvoice($transferStatus)
+    {
+        $orderId = $this->creditCardInputData->getData("orderId");
+        $order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+        if ($order->canInvoice() && $transferStatus == PayInStatus::SETTLED) {
+            $this->logger->info("*************************** CREDIT CARD CREATE INVOICE *******************************");
+
+            $invoice = $this->invoiceService->prepareInvoice($order);
+            $invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
+            $invoice->register();
+            $invoice->save();
+
+            $transactionSave = $this->transaction
+                ->addObject($invoice)
+                ->addObject($invoice->getOrder());
+            $transactionSave->save();
+
+            $order->addStatusHistoryComment(__('Invoice #' . $invoice->getIncrementId() . ' created automatically'))
+                ->setIsCustomerNotified(false)
+                ->save();
+        }
     }
 }
