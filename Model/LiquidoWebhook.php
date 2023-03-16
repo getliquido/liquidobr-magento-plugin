@@ -11,6 +11,8 @@ use \Magento\Sales\Model\Order\Invoice;
 use \Magento\Framework\DB\Transaction;
 use \Psr\Log\LoggerInterface;
 
+use \Magento\Sales\Model\Order;
+
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoSendEmail;
 
@@ -88,7 +90,9 @@ class LiquidoWebhook
 			} else {
 				$this->logger->info("*************************** NOT REFUND *******************************");
 
-				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($orderId);
+
+				$this->logger->info("************* ORDER INFO *************", (array) $order);				
 				
 				$this->logger->info("************* ORDER CAN INVOICE *************", (array) $order->canInvoice());
 				if ($order->canInvoice() || $order->getStatus() == 'pending_payment') {
