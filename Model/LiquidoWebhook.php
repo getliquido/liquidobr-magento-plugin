@@ -58,8 +58,10 @@ class LiquidoWebhook
 		// *** TO DO: get headers from request
 
 		$body = $this->request->getBodyParams();
+		$this->logger->info("************* RESPONSE BODY *****************", (array) $body);
 
 		$eventType = $body["eventType"];
+		$this->logger->info("************* EVENT TYPE *****************", (array) $eventType);
 		// if $eventType == SOMETHING { do something... }
 
 		// if "idempotencyKey" not in $body { do something... }
@@ -82,9 +84,12 @@ class LiquidoWebhook
 			if ($transferStatus == 'REFUNDED') {
 				$this->logger->info("*************************** START REFUND *******************************");
 				$refundOrder = $this->executeRefundOrder($orderId);
-				$this->logger->info("************* START REFUND *****************", (array) $refundOrder);
+				$this->logger->info("************* REFUND ORDER*****************", (array) $refundOrder);
 			} else {
+				$this->logger->info("*************************** NOT REFUND *******************************");
 				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+				$this->logger->info("************* ORDER *************", (array) $order);
+				$this->logger->info("************* ORDER CAN INVOICE *************", (array) $order->canInvoice());
 				if ($order->canInvoice()) {
 					$this->logger->info("*************************** CREATE INVOICE *******************************", (array) $order);
 
