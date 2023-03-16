@@ -67,7 +67,7 @@ class LiquidoWebhook
 		// if $eventType == SOMETHING { do something... }
 
 		// if "idempotencyKey" not in $body { do something... }
-		$idempotencyKey = $body["data"]["chargeDetails"]["idempotencyKey"];
+		$idempotencyKey = $this->isRefund($eventType) ? $body["data"]["chargeDetails"]["referenceId"] : $body["data"]["chargeDetails"]["idempotencyKey"];
 
 		$foundLiquidoSalesOrder = $this->liquidoSalesOrderHelper
 			->findLiquidoSalesOrderByIdempotencyKey($idempotencyKey);
@@ -92,8 +92,8 @@ class LiquidoWebhook
 
 				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($orderId);
 
-				$this->logger->info("************* ORDER INFO *************", (array) $order);				
-				
+				$this->logger->info("************* ORDER INFO *************", (array) $order);
+
 				$this->logger->info("************* ORDER CAN INVOICE *************", (array) $order->canInvoice());
 				if ($order->canInvoice() || $order->getStatus() == 'pending_payment') {
 					$this->logger->info("*************************** CREATE INVOICE *******************************", (array) $order);
@@ -109,8 +109,8 @@ class LiquidoWebhook
 					$transactionSave->save();
 
 					$order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
-                        $order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-                        $order->save();
+					$order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
+					$order->save();
 
 					$order->addStatusHistoryComment(__('Invoice #' . $invoice->getIncrementId() . ' created automatically'))
 						->setIsCustomerNotified(false)
@@ -146,7 +146,7 @@ class LiquidoWebhook
 
 	private function isRefund($eventType)
 	{
-		return $eventType == 'CHARGE_REFUND_SUCCEEDED';
+		return $eventType === 'CHARGE_REFUND_SUCCEEDED';
 	}
 
 	private function executeRefundOrder($orderId)

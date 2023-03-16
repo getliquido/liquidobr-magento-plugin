@@ -13,6 +13,8 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\ObjectManager;
 use Psr\Log\LoggerInterface;
 
+use Magento\Sales\Model\OrderRepository;
+
 use Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use Liquido\PayIn\Helper\LiquidoOrderData;
 use Liquido\PayIn\Helper\LiquidoConfigData;
@@ -72,11 +74,10 @@ class RefundOrder extends Action
 
     private function validateInputRefundData()
     {
-        $this->logger->info("############ validateInputRefundData ###########");
-        
         $adminOrderId = $this->getRequest()->getParam('order_id');
         $objectManager = ObjectManager::getInstance();
-        $orderInfo = $objectManager->create('\Magento\Sales\Model\OrderRepository')->get($adminOrderId);
+        //$orderInfo = $objectManager->create('\Magento\Sales\Model\OrderRepository')->get($adminOrderId);
+        $orderInfo = $objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($adminOrderId);
         $originalOrderId = $orderInfo->getIncrementId();
         $paymentIdempotencyKey = $this->liquidoSalesOrderHelper
             ->getAlreadyRegisteredIdempotencyKey($originalOrderId);
@@ -133,12 +134,8 @@ class RefundOrder extends Action
             "hasFailed" => false
         ]);
 
-        $this->logger->info("############ Refund result data ###########", (array) $this->refundResultData);
-
         $areValidData = $this->validateInputRefundData();
         if (!$areValidData) {
-            $this->logger->info("############ Refund not valid data ###########");
-
             $this->refundResultData->setData('hasFailed', true);
             $this->messageManager->addErrorMessage($this->errorMessage);
             $this->logger->warning("[ {$className} Controller ]: Invalid input data:", (array) $this->refundInputData);
@@ -168,24 +165,8 @@ class RefundOrder extends Action
             $this->logger->info("[Controler Refund Payload]: ", $refundRequest->toArray());
         
             $refundResponse = $this->refundService->createRefund($config, $refundRequest);
-
             $this->manageRefundResponse($refundResponse);  
             
-            // if (
-            //     $refundResponse != null
-            //     && property_exists($refundResponse, 'transferStatus')
-            //     && $refundResponse->transferStatus != null
-            //     && property_exists($refundResponse, 'paymentMethod')
-            //     && $refundResponse->transferStatus != null
-            // ) {
-            //     $orderData = new DataObject(array(
-            //         "orderId" => $this->refundInputData->getData('orderId'),
-            //         "idempotencyKey" => $this->refundInputData->getData('referenceId'),
-            //         "transferStatus" => 'IN_PROGRESS',
-            //         "paymentMethod" => $refundResponse->paymentMethod
-            //     ));
-            // }
-
             $this->logger->info("[ {$className} Refund Controller ]: Result data:", (array) $refundResponse);
             $this->logger->info("###################### END ######################");
 
