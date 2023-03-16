@@ -9,7 +9,10 @@ use \Magento\Framework\App\ObjectManager;
 use \Magento\Sales\Model\Service\InvoiceService;
 use \Magento\Sales\Model\Order\Invoice;
 use \Magento\Framework\DB\Transaction;
+use \Magento\Sales\Model\Order;
 use \Psr\Log\LoggerInterface;
+
+use Magento\Sales\Api\OrderRepositoryInterface;
 
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoSendEmail;
@@ -27,6 +30,7 @@ class LiquidoWebhook
 	private InvoiceService $invoiceService;
 	private Transaction $transaction;
 	private LoggerInterface $logger;
+	private OrderRepositoryInterface $orderRepository,
 
 	public function __construct(
 		Request $request,
@@ -35,7 +39,8 @@ class LiquidoWebhook
 		RefundOrder $refundOrder,
 		InvoiceService $invoiceService,
 		Transaction $transaction,
-		LoggerInterface $logger
+		LoggerInterface $logger,
+		OrderRepositoryInterface $orderRepository
 	) {
 		$this->request = $request;
 		$this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
@@ -45,6 +50,7 @@ class LiquidoWebhook
 		$this->transaction = $transaction;
 		$this->logger = $logger;
 		$this->objectManager = ObjectManager::getInstance();
+		$this->orderRepository = $orderRepository;
 	}
 
 	/**
@@ -87,7 +93,8 @@ class LiquidoWebhook
 				$this->logger->info("************* REFUND ORDER*****************", (array) $refundOrder);
 			} else {
 				$this->logger->info("*************************** NOT REFUND *******************************");
-				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+				//$order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+				$order = $this->orderRepository->get($orderId);
 				$this->logger->info("************* ORDER *************", (array) $order);
 				$this->logger->info("************* ORDER CAN INVOICE *************", (array) $order->canInvoice());
 				if ($order->canInvoice()) {
