@@ -72,6 +72,8 @@ class RefundOrder extends Action
 
     private function validateInputRefundData()
     {
+        $this->logger->info("############ validateInputRefundData ###########");
+        
         $adminOrderId = $this->getRequest()->getParam('order_id');
         $objectManager = ObjectManager::getInstance();
         $orderInfo = $objectManager->create('\Magento\Sales\Model\OrderRepository')->get($adminOrderId);
@@ -131,8 +133,12 @@ class RefundOrder extends Action
             "hasFailed" => false
         ]);
 
+        $this->logger->info("############ Refund result data ###########", (array) $this->refundResultData);
+
         $areValidData = $this->validateInputRefundData();
         if (!$areValidData) {
+            $this->logger->info("############ Refund not valid data ###########");
+
             $this->refundResultData->setData('hasFailed', true);
             $this->messageManager->addErrorMessage($this->errorMessage);
             $this->logger->warning("[ {$className} Controller ]: Invalid input data:", (array) $this->refundInputData);
@@ -162,6 +168,7 @@ class RefundOrder extends Action
             $this->logger->info("[Controler Refund Payload]: ", $refundRequest->toArray());
         
             $refundResponse = $this->refundService->createRefund($config, $refundRequest);
+
             $this->manageRefundResponse($refundResponse);  
             
             // if (
@@ -179,7 +186,7 @@ class RefundOrder extends Action
             //     ));
             // }
 
-            $this->logger->info("[ {$className} Controller ]: Result data:", (array) $this->refundResultData);
+            $this->logger->info("[ {$className} Refund Controller ]: Result data:", (array) $refundResponse);
             $this->logger->info("###################### END ######################");
 
             $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
