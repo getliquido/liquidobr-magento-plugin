@@ -69,6 +69,8 @@ class LiquidoWebhook
 			->findLiquidoSalesOrderByIdempotencyKey($idempotencyKey);
 
 		$orderId = $foundLiquidoSalesOrder->getData('order_id');
+		$this->logger->info("************* Webhook Order Id ************", (array) $orderId);
+
 		$liquidoSalesOrderAlreadyExists = $orderId != null;
 
 		if ($liquidoSalesOrderAlreadyExists) {
@@ -79,11 +81,12 @@ class LiquidoWebhook
 
 			if ($transferStatus == 'REFUNDED') {
 				$this->logger->info("*************************** START REFUND *******************************");
-				$this->executeRefundOrder($orderId);
+				$refundOrder = $this->executeRefundOrder($orderId);
+				$this->logger->info("************* START REFUND *****************", (array) $refundOrder);
 			} else {
 				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
 				if ($order->canInvoice()) {
-					$this->logger->info("*************************** CREATE INVOICE *******************************");
+					$this->logger->info("*************************** CREATE INVOICE *******************************", (array) $order);
 
 					$invoice = $this->invoiceService->prepareInvoice($order);
 					$invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
