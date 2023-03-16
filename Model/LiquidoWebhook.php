@@ -149,8 +149,8 @@ class LiquidoWebhook
 		return $eventType == 'CHARGE_REFUND_SUCCEEDED';
 	}
 
-	private function executeRefundOrder($order)
+	private function executeRefundOrder($orderId)
 	{
-		return $this->refundOrder->execute($order->getId());
+		return $this->refundOrder->execute($orderId);
 	}
 }
