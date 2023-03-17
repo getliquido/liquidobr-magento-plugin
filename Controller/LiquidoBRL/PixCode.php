@@ -261,6 +261,8 @@ class PixCode implements ActionInterface
 
             $pixResponse = $this->payInService->createPayIn($config, $payInRequest);
 
+            $this->logger->info("[Controler PIX Response]: ", (array) $pixResponse);
+
             $this->managePixResponse($pixResponse);
 
             if (
