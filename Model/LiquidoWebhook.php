@@ -60,10 +60,8 @@ class LiquidoWebhook
 		// *** TO DO: get headers from request
 
 		$body = $this->request->getBodyParams();
-		$this->logger->info("************* RESPONSE BODY *****************", (array) $body);
 
 		$eventType = $body["eventType"];
-		$this->logger->info("************* EVENT TYPE *****************", (array) $eventType);
 		// if $eventType == SOMETHING { do something... }
 
 		// if "idempotencyKey" not in $body { do something... }
@@ -73,7 +71,6 @@ class LiquidoWebhook
 			->findLiquidoSalesOrderByIdempotencyKey($idempotencyKey);
 
 		$orderId = $foundLiquidoSalesOrder->getData('order_id');
-		$this->logger->info("************* Webhook Order Id ************", (array) $orderId);
 
 		$liquidoSalesOrderAlreadyExists = $orderId != null;
 
@@ -84,9 +81,14 @@ class LiquidoWebhook
 			$paymentMethod = $body["data"]["chargeDetails"]["paymentMethod"];
 
 			if ($transferStatus == 'REFUNDED') {
-				$this->logger->info("*************************** START REFUND *******************************");
-				$refundOrder = $this->executeRefundOrder($orderId);
-				$this->logger->info("************* REFUND ORDER*****************", (array) $refundOrder);
+
+				try {
+					$this->logger->info("*************************** START REFUND *******************************");
+					$this->executeRefundOrder($orderId);
+				} catch (\Exception $e) {
+					$this->logger->info("************ FAILED REFUND ******************", $e);
+				}
+				
 			} else {
 				$this->logger->info("*************************** NOT REFUND *******************************");
 
