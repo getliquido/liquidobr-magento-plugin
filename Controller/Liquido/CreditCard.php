@@ -403,6 +403,7 @@ class CreditCard implements ActionInterface
 
             $this->logger->info("[Controler Credit Card Payload]: ", $payInRequest->toArray());
 
+            $creditCardResponse = null;
             try {
                 $creditCardResponse = $this->payInService->createPayIn($config, $payInRequest);
 
