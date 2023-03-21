@@ -2,16 +2,15 @@
 
 namespace Liquido\PayIn\Model;
 
+
 use \Magento\Framework\Webapi\Rest\Request;
 use \Magento\Framework\DataObject;
-use \Magento\Sales\Model\RefundOrder;
 use \Magento\Framework\App\ObjectManager;
-use \Magento\Sales\Model\Service\InvoiceService;
+use \Magento\Sales\Model\Order;
 use \Magento\Sales\Model\Order\Invoice;
+use \Magento\Sales\Model\Service\InvoiceService;
 use \Magento\Framework\DB\Transaction;
 use \Psr\Log\LoggerInterface;
-
-use \Magento\Sales\Model\Order;
 
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoSendEmail;
@@ -24,7 +23,6 @@ class LiquidoWebhook
 	private Request $request;
 	private LiquidoSalesOrderHelper $liquidoSalesOrderHelper;
 	private LiquidoSendEmail $sendEmail;
-	private RefundOrder $refundOrder;
 	private ObjectManager $objectManager;
 	private InvoiceService $invoiceService;
 	private Transaction $transaction;
@@ -34,7 +32,6 @@ class LiquidoWebhook
 		Request $request,
 		LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
 		LiquidoSendEmail $sendEmail,
-		RefundOrder $refundOrder,
 		InvoiceService $invoiceService,
 		Transaction $transaction,
 		LoggerInterface $logger
@@ -42,7 +39,6 @@ class LiquidoWebhook
 		$this->request = $request;
 		$this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
 		$this->sendEmail = $sendEmail;
-		$this->refundOrder = $refundOrder;
 		$this->invoiceService = $invoiceService;
 		$this->transaction = $transaction;
 		$this->logger = $logger;
@@ -65,7 +61,7 @@ class LiquidoWebhook
 		// if $eventType == SOMETHING { do something... }
 
 		// if "idempotencyKey" not in $body { do something... }
-		$idempotencyKey = $this->isRefund($eventType) ? $body["data"]["chargeDetails"]["referenceId"] : $body["data"]["chargeDetails"]["idempotencyKey"];
+		$idempotencyKey = $this->getIdempotencyKey($body);
 
 		$foundLiquidoSalesOrder = $this->liquidoSalesOrderHelper
 			->findLiquidoSalesOrderByIdempotencyKey($idempotencyKey);
@@ -74,32 +70,32 @@ class LiquidoWebhook
 
 		$liquidoSalesOrderAlreadyExists = $orderId != null;
 
-		if ($liquidoSalesOrderAlreadyExists) {
-
+		if ($liquidoSalesOrderAlreadyExists) 
+		{
 			// if "transferStatus" not in $body { do something... }
 			$transferStatus = $this->isRefund($eventType) ? 'REFUNDED' : $body["data"]["chargeDetails"]["transferStatus"];
 			$paymentMethod = $body["data"]["chargeDetails"]["paymentMethod"];
+			$orderData = new DataObject(array(
+				"orderId" => $orderId,
+				"idempotencyKey" => $idempotencyKey,
+				"transferStatus" => $transferStatus,
+				"paymentMethod" => $paymentMethod
+			));
 
-			if ($transferStatus == 'REFUNDED') {
+			$order = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($orderId);
 
-				try {
-					$this->logger->info("*************************** START REFUND *******************************");
-					$this->executeRefundOrder($orderId);
-				} catch (\Exception $e) {
-					$this->logger->info("************ FAILED REFUND ******************", $e);
-				}
-				
-			} else {
-				$this->logger->info("*************************** NOT REFUND *******************************");
-
-				$order = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($orderId);
-
-				$this->logger->info("************* ORDER INFO *************", (array) $order);
-
-				$this->logger->info("************* ORDER CAN INVOICE *************", (array) $order->canInvoice());
-				if ($order->canInvoice() || $order->getStatus() == 'pending_payment') {
-					$this->logger->info("*************************** CREATE INVOICE *******************************", (array) $order);
-
+			if ($transferStatus == 'REFUNDED') 
+			{
+				$refund = $this->refundOrder($order);
+				$this->logger->info("Refund response {$refund}");
+				$this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
+				$order->setState(Order::STATE_CLOSED)->setStatus($order->getConfig()->getStateDefaultStatus(Order::STATE_CLOSED));
+				$order->save();
+			} 
+			else 
+			{
+				if ($order->canInvoice()) 
+				{
 					$invoice = $this->invoiceService->prepareInvoice($order);
 					$invoice->setRequestedCaptureCase(Invoice::CAPTURE_OFFLINE);
 					$invoice->register();
@@ -110,26 +106,16 @@ class LiquidoWebhook
 						->addObject($invoice->getOrder());
 					$transactionSave->save();
 
-					$order->setState(\Magento\Sales\Model\Order::STATE_PROCESSING, true);
-					$order->setStatus(\Magento\Sales\Model\Order::STATE_PROCESSING);
-					$order->save();
-
 					$order->addStatusHistoryComment(__('Invoice #' . $invoice->getIncrementId() . ' created automatically'))
 						->setIsCustomerNotified(false)
-						->save();
+						->save();	
+
+					$this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
 				}
 			}
 
-			$orderData = new DataObject(array(
-				"orderId" => $orderId,
-				"idempotencyKey" => $idempotencyKey,
-				"transferStatus" => $transferStatus,
-				"paymentMethod" => $paymentMethod
-			));
-
-			$this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
-
-			if ($paymentmethod == PaymentMethod::CASH) {
+			if ($paymentMethod == PaymentMethod::CASH) 
+			{
 				$params = array(
 					'name' => $body['data']['chargeDetails']['payer']['name'],
 					'email' => $body['data']['chargeDetails']['payer']['email'],
@@ -139,6 +125,8 @@ class LiquidoWebhook
 				$this->sendEmail->sendEmail($params, true);
 			}
 		}
+
+		$this->logger->info("###################### END {$className} processLiquidoCallbackRequest ######################");
 
 		return [[
 			"status" => 200,
@@ -151,8 +139,30 @@ class LiquidoWebhook
 		return $eventType === 'CHARGE_REFUND_SUCCEEDED';
 	}
 
-	private function executeRefundOrder($orderId)
+	private function getIdempotencyKey($bodyInfo)
 	{
-		return $this->refundOrder->execute($orderId);
+		if ($this->isRefund($bodyInfo["eventType"])) {
+			return $bodyInfo["data"]["chargeDetails"]["referenceId"];
+		} else {
+			return $bodyInfo["data"]["chargeDetails"]["idempotencyKey"];
+		}
+	}
+
+	private function refundOrder($order)
+	{
+		try {
+			$creditMemoFactory = $this->objectManager->create('Magento\Sales\Model\Order\CreditmemoFactory');
+			$creditmemoService = $this->objectManager->create('Magento\Sales\Model\Service\CreditmemoService');
+			$creditmemo = $creditMemoFactory->createByOrder($order);
+			foreach ($creditmemo->getAllItems() as $creditmemoItem)
+			{
+				$creditmemoItem->setBackToStock(true);
+			}
+			$creditmemoService->refund($creditmemo);
+
+			$this->logger->info("Refunded");
+		} catch (\Exception $e) {
+			$this->logger->error("Failed".$e);
+		}
 	}
 }
