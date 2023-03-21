@@ -13,8 +13,6 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\ObjectManager;
 use Psr\Log\LoggerInterface;
 
-use Magento\Sales\Model\OrderRepository;
-
 use Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use Liquido\PayIn\Helper\LiquidoOrderData;
 use Liquido\PayIn\Helper\LiquidoConfigData;
@@ -76,7 +74,6 @@ class RefundOrder extends Action
     {
         $adminOrderId = $this->getRequest()->getParam('order_id');
         $objectManager = ObjectManager::getInstance();
-        //$orderInfo = $objectManager->create('\Magento\Sales\Model\OrderRepository')->get($adminOrderId);
         $orderInfo = $objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($adminOrderId);
         $originalOrderId = $orderInfo->getIncrementId();
         $paymentIdempotencyKey = $this->liquidoSalesOrderHelper
