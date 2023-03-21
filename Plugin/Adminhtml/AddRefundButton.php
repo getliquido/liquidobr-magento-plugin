@@ -53,7 +53,7 @@ class AddRefundButton
                             || $paymentInfo['payment_method'] == BrazilPaymentMethod::PIX_STATIC_QR)
                                 && $this->liquidoConfigData->getCountry() == Country::BRAZIL
             ) {
-                $message = __("Confirma a solicitação de reembolso?");
+                $message = __("Confirma a solicitação de reembolso? <br/> <br/> Ao confirmar, o valor total da compra será devolvido ao pagador e todos os itens do pedido serão devolvidos ao estoque.");
                 $url = $context->getUrl('liquido_payin/liquido/refundorder', ['order_id' => $orderId]);
                 $buttonList->add(
                     'customButton',

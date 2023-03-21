@@ -431,7 +431,6 @@ class CreditCard implements ActionInterface
                             "paymentMethod" => $creditCardResponse->paymentMethod
                         )
                     );
-
                     
                     $this->createInvoice($creditCardResponse->transferStatus);
                     $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
