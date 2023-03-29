@@ -114,7 +114,7 @@ class LiquidoWebhook
 				}
 			}
 
-			if ($paymentMethod == PaymentMethod::CASH) 
+			/*if ($paymentMethod == PaymentMethod::CASH) 
 			{
 				$params = array(
 					'name' => $body['data']['chargeDetails']['payer']['name'],
@@ -123,7 +123,7 @@ class LiquidoWebhook
 					'statusCode' => $body['data']['chargeDetails']['transferStatusCode']
 				);
 				$this->sendEmail->sendEmail($params, true);
-			}
+			}*/
 		}
 
 		$this->logger->info("###################### END {$className} processLiquidoCallbackRequest ######################");

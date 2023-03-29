@@ -31,7 +31,7 @@ div.result-header h1 {
 div.result-header h2,
 div.result-header h3 {
     font-style: italic;
-    line-height: 30%;
+    line-height:90%;
 }
 
 div.result-header-info {
@@ -66,7 +66,7 @@ div#result-main-content .result-content .result-card {
     background-color: #FFFFFF;
     border-radius: 22px;
 
-    padding: 22px;
+    padding: 15px;
     color: #97989B;
 
     box-shadow: 0 0 5px #97989B;
@@ -135,5 +135,15 @@ print {
     .fieldset>.field:not(.choice)>.label {
         text-align: left !important;
         width: 100% !important;
+    }
+}
+
+@media only screen and (max-width: 415px) {
+    div.result-header h3 {
+        font-size: 14px !important;
+    }
+
+    div#result-main-content .result-content .result-card h2 {
+        font-size: 20px !important;
     }
 }

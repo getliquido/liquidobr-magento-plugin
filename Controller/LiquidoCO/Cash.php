@@ -284,7 +284,7 @@ class Cash implements ActionInterface
                     'email' => $this->cashInputData->getData('customerEmail'),
                     'cashCode' => $this->cashResultData->getData('cashCode'),
                     'expiration' => date('d/m/Y', strtotime($this->cashInputData->getData('expirationDate'))),
-                    'amount' => number_format($amount, 2, ',', '.'),
+                    'amount' => number_format($amount, 0, ',', '.'),
                     'orderId' => $this->cashInputData->getData('orderId'),
                     'storeName' => strtoupper($this->storeManager->getStore()->getName()),
                     'storeURL' => $this->urlInterface->getUrl()
