@@ -141,9 +141,10 @@ print {
 @media only screen and (max-width: 415px) {
     div.result-header h3 {
         font-size: 14px !important;
+        line-height: 105% !important;
     }
 
     div#result-main-content .result-content .result-card h2 {
-        font-size: 20px !important;
+        font-size: 17px !important;
     }
 }
