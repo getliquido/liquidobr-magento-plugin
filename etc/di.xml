@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
 	<preference for="Liquido\PayIn\Api\LiquidoCalbackInterface" type="Liquido\PayIn\Model\LiquidoWebhook" />
+    <type name="Magento\Sales\Controller\Adminhtml\Order\Creditmemo\Save">
+        <plugin name="liquido_refund_order" type="Liquido\PayIn\Plugin\Controller\Adminhtml\Order\Creditmemo\SavePlugin" />
+    </type>
 </config>
