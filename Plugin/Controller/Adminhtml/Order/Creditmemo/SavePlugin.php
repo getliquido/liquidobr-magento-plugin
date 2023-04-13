@@ -85,8 +85,8 @@ class SavePlugin
         $this->refundInputData = new DataObject(array());
         $this->objectManager = ObjectManager::getInstance();
         $this->redirectionUrl = $this->url->getUrl($this->redirect->getRefererUrl());
-        $orderId = (int) $this->request->getParam('order_id');
-        $this->orderInfo = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByIncrementId($orderId);
+        $orderId = $this->request->getParam('order_id');
+        $this->orderInfo = $this->objectManager->create('\Magento\Sales\Model\Order')->loadByAttribute('entity_id', $orderId); 
     }
 
     private function validadeRefundInputData()
@@ -256,6 +256,8 @@ class SavePlugin
         $orderStatus = $this->orderInfo->getStatus();
         $incrementId = $this->orderInfo->getIncrementId();
         $paymentInfo = $this->liquidoSalesOrderHelper->getPaymentInfoByOrderId($incrementId);
+
+        $this->logger->info("############Payment Info#############", (array) $paymentInfo);
 
         $bool = false;
         if (
