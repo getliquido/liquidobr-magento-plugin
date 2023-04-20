@@ -41,4 +41,43 @@
         <!-- <constraint xsi:type="foreign" referenceId="LIQUIDO_PAYIN_SALES_ORDER_ORDER_ID_SALES_ORDER_ENTITY_ID" table="liquido_payin_sales_order" column="order_id" referenceTable="sales_order" referenceColumn="increment_id" onDelete="CASCADE" /> -->
 
     </table>
+
+    <table name="liquido_payin_sales_creditmemo_grid" engine="innodb" comment="Liquido BRL Sales Credit Memo Grid">  
+
+         <!-- The standard auto-incrementing id of the table. -->
+        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" identity="true" comment="Id" />
+
+        <!-- The reference to the order id. -->
+        <column xsi:type="varchar" name="order_id" length="255" nullable="false" comment="Order id" />
+
+        <!-- The column for the credit memo id. -->
+        <column xsi:type="varchar" name="creditmemo_id" length="255" nullable="false" comment="Creditmemo Id" />
+
+        <!-- The column for a Liquido Payment Idempotency Key. -->
+        <column xsi:type="varchar" name="reference_id" length="255" nullable="false" comment="Payment Idempotency Key" onCreate="migrateDataFrom(payment_idempotency_key)" />
+
+        <!-- The column for a Liquido Refund Idempotency Key. -->
+        <column xsi:type="varchar" name="idempotency_key" length="255" nullable="false" comment="Refund Idempotency Key" onCreate="migrateDataFrom(refund_idempotency_key)" />
+
+         <!-- The column for a Liquido Refund Transfer Status. -->
+        <column xsi:type="text" name="transfer_status" nullable="false" comment="Transfer Status" />
+
+        <column xsi:type="text" name="created_at" nullable="false" comment="Created at" />
+        
+        <column xsi:type="text" name="updated_at" nullable="false" comment="Updated at" />
+
+        <!-- This is the primary key constraint for the database table. -->
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id" />
+        </constraint>
+
+        <constraint xsi:type="unique" referenceId="UNIQUE_ORDER_ID">
+            <column name="creditmemo_id" />
+        </constraint>
+
+        <constraint xsi:type="unique" referenceId="UNIQUE_IDEMPOTENCY_KEY">
+            <column name="idempotency_key" />
+        </constraint>
+        
+    </table>  
 </schema>
