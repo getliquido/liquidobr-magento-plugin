@@ -18,6 +18,9 @@ use \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader;
 use \Magento\Sales\Controller\Adminhtml\Order\Creditmemo\Save;
 use \Psr\Log\LoggerInterface;
 
+use \Magento\Sales\Api\CreditmemoRepositoryInterface;
+
+use \Liquido\PayIn\Helper\LiquidoCreditmemoHelper;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 use \Liquido\PayIn\Helper\LiquidoOrderData;
@@ -35,10 +38,12 @@ use \LiquidoBrl\PayInPhpSdk\Util\Common\PaymentMethod as CommonPaymentMethod;
 class SavePlugin
 {
     private DataObject $refundInputData;
+    private DataObject $creditmemoData;
     private CreditmemoLoader $creditmemoLoader;
 
     private LiquidoConfigData $liquidoConfig;
     private LiquidoOrderData $liquidoOrderData;
+    private LiquidoCreditmemoHelper $liquidoCreditmemoHelper;
     private LiquidoSalesOrderHelper $liquidoSalesOrderHelper;
     private RefundService $refundService;
 
@@ -59,6 +64,7 @@ class SavePlugin
         CreditmemoLoader $creditmemoLoader,
         LiquidoConfigData $liquidoConfig, 
         LiquidoOrderData $liquidoOrderData,
+        LiquidoCreditmemoHelper $liquidoCreditmemoHelper,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         RedirectInterface $redirect,
         Http $request,
@@ -71,6 +77,7 @@ class SavePlugin
     {
         $this->liquidoConfig = $liquidoConfig;
         $this->liquidoOrderData = $liquidoOrderData;
+        $this->liquidoCreditmemoHelper = $liquidoCreditmemoHelper;
         $this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper; 
         $this->refundService = $refundService;
         $this->creditmemoLoader = $creditmemoLoader;
@@ -83,6 +90,7 @@ class SavePlugin
         $this->responseFactory = $responseFactory;
         $this->url = $url;
         $this->refundInputData = new DataObject(array());
+        $this->creditmemoData = new DataObject(array()); 
         $this->objectManager = ObjectManager::getInstance();
         $this->redirectionUrl = $this->url->getUrl($this->redirect->getRefererUrl());
         $orderId = $this->request->getParam('order_id');
@@ -92,9 +100,9 @@ class SavePlugin
     private function validadeRefundInputData()
     {
         $incrementId = $this->orderInfo->getIncrementId();
-        $paymentIdempotencyKey = $this->liquidoSalesOrderHelper
+        $referenceId = $this->liquidoSalesOrderHelper
             ->getAlreadyRegisteredIdempotencyKey($incrementId);
-        if ($paymentIdempotencyKey == null) {
+        if ($referenceId == null) {
             $this->errorMessage = __('Pagamento não encontrado.');
             return false;
         }
@@ -104,11 +112,14 @@ class SavePlugin
         $this->creditmemoLoader->setCreditmemo($this->request->getParam('creditmemo'));
         $this->creditmemoLoader->setInvoiceId($this->request->getParam('invoice_id'));
         $creditmemo = $this->creditmemoLoader->load();
-        
-
+    
         $amount = $creditmemo->getGrandTotal() * 100;
-        $refundIdempotencyKey = $this->liquidoOrderData->generateUniqueToken();
+        $creditmemoId = $this->getIncrementId();
+        $idempotencyKey = $this->liquidoOrderData->generateUniqueToken();
         $callbackUrl = $this->liquidoConfig->getCallbackUrl();
+
+        $foundLiquidoSalesOrder = $this->liquidoSalesOrderHelper->findLiquidoSalesOrderByOrderId($incrementId);
+        $paymentMethod = $foundLiquidoSalesOrder->getData('payment_method');
 
         switch ($this->liquidoConfig->getCountry()) {
             case 'BR':
@@ -123,12 +134,15 @@ class SavePlugin
 
         $this->refundInputData = new DataObject([
             "orderId" => $incrementId,
-            "idempotencyKey" => $refundIdempotencyKey,
-            "referenceId" => $paymentIdempotencyKey,
+            "creditmemoId" => $creditmemoId,
+            "idempotencyKey" => $idempotencyKey,
+            "referenceId" => $referenceId,
             "amount" => $amount,
             "currency" => $currency,
             "country" => $country,
-            "callbackUrl" => $callbackUrl
+            "callbackUrl" => $callbackUrl,
+            "transferStatus" => null,
+            "paymentMethod" => $paymentMethod
         ]);
 
         return true;
@@ -167,6 +181,8 @@ class SavePlugin
                     "callbackUrl" => $this->refundInputData->getData('callbackUrl')
                 ]);
 
+                $this->logger->info("************* Refund Payload ************", (array) $refundRequest->toArray());
+
                 $refundResponse = null;
                 try {
                     $refundResponse = $this->refundService->createRefund($config, $refundRequest);
@@ -177,31 +193,6 @@ class SavePlugin
                     $this->messageManager->addErrorMessage($e->getMessage());     
                     $this->responseFactory->create()->setRedirect($this->redirectionUrl)->sendResponse();   
                     die();      
-                }
-
-                try {
-                    if (
-                        $refundResponse != null
-                        && property_exists($refundResponse, 'transferStatus')
-                        && $refundResponse->transferStatus != null
-                        && property_exists($refundResponse, 'paymentMethod')
-                        && $refundResponse->transferStatus != null
-                    ) {
-                        $orderData = new DataObject(
-                            array(
-                                "orderId" => $this->refundInputData->getData("orderId"),
-                                "idempotencyKey" => $this->refundInputData->getData('referenceId'),
-                                "transferStatus" => "REFUNDED",
-                                "paymentMethod" => $refundResponse->paymentMethod
-                            )
-                        );
-                        
-                        $this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
-                    }
-                } catch (\Exception $e) {
-                    $this->messageManager->addErrorMessage($e->getMessage());
-                    $this->responseFactory->create()->setRedirect($this->redirectionUrl)->sendResponse();
-                    die();
                 }
             }
 
@@ -217,7 +208,7 @@ class SavePlugin
             && $refundResponse->transferStatusCode == 200
         ) {
             if ($refundResponse->transferStatus == PayInStatus::IN_PROGRESS) {
-                $successMessage = __('Pagamento reembolsado!');
+                $successMessage = __('Reembolso em processamento, em breve será concluído.');
                 $this->messageManager->addSuccessMessage($successMessage);
             }
 
@@ -257,8 +248,6 @@ class SavePlugin
         $incrementId = $this->orderInfo->getIncrementId();
         $paymentInfo = $this->liquidoSalesOrderHelper->getPaymentInfoByOrderId($incrementId);
 
-        $this->logger->info("############Payment Info#############", (array) $paymentInfo);
-
         $bool = false;
         if (
             $orderStatus == MagentoSaleOrderStatus::COMPLETE
@@ -271,5 +260,54 @@ class SavePlugin
         }
 
         return $bool;
+    }
+
+    public function getIncrementId()
+    {
+        $this->logger->info("############getIncrementId#############");
+
+        $creditmemoRepositoryInterface = $this->objectManager->get(CreditmemoRepositoryInterface::class);
+        $searchCriteriaBuilder = $this->objectManager->get('Magento\Framework\Api\SearchCriteriaBuilder');
+        
+        $searchCriteria = $searchCriteriaBuilder->addFilter('order_id', $this->request->getParam('order_id'))->create();
+        $creditmemos = $creditmemoRepositoryInterface->getList($searchCriteria);
+        $creditmemoItems = $creditmemos->getItems();
+
+        $creditmemoList = array();
+        foreach ($creditmemoItems as $creditmemoItem)
+        {
+            $creditmemoList []= $creditmemoItem->getIncrementId();
+        }
+
+        $creditmemoId = end($creditmemoList);
+
+        return $creditmemoId;
+    }
+
+    public function afterExecute(ActionInterface $subject, $result)
+    {
+        $this->logger->info("############ AFTER EXECUTE #############", (array) $this->creditmemoData);
+
+        try{
+            $creditmemoId = $this->getIncrementId();
+        
+            $creditmemoData = new DataObject(
+                array(
+                    "orderId" => $this->refundInputData->getData("orderId"),
+                    "creditmemoId" => $creditmemoId,
+                    "idempotencyKey" => $this->refundInputData->getData("idempotencyKey"),
+                    "referenceId" => $this->refundInputData->getData("referenceId"),
+                    "transferStatus" => PayInStatus::IN_PROGRESS
+                )
+            );
+            
+            $this->liquidoCreditmemoHelper->createOrUpdateLiquidoCreditmemo($creditmemoData);
+
+            //$foundLiquidoSalesOrder = $this->liquidoSalesOrderHelper->findLiquidoSalesOrderByOrderId($this->refundInputData->getData("orderId"));
+            //$this->liquidoSalesOrderHelper->updateLiquidoSalesOrderStatus($foundLiquidoSalesOrder, PayInStatus::REFUNDED);
+            return $result;
+        } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
+        }
     }
 }
