@@ -12,6 +12,8 @@ use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Util\SendEmail\LiquidoEmailHtmlCSS;
 
+use \LiquidoBrl\PayInPhpSdk\Util\Country;
+
 class LiquidoSendEmail
 {
     private LoggerInterface $logger;
@@ -55,9 +57,10 @@ class LiquidoSendEmail
         $senderName = $this->scopeConfig->getValue('general/store_information/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $sendSmtpEmail = new SendSmtpEmail();
         $sendSmtpEmail['params'] = $params;
+        $emailContent = $this->getEmailContentPerCountry($params['country']);
         if (!$isWebhookUpdate) {
-            $sendSmtpEmail['subject'] = 'Referência de Pago de Efectivo - Liquido Pay';
-            $sendSmtpEmail['htmlContent'] = $this->liquidoEmailHtmlCSS->getEmailHtml($sendSmtpEmail['params']);
+            $sendSmtpEmail['subject'] = $emailContent['subject'];
+            $sendSmtpEmail['htmlContent'] = $emailContent['htmlContent'];
             $sendSmtpEmail['sender'] = array('name' => $senderName, 'email' => $senderEmail); 
             $sendSmtpEmail['to'] = array(
                 array('email' => $params['email'], 'name' => $params['name'])
@@ -106,5 +109,37 @@ class LiquidoSendEmail
         }
 
         return $paymentStatus;
+    }
+
+    private function getEmailContentPerCountry($country)
+    {
+        switch ($country) {
+            case Country::BRAZIL:
+                
+                return array(
+                    'subject' => 'Liquido Pay - Reembolso recusado',
+                    'htmlContent' => '<html>
+                                        <body>
+                                            <div>
+                                                <p>Olá {{params.name}},</p>
+                                                <p>O pedido de reembolso {{params.creditmemoId}} - Ordem {{params.orderId}} foi recusado 
+                                                e por isso a nota de crédio foi excluída. Por gentileza, solicite um novo reembolso.</p>
+                                                <br/>
+                                                <p>Atenciosamente,</p>
+                                                <br/>
+                                                <p>Liquido Pagamentos</p>
+                                            </div>
+                                        </body>  
+                                    </html>');
+                break;
+            
+            case Country::COLOMBIA:
+
+                return array(
+                    'subject' => 'Referência de Pago de Efectivo - Liquido Pay',
+                    'htmlContent' => $this->liquidoEmailHtmlCSS->getEmailHtml()
+                );
+                break;
+        }
     }
 }
