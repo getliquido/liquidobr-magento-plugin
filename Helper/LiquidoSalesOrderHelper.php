@@ -74,7 +74,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
         }
     }
 
-    private function findLiquidoSalesOrderByOrderId($orderId)
+    public function findLiquidoSalesOrderByOrderId($orderId)
     {
         try {
             $foundLiquidoSalesOrder = $this->liquidoSalesOrderCollection
@@ -142,7 +142,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
         }
     }
 
-    private function updateLiquidoSalesOrderStatus($foundLiquidoSalesOrder, $newTransferStatus)
+    public function updateLiquidoSalesOrderStatus($foundLiquidoSalesOrder, $newTransferStatus)
     {
         try {
             $foundLiquidoSalesOrder->setData("transfer_status", $newTransferStatus);
