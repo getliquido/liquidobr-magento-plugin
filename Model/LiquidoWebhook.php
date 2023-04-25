@@ -117,16 +117,16 @@ class LiquidoWebhook
 					$this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
 				}
 
-				if ($paymentMethod == PaymentMethod::CASH) 
-				{
-					$params = array(
-						'name' => $body['data']['chargeDetails']['payer']['name'],
-						'email' => $body['data']['chargeDetails']['payer']['email'],
-						'cashCode' => $body['data']['chargeDetails']['transferDetails']['payCash']['referenceNumber'],
-						'statusCode' => $body['data']['chargeDetails']['transferStatusCode']
-					);
-					$this->sendEmail->sendEmail($params, true);
-				}
+				// if ($paymentMethod == PaymentMethod::CASH) 
+				// {
+				// 	$params = array(
+				// 		'name' => $body['data']['chargeDetails']['payer']['name'],
+				// 		'email' => $body['data']['chargeDetails']['payer']['email'],
+				// 		'cashCode' => $body['data']['chargeDetails']['transferDetails']['payCash']['referenceNumber'],
+				// 		'statusCode' => $body['data']['chargeDetails']['transferStatusCode']
+				// 	);
+				// 	$this->sendEmail->sendEmail($params, true);
+				// }
 			}
 			else
 			{

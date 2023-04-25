@@ -287,7 +287,8 @@ class Cash implements ActionInterface
                     'amount' => number_format($amount, 2, ',', '.'),
                     'orderId' => $this->cashInputData->getData('orderId'),
                     'storeName' => strtoupper($this->storeManager->getStore()->getName()),
-                    'storeURL' => $this->urlInterface->getUrl()
+                    'storeURL' => $this->urlInterface->getUrl(),
+                    'country' => $this->liquidoConfig->getCountry()
                 );
                 $this->sendEmail->sendEmail($params);
             }
