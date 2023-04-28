@@ -14,11 +14,9 @@ use \Magento\Framework\Event\Observer;
 use \Magento\Framework\Event\ObserverInterface;
 use \Magento\Framework\Exception\State\InitException;
 use \Magento\Framework\Message\ManagerInterface;
-use \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader;
-use \Magento\Sales\Controller\Adminhtml\Order\Creditmemo\Save;
-use \Psr\Log\LoggerInterface;
-
 use \Magento\Sales\Api\CreditmemoRepositoryInterface;
+use \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader;
+use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoCreditmemoHelper;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
@@ -190,6 +188,21 @@ class SavePlugin
 
                     $this->logger->info("[Refund SavePlugin]: Result data:", (array) $refundResponse);
                 } catch (\Exception $e) {
+                    $creditmemoData = new DataObject(
+                        array(
+                            "orderId" => $this->refundInputData->getData("orderId"),
+                            "creditmemoId" => '',
+                            "idempotencyKey" => $this->refundInputData->getData("idempotencyKey"),
+                            "referenceId" => $this->refundInputData->getData("referenceId"),
+                            "transferStatus" => PayInStatus::FAILED,
+                            "json" => json_encode($this->request->getParam('creditmemo'))
+                        )
+                    );
+
+                    $this->logger->info("************* Refund Exception beforeExecute************", (array) $creditmemoData);
+                    
+                    $this->liquidoCreditmemoHelper->createOrUpdateLiquidoCreditmemo($creditmemoData);
+
                     $this->messageManager->addErrorMessage($e->getMessage());     
                     $this->responseFactory->create()->setRedirect($this->redirectionUrl)->sendResponse();   
                     die();      
@@ -235,6 +248,21 @@ class SavePlugin
             } else {
                 $errorMsg .= " (Erro ao tentar reembolsar o pagamento.)";
             }
+
+            $creditmemoData = new DataObject(
+                array(
+                    "orderId" => $this->refundInputData->getData("orderId"),
+                    "creditmemoId" => '',
+                    "idempotencyKey" => $this->refundInputData->getData("idempotencyKey"),
+                    "referenceId" => $this->refundInputData->getData("referenceId"),
+                    "transferStatus" => PayInStatus::FAILED,
+                    "json" => json_encode($this->request->getParam('creditmemo'))
+                )
+            );
+
+            $this->logger->info("************* Refund Exception manageRefundResponse************", (array) $creditmemoData);
+            
+            $this->liquidoCreditmemoHelper->createOrUpdateLiquidoCreditmemo($creditmemoData);
 
             $this->messageManager->addErrorMessage($errorMsg);
             $this->responseFactory->create()->setRedirect($this->redirectionUrl)->sendResponse();
@@ -297,7 +325,8 @@ class SavePlugin
                     "creditmemoId" => $creditmemoId,
                     "idempotencyKey" => $this->refundInputData->getData("idempotencyKey"),
                     "referenceId" => $this->refundInputData->getData("referenceId"),
-                    "transferStatus" => PayInStatus::IN_PROGRESS
+                    "transferStatus" => PayInStatus::IN_PROGRESS,
+                    "json" => json_encode($this->request->getParam('creditmemo'))
                 )
             );
             
