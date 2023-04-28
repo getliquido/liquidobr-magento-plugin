@@ -6,7 +6,11 @@ namespace Liquido\PayIn\Model;
 use \Magento\Framework\Webapi\Rest\Request;
 use \Magento\Framework\DataObject;
 use \Magento\Framework\App\ObjectManager;
+use \Magento\Sales\Api\CreditmemoManagementInterface;
+use \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader;
+use \Magento\Sales\Helper\Data as SalesData;
 use \Magento\Sales\Model\Order;
+use \Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use \Magento\Sales\Model\Order\Invoice;
 use \Magento\Sales\Model\Service\InvoiceService;
 use \Magento\Framework\DB\Transaction;
@@ -16,9 +20,6 @@ use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoCreditmemoHelper;
 use \Liquido\PayIn\Helper\LiquidoSendEmail;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
-
-use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
-use \LiquidoBrl\PayInPhpSdk\Util\Country;
 
 class LiquidoWebhook
 {
@@ -33,6 +34,9 @@ class LiquidoWebhook
 	private LoggerInterface $logger;
 	private LiquidoDeleteCreditmemo $liquidoDeleteCreditmemo; 
 	private LiquidoConfigData $liquidoConfigData;
+	private $salesData;
+	private $creditmemoSender;
+	private $creditmemoLoader;
 
 	public function __construct(
 		Request $request,
@@ -43,11 +47,15 @@ class LiquidoWebhook
 		Transaction $transaction,
 		LoggerInterface $logger,
 		LiquidoDeleteCreditmemo $liquidoDeleteCreditmemo,
-		LiquidoConfigData $liquidoConfigData
+		LiquidoConfigData $liquidoConfigData,
+		SalesData $salesData = null,
+		CreditmemoSender $creditmemoSender,
+		CreditmemoLoader $creditmemoLoader
 	) {
 		$this->request = $request;
 		$this->liquidoSalesOrderHelper = $liquidoSalesOrderHelper;
 		$this->liquidoCreditmemoHelper = $liquidoCreditmemoHelper;
+		$this->creditmemoLoader = $creditmemoLoader;
 		$this->sendEmail = $sendEmail;
 		$this->invoiceService = $invoiceService;
 		$this->transaction = $transaction;
@@ -55,6 +63,8 @@ class LiquidoWebhook
 		$this->liquidoDeleteCreditmemo = $liquidoDeleteCreditmemo;
 		$this->liquidoConfigData = $liquidoConfigData;
 		$this->objectManager = ObjectManager::getInstance();
+		$this->salesData = $salesData ?: $this->objectManager->get(SalesData::class);
+		$this->creditmemoSender = $creditmemoSender;
 	}
 
 	/**
@@ -172,15 +182,26 @@ class LiquidoWebhook
 				else
 				{
 					try {
+
+						$creditmemoId = $foundCreditmemo->getData('creditmemo_id');
+
+						if ($foundCreditmemo->getData('creditmemo_id') == null || empty($foundCreditmemo->getData('creditmemo_id')))
+						{
+							$creditmemoId = $this->refundOrder((int) $orderId, $idempotencyKey);
+
+							$this->logger->info("###########Refund credit memo id#########", (array) $creditmemoId);
+						}
+
 						$creditmemoData = new DataObject(
 							array(
 								"orderId" => $orderId,
-								"creditmemoId" => $foundCreditmemo->getData('creditmemo_id'),
+								"creditmemoId" => $creditmemoId,
 								"idempotencyKey" => $idempotencyKey,
 								"referenceId" => $body['data']['chargeDetails']['referenceId'],
 								"transferStatus" => "REFUNDED"
 							)
 						);
+
 						$this->liquidoCreditmemoHelper->createOrUpdateLiquidoCreditmemo($creditmemoData);
 						
 						if ($this->orderIsTotallyRefunded($orderId))
@@ -242,19 +263,32 @@ class LiquidoWebhook
 		return $bool;
 	}
 
-	private function refundOrder($order)
+	private function refundOrder(int $orderId, $idempotencyKey)
 	{
 		try {
-			$creditMemoFactory = $this->objectManager->create('Magento\Sales\Model\Order\CreditmemoFactory');
-			$creditmemoService = $this->objectManager->create('Magento\Sales\Model\Service\CreditmemoService');
-			$creditmemo = $creditMemoFactory->createByOrder($order);
-			foreach ($creditmemo->getAllItems() as $creditmemoItem)
-			{
-				$creditmemoItem->setBackToStock(true);
-			}
-			$creditmemoService->refund($creditmemo);
+			$foundCreditmemo = $this->liquidoCreditmemoHelper->findCreditmemoByRefundIdempotencyKey($idempotencyKey);
 
-			$this->logger->info("Refunded");
+			if ($foundCreditmemo != null)
+			{
+				$creditmemoData = json_decode($foundCreditmemo->getData('json'), true);
+
+				$this->creditmemoLoader->setOrderId($orderId);
+				$this->creditmemoLoader->setCreditmemo($creditmemoData);
+				$creditmemo = $this->creditmemoLoader->load();
+
+				$creditmemoManagement = $this->objectManager->create(CreditmemoManagementInterface::class);
+                $creditmemo->getOrder()->setCustomerNoteNotify(!empty($creditmemoData['send_email']));
+                $doOffline = isset($creditmemoData['do_offline']) ? (bool)$creditmemoData['do_offline'] : false;
+                $refund = $creditmemoManagement->refund($creditmemo, $doOffline);
+
+                if (!empty($creditmemoData['send_email']) && $this->salesData->canSendNewCreditMemoEmail()) {
+                    $this->creditmemoSender->send($creditmemo);
+                }
+
+				$this->logger->info("Refunded*******", (array) $refund->getIncrementId());
+
+				return $refund->getIncrementId();
+			}
 		} catch (\Exception $e) {
 			$this->logger->error("Failed".$e);
 		}
