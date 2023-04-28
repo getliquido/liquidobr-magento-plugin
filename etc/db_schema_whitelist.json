@@ -26,11 +26,11 @@
             "created_at": true,
             "updated_at": true,
             "reference_id": true,
-            "idempotency_key": true
+            "idempotency_key": true,
+            "json": true
         },
         "constraint": {
             "PRIMARY": true,
-            "LIQUIDO_PAYIN_SALES_CREDITMEMO_GRID_CREDITMEMO_ID": true,
             "LIQUIDO_PAYIN_SALES_CREDITMEMO_GRID_IDEMPOTENCY_KEY": true
         }
     }

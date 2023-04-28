@@ -66,13 +66,11 @@
         
         <column xsi:type="text" name="updated_at" nullable="false" comment="Updated at" />
 
+        <column xsi:type="text" name="json" nullable="false" comment="Json Credit Memo Info" />
+
         <!-- This is the primary key constraint for the database table. -->
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id" />
-        </constraint>
-
-        <constraint xsi:type="unique" referenceId="UNIQUE_ORDER_ID">
-            <column name="creditmemo_id" />
         </constraint>
 
         <constraint xsi:type="unique" referenceId="UNIQUE_IDEMPOTENCY_KEY">
