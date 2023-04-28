@@ -50,6 +50,7 @@ class LiquidoCreditmemoHelper extends AbstractHelper
             $liquidoSalesCreditmemoGrid->setData("creditmemo_id", $creditmemoData->getData("creditmemoId"));
             $liquidoSalesCreditmemoGrid->setData("reference_id", $creditmemoData->getData("referenceId"));
             $liquidoSalesCreditmemoGrid->setData("transfer_status", $creditmemoData->getData("transferStatus"));
+            $liquidoSalesCreditmemoGrid->setData("json", $creditmemoData->getData("json"));
 
             $dateTimeNow = $this->timezoneInterface->date()->format('Y-m-d H:i:s');
             $liquidoSalesCreditmemoGrid->setData("created_at", $dateTimeNow);
