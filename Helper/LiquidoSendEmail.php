@@ -65,7 +65,7 @@ class LiquidoSendEmail
             $sendSmtpEmail['to'] = array(
                 array('email' => $params['email'], 'name' => $params['name'])
             );
-        } else {
+        } /*else {
             $paymentStatus = $this->getPaymentStatusAndDescription($params['statusCode']);
             $params['description'] = $paymentStatus['description'];
             $params['status'] = $paymentStatus['status'];
@@ -83,7 +83,7 @@ class LiquidoSendEmail
             $sendSmtpEmail['to'] = array(
                 array('email' => $params['email'], 'name' => $params['name'])
             );
-        }
+        }*/
 
         try {
             $result = $apiInstance->sendTransacEmail($sendSmtpEmail);

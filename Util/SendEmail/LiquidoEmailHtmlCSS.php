@@ -6,65 +6,74 @@ class LiquidoEmailHtmlCSS
 {
     public function getEmailHtml()
     {
-        $html = '<html>
+        $html = '<!DOCTYPE html>
+        <html>
         <head>
             <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;700;800&display=swap" rel="stylesheet">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>    
             <style>
-                '.$this->getEmailCSS().'
+                @font-face {
+                font-family: "Poppins"; font-style: normal; font-weight: 300; font-display: swap; src: url("https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLDz8V1s.ttf") format("truetype");
+                }
+                @font-face {
+                font-family: "Poppins"; font-style: normal; font-weight: 700; font-display: swap; src: url("https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLCz7V1s.ttf") format("truetype");
+                }
+                @font-face {
+                font-family: "Poppins"; font-style: normal; font-weight: 800; font-display: swap; src: url("https://fonts.gstatic.com/s/poppins/v20/pxiByp8kv8JHgFVrLDD4V1s.ttf") format("truetype");
+                }
+                body {
+                margin: 0; padding: 0; font-family: "Poppins", sans-serif; background-color: #E6EBFF; display: flex; align-items: center;
+                }
+                /*img {
+                width: 150px; height: 150px;
+                }*/
             </style>
         </head>
-        
-        <body>
-            <div class="content">
-                <div class="content-img">
-                    <img src="https://img.mailinblue.com/5577006/images/content_library/original/63ebe726d717e6759c3712d7.png" alt="Liquido Pagos"/>
+        <body style="font-family: "Poppins", sans-serif; display: flex; align-items: center; margin: 0; padding: 0;" bgcolor="#E6EBFF">
+            <div class="content" style="background-color: #E6EBFF;" bgcolor="#E6EBFF">
+                <div class="content-head" style="width: 100%; height: 50px; background-color: #0A4CE8; padding-top: 25px;"></div>
+                <div class="content-body" style="background-color: #FFFFFF; width: 80%; height: auto; position: relative; font-weight: 500; border-radius: 18px; margin: 0 auto; padding: 50px;">
+                    <div class="content-body-title" style="color: #959595; width: 100%; height: auto; position: relative; margin: 0 auto; padding: 10px;" align="center">
+                        <img src="https://img.mailinblue.com/5577006/images/content_library/original/63ebe726d717e6759c3712d7.png" alt="Liquido Pagos" style="width: 150px; height: 150px;">
+                        <p class="bold-text blue-text" style="font-weight: 700; color: #1B4AD3;">&iexcl;Hola {{params.name}}!</p>
+                        <p class="blue-text" style="color: #1B4AD3;">Tu compra est&aacute; casi lista, finaliza el pago de tu compra en {{params.storeName}}.</p>
+                    </div>     
+                    <hr style="border: 1px solid #D7F7F3;">
+                    <div class="content-body-instructions" style="color: #959595; width: 80%; height: auto; position: relative; margin: 0 auto; padding: 10px;" align="center">
+                        <p><span class="bold-text" style="font-weight: 700;">Valor a pagar:</span> $ {{params.amount}}</p>
+                        <small>Puedes acerlo hasta el {{params.expiration}}</small>
+                        <p>Para hacer efectivo tu pago sigue los seguientes pasos:</p>
+                        <div class="instruction-one" style="width: 45%; float: left; padding-top: 1%; /*padding-bottom: 100%;*/ margin: 20px 20px -100%;" align="left">
+                            <p><span style="height: 25px; width: 25px; border-radius: 50%; display: inline-block; font-weight: 700; text-align: center; border: 1px solid #0975ED;">1</span> Dirigete a cualquer punto Efecty del pa&iacute;s.</p>
+                        </div>
+                        <div class="instruction-two" style="padding-top: 1%; /*padding-bottom: 100%;*/ margin: 20px 20px -100%;" align="left">
+                            <p><span style="height: 25px; width: 25px; border-radius: 50%; display: inline-block; font-weight: 700; text-align: center; border: 1px solid #0975ED;">2</span> Notifica que quieres realizar un pago atrav&eacute;s de Liquido Pagos y proporciona la siguiente informaci&oacute;n:</p>
+                        </div>
+                        <br>
+                        <div class="instruction-code" style="width: 50%; background-color: #ECFFFB; position: relative; border-radius: 18px; margin: 0 auto; padding: 20px;" align="left">
+                            <p><span class="bold-text" style="font-weight: 700;">C&oacute;digo de convenio: </span>112766</p>
+                            <p><span class="bold-text" style="font-weight: 700;">Referencia de pago: </span>{{params.cashCode}}</p>
+                        </div>
+                        <br>
+                    </div>
+                    <hr style="border: 1px solid #D7F7F3;">
+                    <div class="content-body-footer" style="color: #959595; width: 100%; height: auto; position: relative; margin: 0 auto; padding: 10px;" align="left">
+                        <p class="bold-text" style="font-weight: 700;">Detalle de pago</p>
+                        <p>Order #{{params.orderId}} in store</p>
+                        <p><a href="%7B%7Bparams.storeURL%7D%7D">{{params.storeURL}}</a></p>
+                        <br>
+                        <p>Efecty - Pago pendiente</p>
+                        <p>$ {{params.amount}}</p>
+                    </div>       
                 </div>
-                <div class="content-title">
-                    <p><span>¡Hola {{params.email}}!</span><br/>Finaliza el pago de tu compra a {{params.storeName}}</p>
-                </div>
-                <div class="content-body">
-                    <div class="content-body-title">
-                        <p>Pago $ {{params.amount}}</p>
-                        <small>Puedes hacerlo hasta el {{params.expiration}}</small>
-                    </div>
-                    <div class="content-body-instructions">
-                        <p><span>1</span> <small> Dirígete a cualquier punto Efecty.</small></p>
-                        <p><span>2</span> <small> Notifica que quieres realizar un pago a través de Liquido Pagos y dictas los siguientes datos:</small></p>
-                    </div>
-                    <div class="content-body-info">
-                        <small>Código de convenio:</small>
-                        <p>112766</p>
-                        <small>Referencia de pago:</small>
-                        <p>{{params.cashCode}}</p>
-                        <!---<small>O también puedes llevar este ticket</small>
-                        <br/>
-                        <button onclick="{{params.printMail}}">Imprimir ticket</button>
-                        <small>El pago se creditará al instante</small>-->
-                    </div>
-                    <div class="content-body-footer">
-                        <p>Detalle de pago</p>
-                        <small>Order #{{params.orderId}} in store: <br/><a href="{{params.storeURL}}">{{params.storeURL}}</a></small>
-        
-                        <br/><br/>
-        
-                        <small>Efecty - <span>Pago pendiente</span></small>
-                        <br/>
-                        <small>$ {{params.amount}}</small>
-                    </div>
-                    <div class="content-body-logo">
-                        <img src="https://img.mailinblue.com/5577006/images/content_library/original/63f663e6b2cee42b486c017d.png" alt="Liquido Pagos">
-                    </div>
-                </div>
-                <div class="content-footer">
-                    <p>Si tienes dudas de la compra, por favor ponte en contacto con:
-                    <br/> {{params.storeName}}</p>
+                <div class="content-footer" style="position: relative; margin: 0 auto;" align="center">
+                    <p class="blue-text" style="color: #1B4AD3;">Pago processado por:</p>
+                    <img src="https://img.mailinblue.com/5577006/images/content_library/original/63f663e6b2cee42b486c017d.png" alt="Liquido Pagos">
                 </div>
             </div>
         </body>
-        
-        </html>';
+        </html>
+        ';
 
         return $html;
     }
@@ -77,143 +86,121 @@ class LiquidoEmailHtmlCSS
             font-size: medium;  
         }
 
-        body {
+        .email-body {
             margin: 0;
-            padding: 0;           
-
-            display: flex;
-            align-items: center;
+            padding: 0;            
+            font-family: 'Poppins', sans-serif;
+            background-color: #E6EBFF;
+        
+            /*display: flex;*/
+            /*align-items: center;*/
         }
+        
         .content {
-            background-image: linear-gradient(to right, #010D99, #0975ED);
-            color: #FFFFFF;
             width: 100%;
+            height: 50px;
+            background-color: #0A4CE8;
+            padding-top: 25px;
         }
-
-        .content-img {
-            padding-top: 50px;
-        }
-
-        .content-img,
-        .content-title,
-        .content-footer {
-            color: #FFFFFF;
-            text-align: center;
-            width: 100%;
-            height: auto;
-            margin: 0 auto;
-            padding: 10px;
-            position: relative;
-        }
-
-        .content-footer p span {
-            color: #FFFFFF;
-        }
-
-        .content-img img {
-            width: 150px;
-            height: 150px;
-        }
-
-        .content-title {
-            color: #FFFFFF;
-            text-align: center;
-            width: 40%;
-            height: auto;
-            margin: 0 auto;
-            padding: 10px;
-            position: relative;
-            text-decoration: none;
-        }
-
-        .content-title span {
-            font-weight:900;
-            text-decoration: none;
-            color: #FFFFFF;
-        }
-
-        .content-title span a {
-            font-weight:900;
-            text-decoration: none;
-            color: #FFFFFF;
-        }
-
+        
         .content-body {
             background-color: #FFFFFF;
-            width: 40%; 
+            width: 80%; 
             height: auto;
             margin: 0 auto;
             padding: 50px;
             position: relative;
-            color: #000;
-            font-weight: 700;
+            font-weight: 500;
             border-radius: 18px;
-            box-shadow: 5px 10px 8px #010D99;
         }
-
-        .content-body-instructions span {
+        
+        .content-body-title,
+        .content-body-instructions,
+        .content-body-footer {
+            color: #959595;
+            text-align: center;
+            width: 100%;
+            height: auto;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+        }
+        
+        .content-body-instructions {
+            width: 80%;
+        }
+        
+        .instructions {
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            margin: 0 auto;
+            background-color: #0A4CE8;
+        }
+        
+        .instruction-one {
+            width: 45%;
+            float: left;
+            text-align: left;
+            margin: 20px;
+            /*padding-bottom: 100%;*/
+            margin-bottom: -100%;
+        }
+        
+        .instruction-two {
+            padding-top: 2%;
+            text-align:left;
+            margin: 20px;
+            /*padding-bottom: 100%;*/
+            margin-bottom: -100%;
+        }
+        
+        .instruction-one span,
+        .instruction-two span {
             height: 25px;
             width: 25px;
-            background-color: #0975ED;
+            border: 1px solid #0975ED;
             border-radius: 50%;
             display: inline-block;
-            color: #FFFFFF;
             font-weight: 700;
             text-align: center;
         }
-
-        .content-body-title small,
-        .content-body-instructions small,
-        .content-body-info small,
-        .content-body-footer small {
-            color: #808080;
-        }
-
-        .content-body-instructions {
-            text-align: justify;
-            width: 80%;
-            height: auto;
+        
+        .instruction-code {
+            width: 50%;
+            background-color: #ECFFFB;
             margin: 0 auto;
-            padding: 10px;
             position: relative;
+            border-radius: 18px;
+            text-align: left;
+            padding: 20px;
         }
-
-        .content-body-info,
-        .content-body-logo {
+        
+        .content-body-footer {
+            text-align: left;
+        }
+        
+        .content-footer {
+            margin: 0 auto;
+            position: relative;
             text-align: center;
-            width: 40%;
-            height: auto;
-            margin: 0 auto;
-            padding: 10px;
-            position: relative;
         }
-
-        .content-body-title p,
-        .content-body-info p, 
-        .content-body-info span p,
-        .content-body-footer p {
-            color: #000000;
-            font-weight: 900;
+        
+        hr {
+            border: 1px solid #D7F7F3;
         }
-
-        .content-body-info button {
-            background-color: #0975ED;
-            color: #FFFFFF;
-            width: 100%;
-            border-radius: 8px;
-            border-width: 0;
-            font-size: 18px;
-            line-height: 45px;
+        
+        img {
+            width: 150px;
+            height: 150px;
         }
-
-        .content-body-footer,
-        .content-body-footer span {
-            color: #FF0000;
+        
+        .bold-text {
+            font-weight: 700;
         }
-
-        .content-body-logo img {
-            width: 170px;
-            height: 50px;
+        
+        .blue-text {
+            color: #1B4AD3;
         }";
 
         return $css;

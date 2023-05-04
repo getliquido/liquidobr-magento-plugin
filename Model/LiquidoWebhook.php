@@ -126,7 +126,6 @@ class LiquidoWebhook
 
 					$this->liquidoSalesOrderHelper->createOrUpdateLiquidoSalesOrder($orderData);
 				}
-
 				// if ($paymentMethod == PaymentMethod::CASH) 
 				// {
 				// 	$params = array(
