@@ -281,7 +281,7 @@ class SavePlugin
             $orderStatus == MagentoSaleOrderStatus::COMPLETE
                 && ($paymentInfo['transfer_status'] == PayInStatus::SETTLED || $paymentInfo['transfer_status'] == PayInStatus::REFUNDED)
                     && ($paymentInfo['payment_method'] == CommonPaymentMethod::CREDIT_CARD || $paymentInfo['payment_method'] == BrazilPaymentMethod::PIX_STATIC_QR)
-                        && $this->liquidoConfig->getCountry() == Country::BRAZIL
+                        && ($this->liquidoConfig->getCountry() == Country::BRAZIL || $this->liquidoConfig->getCountry() == Country::COLOMBIA)
         )
         {
             $bool = true;
