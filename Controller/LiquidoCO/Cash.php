@@ -99,7 +99,7 @@ class Cash implements ActionInterface
             return false;
         }
 
-        $dateDeadline = date('Y-m-d', strtotime('+2 days', time()));
+        $dateDeadline = date('Y-m-d', strtotime('+5 days', time()));
 
         $this->cashInputData = new DataObject(
             array(

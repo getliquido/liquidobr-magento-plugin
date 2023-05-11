@@ -10,6 +10,7 @@ use \Magento\Framework\App\RequestInterface;
 use \Magento\Framework\DataObject;
 use \Magento\Framework\App\ObjectManager;
 use \Magento\Sales\Model\Service\InvoiceService;
+use \Magento\Sales\Model\Order;
 use \Magento\Sales\Model\Order\Invoice;
 use \Magento\Framework\DB\Transaction;
 use \Psr\Log\LoggerInterface;
@@ -453,7 +454,9 @@ class CreditCard implements ActionInterface
     private function createInvoice($transferStatus)
     {
         $orderId = $this->creditCardInputData->getData("orderId");
-        $order = $this->objectManager->create('\Magento\Sales\Model\Order')->load($orderId);
+        $order = $this->objectManager->create(\Magento\Sales\Model\Order::class)->loadByIncrementId($orderId);
+        $this->logger->info("*************************** CREDIT CARD CAN INVOICE *******************************", (array) $order->canInvoice());
+
         if ($order->canInvoice() && $transferStatus == PayInStatus::SETTLED) {
             $this->logger->info("*************************** CREDIT CARD CREATE INVOICE *******************************");
 
