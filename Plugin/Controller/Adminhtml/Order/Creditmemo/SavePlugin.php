@@ -211,6 +211,12 @@ class SavePlugin
 
             $this->registry->unregister('current_creditmemo');
         }
+        else
+        {
+            $this->messageManager->addErrorMessage(__("Erro ao tentar reembolsar o pagamento."));
+            $this->responseFactory->create()->setRedirect($this->redirectionUrl)->sendResponse();
+            die();
+        }
     }
 
     private function manageRefundResponse($refundResponse)
@@ -244,9 +250,9 @@ class SavePlugin
                 && property_exists($refundResponse, 'transferStatusCode')
                 && $refundResponse->transferStatusCode != 200
             ) {
-                $errorMsg .= " ($refundResponse->transferStatusCode - $refundResponse->transferErrorMsg)";
+                $errorMsg .= __(" ($refundResponse->transferStatusCode - $refundResponse->transferErrorMsg)");
             } else {
-                $errorMsg .= " (Erro ao tentar reembolsar o pagamento.)";
+                $errorMsg .= __("Erro ao tentar reembolsar o pagamento.");
             }
 
             $creditmemoData = new DataObject(
