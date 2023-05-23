@@ -140,6 +140,14 @@ class LiquidoSendEmail
                     'htmlContent' => $this->liquidoEmailHtmlCSS->getEmailHtml()
                 );
                 break;
+
+            case Country::MEXICO:
+
+                return array(
+                    'subject' => 'Referência de Pago de Efectivo - Liquido Pay',
+                    'htmlContent' => $this->liquidoEmailHtmlCSS->getEmailHtml()
+                );
+                break;
         }
     }
 }
