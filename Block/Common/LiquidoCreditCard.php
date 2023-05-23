@@ -97,18 +97,17 @@ class LiquidoCreditCard extends Template
 
     public function getCountryRedirect()
     {
-        $country = $this->liquidoConfig->getCountry();
-
-        $link = '';
-        if ($country == 'BR') {
-            $link = '/checkout/liquidobrl/index';
+        switch ($this->liquidoConfig->getCountry()) {
+            case 'BR':
+                return '/checkout/liquidobrl/index';
+                break;
+            case 'CO':
+                return '/checkout/liquidoco/index';
+                break;
+            case 'MX':
+                return '/checkout/liquidomx/index';
+                break;
         }
-
-        if ($country == 'CO') {
-            $link = '/checkout/liquidoco/index';
-        }
-
-        return $link;
     }
 
     public function getSuccessMessage()

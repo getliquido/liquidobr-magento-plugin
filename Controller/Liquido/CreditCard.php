@@ -157,23 +157,20 @@ class CreditCard implements ActionInterface
             return false;
         }
 
+        $countryAndCurrency = $this->getCountryAndCurrency();
         $customerDocument = null;
         $currency = null;
         $country = null;
-        if ($this->liquidoConfig->getCountry() == 'BR') {
+        if ($countryAndCurrency == 'BR') {
             $customerDocument = [
                 "documentId" => $creditCardFormInputData->getData('customer-doc'),
                 "type" => "CPF"
             ];
-            $currency = Currency::BRL;
-            $country = Country::BRAZIL;
-        } elseif ($this->liquidoConfig->getCountry() == 'CO') {
+        } elseif ($countryAndCurrency == 'CO') {
             $customerDocument = [
                 "documentId" => $creditCardFormInputData->getData('customer-doc'),
                 "type" => $creditCardFormInputData->getData('customer-doc-type')
             ];
-            $currency = Currency::COP;
-            $country = Country::COLOMBIA;
         }
 
         if ($customerDocument == null) {
@@ -193,8 +190,8 @@ class CreditCard implements ActionInterface
                 'grandTotal' => $grandTotal,
                 'customerName' => $customerName,
                 'customerEmail' => $customerEmail,
-                'currency' => $currency,
-                'country' => $country,
+                'currency' => $countryAndCurrency['currency'],
+                'country' => $countryAndCurrency['country'],
                 'customerCardName' => $customerCardName,
                 'customerCardNumber' => $customerCardNumber,
                 'customerCardExpireMonth' => $customerCardExpireDateArray[0],
@@ -473,6 +470,30 @@ class CreditCard implements ActionInterface
             $order->addStatusHistoryComment(__('Invoice #' . $invoice->getIncrementId() . ' created automatically'))
                 ->setIsCustomerNotified(false)
                 ->save();
+        }
+    }
+
+    public function getCountryAndCurrency()
+    {
+        switch ($this->liquidoConfig->getCountry()) {
+            case Country::BRAZIL:
+                return [
+                    'country' => Country::BRAZIL,
+                    'currency' => Currency::BRL
+                ];
+                break;
+            case Country::COLOMBIA:
+                return [
+                    'country' => Country::COLOMBIA,
+                    'currency' => Currency::COP
+                ];
+                break;
+            case Country::MEXICO:
+                return [
+                    'country' => Country::MEXICO,
+                    'currency' => Currency::MXN
+                ];
+                break;
         }
     }
 }
