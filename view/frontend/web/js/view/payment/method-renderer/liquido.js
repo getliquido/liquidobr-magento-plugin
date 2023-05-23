@@ -22,12 +22,17 @@ define(
                         if (response.success) {
                             var url = '';
                             var country = response.value;
+
                             if (country == 'BR') {
                                 url = urlBuilder.build("checkout/liquidobrl/index");
                             }
 
                             if (country == 'CO') {
                                 url = urlBuilder.build("checkout/liquidoco/index");
+                            }
+
+                            if (country == 'MX') {
+                                url = urlBuilder.build("checkout/liquidomx/index");
                             }
 
                             window.location.href = url;
