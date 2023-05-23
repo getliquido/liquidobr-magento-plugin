@@ -1,0 +1,111 @@
+<?php
+
+use \LiquidoBrl\PayInPhpSdk\Util\Mexico\PaymentMethod;
+use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
+
+$successfulResult = true;
+$resultCssClass = "success";
+$resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png");
+$resultHeaderInfoDescription = $this->getSuccessMessage();
+
+if ($this->hasFailed()) {
+    $successfulResult = false;
+    $resultCssClass = "failed";
+    $resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/error-icon-2.png");
+    $resultHeaderInfoDescription = $this->getErrorMessage();
+}
+
+?>
+
+<div class="result-container">
+    <div class="result-header <?php echo $resultCssClass; ?>">
+        <h1>Liquido Pagos</h1>
+        <h3>Transferencia bancaria</h3>
+        <div class="result-header-info">
+            <img src="<?php echo $resultHeaderInfoImage ?>" alt="Result Info Image">
+            <h3>
+                <?php echo $resultHeaderInfoDescription; ?>
+            </h3>
+        </div>
+    </div>
+
+    <div id="result-main-content">
+        <?php if (!$this->hasFailed()): ?>
+
+            <div class="result-content">
+
+                <?php if (
+                    $this->getPaymentMethodType() == PaymentMethod::BANK_TRANSFER
+                    && $this->getTransferStatus() != PayInStatus::SETTLED
+                ): ?>
+
+                    <div class="result-card">
+                        <header>
+                            <h3><strong>Nombre del banco:</strong></h3>
+                            <h2>
+                                <?php echo  $this->getBankName(); ?>
+                            </h2>
+                            <h3><strong>Beneficiario:</strong></h3>
+                            <h2>
+                                <?php echo  $this->getBeneficiaryName(); ?>
+                            </h2>
+                            <h3><strong>Importe del pago:</strong></h3>
+                            <h2>
+                                <?php echo  $this->getAmount(); ?>
+                            </h2>
+                            <h3><strong><?php echo  $this->getBankAccountType(); ?>:</strong></h3>
+                            <h2>
+                                <?php echo  $this->getBankAccountNumber(); ?>
+                            </h2>
+                            <h4>
+                                Passo 1: Copia la CLABE 
+                                <br>
+                                Passo 2: Ingrese a tu aplicación del banco, pega la CLABE, ingrese el monto de recarga y paga.
+                                <br>
+                                Passo 3: Revisa si ya recibio el monto en la cuenta (puede tener retrasos en la cuenta, si aún no has recibido, favor revisar más tarde.)
+                            </h4>
+                        </header>
+                        <h3>
+                            Número de pedido:
+                            <strong>
+                                <?php echo $this->getOrderId() ?>
+                            </strong>
+                        </h3>
+                    </div>
+                    <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
+                    <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
+                        <h3><strong>Ya has generado un pago con
+                                <?php echo $this->getPaymentMethodName() ?>!
+                            </strong></h3>
+                    </div>
+                <?php elseif ($this->getTransferStatus() == PayInStatus::SETTLED): ?>
+                    <div class="result-warning">
+                        <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"
+                            alt="Warning Image">
+                        <h3>
+                            <strong>
+                                Ya pagaste con
+                                <?php echo $this->getPaymentMethodName() ?>!
+                            </strong>
+                        </h3>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div>
+                <?php
+                echo $this->getLayout()
+                    ->createBlock("Magento\Framework\View\Element\Template")
+                    // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
+                    ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                    ?>
+            </div>
+
+        <?php else: ?>
+            <div class="back-button-container">
+                <a class="action submit primary" href="/checkout/liquidoco/index">Cambiar método de pago</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>

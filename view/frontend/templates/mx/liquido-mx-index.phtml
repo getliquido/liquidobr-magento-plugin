@@ -1,0 +1,119 @@
+<div class="liquido-container">
+
+    <div class="header-content">
+        <h1>Liquido Pagos</h1>
+        <h3>Elige tu método de pago</h3>
+    </div>
+
+    <?php
+    use \Liquido\PayIn\Util\Common\LiquidoPayInMethod;
+
+    $mexico_payin_methods = $this->getLiquidoMexicoPayInMethods();
+    ?>
+
+    <div id="main-content">
+
+        <div class="payment-methods-container">
+
+            <ul id="payin-methods">
+                <?php foreach ($mexico_payin_methods as $payin_method): ?>
+                    <li>
+                        <?php if ($payin_method == LiquidoPayInMethod::CREDIT_CARD): ?>
+                            <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
+                                value="<?php echo $this->getUrl('checkout/liquido/creditcardform') ?>"
+                                onchange="onCheckRadio();">
+                        <?php elseif ($payin_method == LiquidoPayInMethod::CASH): ?>
+                            <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
+                                value="<?php echo $this->getUrl('checkout/liquido/cash') ?>"
+                                onchange="onCheckRadio();">
+                        <?php else: ?>
+                            <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
+                                value="<?php echo $this->getPayInMethodViewRoute($payin_method["title"]) ?>"
+                                onchange="onCheckRadio();">
+                        <?php endif ?>
+                        <label for="<?php echo __($payin_method["id"]); ?>">
+                            <div class="option-container">
+                                <img id="unselected-image-<?php echo __($payin_method["id"]); ?>"
+                                    src="<?php echo $this->getViewFileUrl($payin_method["image"]); ?>"
+                                    alt="<?php echo __($payin_method["title"]); ?> Image">
+                                <img id="selected-image-<?php echo __($payin_method["id"]); ?>"
+                                    src="<?php echo $this->getViewFileUrl($payin_method["image-selected"]); ?>"
+                                    alt="<?php echo __($payin_method["title"]); ?> Image" style="display: none;">
+                                <div>
+                                    <h3>
+                                        <?php echo __($payin_method["title"]); ?>
+                                    </h3>
+                                    <p>
+                                        <?php echo __($payin_method["description"]); ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </label>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+
+        <div>
+            <?php
+            echo $this->getLayout()
+                ->createBlock("Magento\Framework\View\Element\Template")
+                // ->createBlock("Liquido\PayIn\Block\Common\LiquidoOrderSummary")
+                ->setTemplate("Liquido_PayIn::common/liquido-order-summary.phtml")->toHtml()
+                ?>
+            <div class="action-bar">
+                <button id="go-on-button" onclick="onClickGoOnButton();">Continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function init() {
+
+        let anOptionIsChecked = false;
+
+        const radioButtons = document.querySelectorAll('input[name="radio-payment-method"]');
+        for (const radioButton of radioButtons) {
+
+            if (radioButton.checked) {
+                anOptionIsChecked = true
+                break;
+            }
+        }
+
+        if (!anOptionIsChecked) {
+            document.querySelector('button[id="go-on-button"]').disabled = true;
+        } else {
+            document.querySelector('button[id="go-on-button"]').disabled = false;
+        }
+    }
+
+    init();
+
+    function onCheckRadio() {
+
+        document.querySelector('button[id="go-on-button"]').disabled = false;
+
+        const radioButtons = document.querySelectorAll('input[name="radio-payment-method"]');
+        for (const radioButton of radioButtons) {
+
+            const selectedImageId = `img[id="selected-image-${radioButton.id}"]`;
+            const unselectedImageId = `img[id="unselected-image-${radioButton.id}"]`;
+
+            if (radioButton.checked) {
+                document.querySelector(selectedImageId).style.display = 'block';
+                document.querySelector(unselectedImageId).style.display = 'none';
+            } else {
+                document.querySelector(selectedImageId).style.display = 'none';
+                document.querySelector(unselectedImageId).style.display = 'block';
+            }
+        }
+
+    }
+
+    function onClickGoOnButton() {
+        const selectedValue = document.querySelector('input[name="radio-payment-method"]:checked').value;
+        window.location.href = selectedValue;
+    }
+</script>
