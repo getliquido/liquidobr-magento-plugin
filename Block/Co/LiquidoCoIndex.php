@@ -15,8 +15,8 @@ class LiquidoCoIndex extends Template
     {
         $colombia_payin_methods = [
             LiquidoPayInMethod::CREDIT_CARD,
-            LiquidoCoPayInMethod::PSE,
-            LiquidoCoPayInMethod::CASH
+            LiquidoPayInMethod::CASH,
+            LiquidoCoPayInMethod::PSE
         ];
         return $colombia_payin_methods;
     }
@@ -24,7 +24,7 @@ class LiquidoCoIndex extends Template
     public function getPayInMethodViewRoute($_payin_method_title)
     {
         switch ($_payin_method_title) {
-            case LiquidoCoPayInMethod::CASH["title"]:
+            case LiquidoPayInMethod::CASH["title"]:
                 return LiquidoCoPayInViewRoute::CASH;
                 break;
             case LiquidoCoPayInMethod::PSE["title"]:
