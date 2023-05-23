@@ -22,6 +22,10 @@
                             <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
                                 value="<?php echo $this->getUrl('checkout/liquido/creditcardform') ?>"
                                 onchange="onCheckRadio();">
+                        <?php elseif ($payin_method == LiquidoPayInMethod::CASH): ?>
+                            <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
+                                value="<?php echo $this->getUrl('checkout/liquido/cash') ?>"
+                                onchange="onCheckRadio();">
                         <?php else: ?>
                             <input type="radio" id="<?php echo __($payin_method["id"]); ?>" name="radio-payment-method"
                                 value="<?php echo $this->getPayInMethodViewRoute($payin_method["title"]) ?>"
