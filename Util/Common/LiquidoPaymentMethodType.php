@@ -12,6 +12,9 @@ abstract class LiquidoPaymentMethodType
             case PaymentMethod::CREDIT_CARD:
                 return LiquidoPayInMethod::CREDIT_CARD["title"];
                 break;
+            case PaymentMethod::CASH:
+                return LiquidoPayInMethod::CASH["title"];
+                break;
             default:
                 return null;
         }
