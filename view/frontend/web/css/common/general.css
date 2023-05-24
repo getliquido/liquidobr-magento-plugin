@@ -79,6 +79,26 @@ div#result-main-content .result-content .result-card header {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 10px;
+}
+
+div#result-main-content .result-content .result-card header span {
+    color: #01a3a4;
+    font-size: 20px;
+    line-height: 40px;
+    text-align: start;
+    width: 100%;
+}
+
+div#result-main-content .result-content .result-card header span strong {
+    color: #094DE7 !important;
+    font-size: 22px;
+}
+
+div#result-main-content .result-content .result-card header #step-by-step {
+    font-size: 14px;
+    line-height: 20px;
+    padding-top: 10px;
 }
 
 div#result-main-content .result-content .result-card h2 {
@@ -146,5 +166,32 @@ print {
 
     div#result-main-content .result-content .result-card h2 {
         font-size: 17px !important;
+    }
+
+    div#result-main-content .result-content {
+        width: 90%;
+    }
+
+    div#result-main-content .result-content .result-card {
+        padding: 12px;
+        color: #97989B;
+        box-shadow: 0 0 5px #97989B;
+    }
+
+    div#result-main-content .result-content .result-card {
+        width: 100%;
+    }
+
+    div#result-main-content .result-content .result-card header span {
+        line-height: 30px;
+    }
+
+    div#result-main-content .result-content .result-card header span,
+    div#result-main-content .result-content .result-card header span strong {
+        font-size: 13px;
+    }
+
+    div#result-main-content .result-content .result-card header #step-by-step {
+        font-size: 12px;
     }
 }

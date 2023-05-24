@@ -41,36 +41,33 @@ if ($this->hasFailed()) {
 
                     <div class="result-card">
                         <header>
-                            <h3><strong>Nombre del banco:</strong></h3>
-                            <h2>
-                                <?php echo  $this->getBankName(); ?>
-                            </h2>
-                            <h3><strong>Beneficiario:</strong></h3>
-                            <h2>
-                                <?php echo  $this->getBeneficiaryName(); ?>
-                            </h2>
-                            <h3><strong>Importe del pago:</strong></h3>
-                            <h2>
-                                <?php echo  $this->getAmount(); ?>
-                            </h2>
-                            <h3><strong><?php echo  $this->getBankAccountType(); ?>:</strong></h3>
-                            <h2>
-                                <?php echo  $this->getBankAccountNumber(); ?>
-                            </h2>
-                            <h4>
+                            <span>Nombre del banco: 
+                                <strong><?php echo  $this->getBankName(); ?></strong>
+                            </span>
+                            <span>Beneficiario: 
+                                <strong><?php echo  $this->getBeneficiaryName(); ?></strong>
+                            </span>
+                            <span>Importe del pago: 
+                                <strong><?php echo  $this->getAmount(); ?></strong>
+                            </span>
+                            <span><?php echo  $this->getBankAccountType(); ?>: 
+                                <strong><?php echo  $this->getBankAccountNumber(); ?></strong>
+                            </span>
+                            <span id="step-by-step">
                                 Passo 1: Copia la CLABE 
                                 <br>
                                 Passo 2: Ingrese a tu aplicación del banco, pega la CLABE, ingrese el monto de recarga y paga.
                                 <br>
                                 Passo 3: Revisa si ya recibio el monto en la cuenta (puede tener retrasos en la cuenta, si aún no has recibido, favor revisar más tarde.)
-                            </h4>
+                            </span>
                         </header>
-                        <h3>
+                        <br>
+                        <span>
                             Número de pedido:
                             <strong>
                                 <?php echo $this->getOrderId() ?>
                             </strong>
-                        </h3>
+                        </span>
                     </div>
                     <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
                     <div class="result-warning">
@@ -104,7 +101,7 @@ if ($this->hasFailed()) {
 
         <?php else: ?>
             <div class="back-button-container">
-                <a class="action submit primary" href="/checkout/liquidoco/index">Cambiar método de pago</a>
+                <a class="action submit primary" href="/checkout/liquidomx/index">Cambiar método de pago</a>
             </div>
         <?php endif; ?>
     </div>
