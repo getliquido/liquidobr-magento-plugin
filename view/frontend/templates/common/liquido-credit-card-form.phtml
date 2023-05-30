@@ -94,12 +94,12 @@
                     <div class="field required">
                         <div class="control">
                             <div>
-                                <input type="text" name="card-expire-date" id="card-expire-date" placeholder="MM/YYYY"
+                                <input type="text" name="card-expire-date" id="card-expire-date" placeholder="MM/YY"
                                     value="" title="<?php echo __('Mês / Ano') ?>"
-                                    class="minimum-length-7 maximum-length-7"
-                                    data-validate="{required:true, 'pattern':'(0[1-9]|10|11|12)/20[0-9]{2}$', 'validate-length':true}">
+                                    class="minimum-length-4 maximum-length-5"
+                                    data-validate="{required:true, 'validate-length':true}">
                             </div>
-                        </div>
+                        </div>  
                         <label for="card-expire-date" class="label">
                             <span>
                                 <?php echo __('Mês / Ano') ?>
@@ -120,7 +120,7 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <?php if ($this->getCountry() == 'CO'): ?>
+                    <?php if ($this->getCountry() == 'CO' || $this->getCountry() == 'MX'): ?>
                             <div class="field required">
                                 <div class="control">
                                     <select name="customer-doc-type" id="customer-doc-type">
@@ -201,7 +201,7 @@
             'Liquido_PayIn/js/lib/jquery.maskedinput.min'
         ],
         function (jQuery) {
-            jQuery("#card-expire-date").mask("99/9999");
+            jQuery("#card-expire-date").mask("99/99");
             jQuery("#customer-cpf").mask("999.999.999-99");             /*jQuery(document).ready(function() {                 jQuery('input[type=radio][name=flag]').change(function() {                     jQuery('#flag-checked').val(this.value);                 });
              });*/
 

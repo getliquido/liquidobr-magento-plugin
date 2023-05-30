@@ -159,23 +159,27 @@ class CreditCard implements ActionInterface
 
         $countryAndCurrency = $this->getCountryAndCurrency();
         $customerDocument = null;
-        $currency = null;
-        $country = null;
-        if ($countryAndCurrency == 'BR') {
+        if ($countryAndCurrency['country'] == Country::BRAZIL) {
             $customerDocument = [
                 "documentId" => $creditCardFormInputData->getData('customer-doc'),
                 "type" => "CPF"
             ];
-        } elseif ($countryAndCurrency == 'CO') {
+
+            if ($customerDocument == null) {
+                $this->errorMessage = __('Erro ao obter o documento do cliente.');
+                return false;
+            }
+
+        } elseif ($countryAndCurrency['country'] == Country::COLOMBIA) {
             $customerDocument = [
                 "documentId" => $creditCardFormInputData->getData('customer-doc'),
                 "type" => $creditCardFormInputData->getData('customer-doc-type')
             ];
-        }
 
-        if ($customerDocument == null) {
-            $this->errorMessage = __('Erro ao obter o documento do cliente.');
-            return false;
+            if ($customerDocument == null) {
+                $this->errorMessage = __('Erro ao obter o documento do cliente.');
+                return false;
+            }
         }
 
         $customerIpAddress = $this->remoteAddress->getRemoteAddress();
@@ -195,7 +199,7 @@ class CreditCard implements ActionInterface
                 'customerCardName' => $customerCardName,
                 'customerCardNumber' => $customerCardNumber,
                 'customerCardExpireMonth' => $customerCardExpireDateArray[0],
-                'customerCardExpireYear' => $customerCardExpireDateArray[1],
+                'customerCardExpireYear' => '20'.$customerCardExpireDateArray[1],
                 'customerCardCVV' => $customerCardCVV,
                 'customerCardInstallments' => $customerCardInstallments,
                 'customerDocument' => $customerDocument,
@@ -281,7 +285,7 @@ class CreditCard implements ActionInterface
 
     private function mountCreditCardPayloadRequest($liquidoIdempotencyKey)
     {
-        $payInRequest = new PayInRequest([
+        $mountPayInRequest = [
             "idempotencyKey" => $liquidoIdempotencyKey,
             "amount" => $this->creditCardInputData->getData('grandTotal'),
             "currency" => $this->creditCardInputData->getData('currency'),
@@ -292,7 +296,6 @@ class CreditCard implements ActionInterface
             "payer" => [
                 "name" => $this->creditCardInputData->getData("customerName"),
                 "email" => $this->creditCardInputData->getData("customerEmail"),
-                "document" => $this->creditCardInputData->getData("customerDocument"),
                 "billingAddress" => [
                     "zipCode" => $this->creditCardInputData->getData("customerBillingAddress")->getPostcode(),
                     "state" => $this->creditCardInputData->getData("customerBillingAddress")->getRegionCode(),
@@ -333,7 +336,15 @@ class CreditCard implements ActionInterface
             "riskData" => [
                 "ipAddress" => $this->creditCardInputData->getData("customerIpAddress")
             ]
-        ]);
+        ];
+
+        /* According to Liquido's documentation, the Mexico credit card payment creation payload does not require the customer's document. */
+        if ($this->creditCardInputData->getData("customerDocument") != null)
+        {
+            $mountPayInRequest['payer']['document'] = $this->creditCardInputData->getData("customerDocument");
+        }
+
+        $payInRequest = new PayInRequest($mountPayInRequest);
 
         return $payInRequest;
     }
