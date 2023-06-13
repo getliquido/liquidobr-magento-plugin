@@ -63,7 +63,7 @@ class LiquidoMxBankTransfer extends Template
     public function getAmount()
     {
         $amount = $this->payInSession->getData("bankTransferResultData")->getData("amount") / 100;
-        return number_format($amount, 0, ',', '.');
+        return number_format($amount, 0, '', '.');
     }
 
     public function getBeneficiaryName()
