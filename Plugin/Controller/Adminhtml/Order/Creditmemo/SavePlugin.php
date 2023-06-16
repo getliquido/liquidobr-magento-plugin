@@ -128,6 +128,10 @@ class SavePlugin
                 $currency = Currency::COP;
                 $country = Country::COLOMBIA;
                 break;
+            case 'MX':
+                $currency = Currency::MXN;
+                $country = Country::MEXICO;
+                break;
         }
 
         $this->refundInputData = new DataObject([
@@ -275,16 +279,36 @@ class SavePlugin
         $orderStatus = $this->orderInfo->getStatus();
         $incrementId = $this->orderInfo->getIncrementId();
         $paymentInfo = $this->liquidoSalesOrderHelper->getPaymentInfoByOrderId($incrementId);
-
         $bool = false;
+        
         if (
             $orderStatus == MagentoSaleOrderStatus::COMPLETE
                 && ($paymentInfo['transfer_status'] == PayInStatus::SETTLED || $paymentInfo['transfer_status'] == PayInStatus::REFUNDED)
-                    && ($paymentInfo['payment_method'] == CommonPaymentMethod::CREDIT_CARD || $paymentInfo['payment_method'] == BrazilPaymentMethod::PIX_STATIC_QR)
-                        && ($this->liquidoConfig->getCountry() == Country::BRAZIL || $this->liquidoConfig->getCountry() == Country::COLOMBIA)
-        )
+        ) 
         {
-            $bool = true;
+            switch ($this->liquidoConfig->getCountry()) {
+                case Country::BRAZIL:
+                    if($paymentInfo['payment_method'] != BrazilPaymentMethod::BOLETO)
+                    {
+                        $bool = true;
+                    }
+                    break;
+                case Country::COLOMBIA:
+                    if($paymentInfo['payment_method'] == CommonPaymentMethod::CREDIT_CARD)
+                    {
+                        $bool = true;
+                    }
+                    break;
+                case Country::MEXICO:
+                    if($paymentInfo['payment_method'] != CommonPaymentMethod::CASH)
+                    {
+                        $bool = true;
+                    }
+                    break;
+                default:
+                    $bool = false;
+                    break;
+            }
         }
 
         return $bool;
