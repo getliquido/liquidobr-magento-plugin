@@ -124,6 +124,8 @@ class CreditCard implements ActionInterface
             $streetString .= " - " . $streetArray[1] . $streetArray[2];
         }
 
+        $addressNumber = (int)filter_var($streetString, FILTER_SANITIZE_NUMBER_INT);
+
         $creditCardFormInputData = new DataObject($this->httpRequest->getParams());
 
         $customerCardName = $creditCardFormInputData->getData('card-name');
@@ -205,6 +207,7 @@ class CreditCard implements ActionInterface
                 'customerDocument' => $customerDocument,
                 'customerBillingAddress' => $billingAddress,
                 'streetText' => $streetString,
+                'addressNumber' => $addressNumber,
                 'customerIpAddress' => $customerIpAddress
             )
         );
@@ -302,7 +305,7 @@ class CreditCard implements ActionInterface
                     "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
                     "district" => "Unknown",
                     "street" => $this->creditCardInputData->getData("streetText"),
-                    "number" => "Unknown",
+                    "number" => $this->creditCardInputData->getData("addressNumber"),
                     "country" => $this->creditCardInputData->getData("customerBillingAddress")->getCountryId()
                 ]
             ],
@@ -322,7 +325,7 @@ class CreditCard implements ActionInterface
                     "email" => $this->creditCardInputData->getData("customerEmail"),
                     "address" => [
                         "street" => $this->creditCardInputData->getData("streetText"),
-                        "number" => "Unknown",
+                        "number" => $this->creditCardInputData->getData("addressNumber"),
                         "complement" => "Unknown",
                         "district" => "Unknown",
                         "city" => $this->creditCardInputData->getData("customerBillingAddress")->getCity(),
