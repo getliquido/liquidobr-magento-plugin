@@ -4,4 +4,17 @@
     <type name="Magento\Sales\Controller\Adminhtml\Order\Creditmemo\Save">
         <plugin name="liquido_refund_order" type="Liquido\PayIn\Plugin\Controller\Adminhtml\Order\Creditmemo\SavePlugin" />
     </type>
+    <type name="Liquido\PayIn\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Liquido\PayIn\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">liquidoCustomLogger</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Liquido\PayIn\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
