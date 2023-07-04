@@ -7,6 +7,7 @@ $successfulResult = true;
 $resultCssClass = "success";
 $resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png");
 $resultHeaderInfoDescription = $this->getSuccessMessage();
+$instructions = $this->getInstructions();
 
 if ($this->hasFailed()) {
     $successfulResult = false;
@@ -58,10 +59,10 @@ if ($this->hasFailed()) {
                         </h4>
                     </div>
                     <div class="result-instructions">
-                        <small>* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty,
-                            Superpagos, Sured.</small>
-                        <small>* Para pagos en establecimientos Efecty presentar el número de convenio:
-                            <strong>112766</strong></small>
+                        <small><?php echo $instructions['establishments'] ?></small>
+                        <small>
+                            <?php echo $instructions['efecty'] ?> <strong> <?php echo $instructions['convenio'] ?> </strong>
+                        </small>
                     </div>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
                     <div class="result-warning">

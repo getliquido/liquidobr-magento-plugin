@@ -70,7 +70,6 @@ class Cash implements ActionInterface
         $this->storeManager = $storeManager;
         $this->urlInterface = $urlInterface;
         $this->errorMessage = "";
-        
     }
 
     private function validateInputCashData()
@@ -188,6 +187,7 @@ class Cash implements ActionInterface
                 'cashCode' => null,
                 'transferStatus' => null,
                 'paymentMethod' => null,
+                'country' => null,
                 'hasFailed' => false,
                 'errorMessage' => null,
                 'successMessage' => null
@@ -207,6 +207,7 @@ class Cash implements ActionInterface
 
             $orderId = $this->cashInputData->getData("orderId");
             $this->cashResultData->setData('orderId', $orderId);
+            $this->cashResultData->setData('country', $this->cashInputData->getData("country"));
 
             /**
              * Don't generate a new idempotency key if a request was already done successfuly before.

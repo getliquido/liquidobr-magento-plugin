@@ -19,8 +19,7 @@ class LiquidoCoCash extends Template
     public function __construct(
         Context $context,
         LiquidoPayInSession $payInSession
-    )
-    {
+    ) {
         $this->payInSession = $payInSession;
         parent::__construct($context);
     }
@@ -48,6 +47,28 @@ class LiquidoCoCash extends Template
     public function getPaymentMethodName()
     {
         return LiquidoPaymentMethodType::getPaymentMethodName($this->getPaymentMethodType());
+    }
+
+    public function getInstructions()
+    {
+        if ($this->payInSession->getData("cashResultData")->getData("country") == 'CO') 
+        {
+            return [
+                "establishments" => "* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.",
+                "efecty" => "* Para pagos en establecimientos Efecty presentar el número de convenio:",
+                "convenio" => "112766"
+            ];
+        } 
+        elseif ($this->payInSession->getData("cashResultData")->getData("country") == 'MX') 
+        {
+            return [
+                "establishments" => "* Establecimientos aliados: BBVA, HSBC, Santander, BANORTE, 7-ELEVEN, Soriana, Bodega Aurrera, Circulo K, 
+                    Walmart y Walmart express, Sam's Club, Tiendas Extra, Kiosko, Farmacias YZA, Caja Cerano, Caja Morelia Valladolid, Caja Oblatos, 
+                    SMB Rural, CALIMAX, FARMACIA LA MAS BARATA, FARMACIAS ROMA, SUPER DEL NORTE, Telecomm, Via servicios",
+                "efecty" => "* Para pagos en establecimientos Efecty presentar el número de convenio:",
+                "convenio" => "112766"
+            ];
+        }
     }
 
     public function getSuccessMessage()
