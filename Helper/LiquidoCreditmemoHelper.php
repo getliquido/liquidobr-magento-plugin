@@ -4,8 +4,8 @@ namespace Liquido\PayIn\Helper;
 
 use \Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
-use \Psr\Log\LoggerInterface;
 
+use \Liquido\PayIn\Logger\Logger;
 use \Liquido\PayIn\Model\LiquidoSalesCreditmemoGrid;
 use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesCreditmemoGrid as LiquidoCreditmemoResourceModel;
 use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesCreditmemoGrid\Collection as LiquidoCreditmemoCollection;
@@ -15,7 +15,7 @@ use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 
 class LiquidoCreditmemoHelper extends AbstractHelper
 {
-    private LoggerInterface $logger;
+    private Logger $logger;
     private TimezoneInterface $timezoneInterface;
 
     private LiquidoSalesCreditmemoGrid $liquidoSalesCreditmemoGrid;
@@ -24,7 +24,7 @@ class LiquidoCreditmemoHelper extends AbstractHelper
     private LiquidoConfigData $liquidoConfigData;
 
     public function __construct(
-        LoggerInterface $logger,
+        Logger $logger,
         TimezoneInterface $timezoneInterface,
         LiquidoSalesCreditmemoGrid $liquidoSalesCreditmemoGrid,
         LiquidoCreditmemoResourceModel $liquidoCreditmemoResourceModel,
