@@ -16,12 +16,12 @@ use \Magento\Framework\Exception\State\InitException;
 use \Magento\Framework\Message\ManagerInterface;
 use \Magento\Sales\Api\CreditmemoRepositoryInterface;
 use \Magento\Sales\Controller\Adminhtml\Order\CreditmemoLoader;
-use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoCreditmemoHelper;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
 use \Liquido\PayIn\Helper\LiquidoOrderData;
+use \Liquido\PayIn\Logger\Logger;
 use \Liquido\PayIn\Util\MagentoSaleOrderStatus;
 
 use \LiquidoBrl\PayInPhpSdk\Model\RefundRequest;
@@ -66,7 +66,7 @@ class SavePlugin
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         RedirectInterface $redirect,
         Http $request,
-        LoggerInterface $logger,
+        Logger $logger,
         ManagerInterface $messageManager,
         Registry $registry,
         ResponseFactory $responseFactory,

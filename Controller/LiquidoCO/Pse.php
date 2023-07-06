@@ -7,12 +7,12 @@ use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
 use \Magento\Framework\App\RequestInterface;
 use \Magento\Framework\DataObject;
-use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
-use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
+use \Liquido\PayIn\Logger\Logger;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Colombia\PaymentMethod;
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
@@ -27,7 +27,7 @@ class Pse implements ActionInterface
 {
     private PageFactory $resultPageFactory;
     private ManagerInterface $messageManager;
-    private LoggerInterface $logger;
+    private Logger $logger;
     protected LiquidoPayInSession $payInSession;
     private LiquidoOrderData $liquidoOrderData;
     private PayInService $payInService;
@@ -41,7 +41,7 @@ class Pse implements ActionInterface
     public function __construct(
         PageFactory $resultPageFactory,
         ManagerInterface $messageManager,
-        LoggerInterface $logger,
+        Logger $logger,
         LiquidoPayInSession $payInSession,
         LiquidoOrderData $liquidoOrderData,
         PayInService $payInService,

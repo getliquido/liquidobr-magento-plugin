@@ -4,8 +4,8 @@ namespace Liquido\PayIn\Helper;
 
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use \Magento\Framework\App\Helper\AbstractHelper;
-use \Psr\Log\LoggerInterface;
 
+use \Liquido\PayIn\Logger\Logger;
 use \Liquido\PayIn\Model\LiquidoSalesOrder;
 use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesOrder as LiquidoSalesOrderResourceModel;
 use \Liquido\PayIn\Model\ResourceModel\LiquidoSalesOrder\Collection as LiquidoSalesOrderCollection;
@@ -16,7 +16,7 @@ use \LiquidoBrl\PayInPhpSdk\Util\PayInStatus;
 class LiquidoSalesOrderHelper extends AbstractHelper
 {
 
-    private LoggerInterface $logger;
+    private Logger $logger;
     private TimezoneInterface $timezoneInterface;
     private LiquidoSalesOrder $liquidoSalesOrder;
     private LiquidoSalesOrderResourceModel $liquidoSalesOrderResourceModel;
@@ -24,7 +24,7 @@ class LiquidoSalesOrderHelper extends AbstractHelper
     private LiquidoConfigData $liquidoConfigData;
 
     public function __construct(
-        LoggerInterface $logger,
+        Logger $logger,
         TimezoneInterface $timezoneInterface,
         LiquidoSalesOrder $liquidoSalesOrder,
         LiquidoSalesOrderResourceModel $liquidoSalesOrderResourceModel,

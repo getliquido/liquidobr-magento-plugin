@@ -5,7 +5,8 @@ namespace Liquido\PayIn\Helper;
 use \Magento\Checkout\Model\Session;
 use \Magento\Framework\App\Helper\AbstractHelper;
 use \Magento\Framework\Math\Random;
-use \Psr\Log\LoggerInterface;
+
+use \Liquido\PayIn\Logger\Logger;
 
 class LiquidoOrderData extends AbstractHelper
 {
@@ -13,12 +14,12 @@ class LiquidoOrderData extends AbstractHelper
     private $orderData;
     private Session $customerSession;
     private Random $mathRandom;
-    private LoggerInterface $logger;
+    private Logger $logger;
 
     public function __construct(
         Session $customerSession,
         Random $mathRandom,
-        LoggerInterface $logger
+        Logger $logger
     )
     {
         $this->customerSession = $customerSession;

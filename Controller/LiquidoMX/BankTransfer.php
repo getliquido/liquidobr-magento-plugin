@@ -9,11 +9,11 @@ use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\Message\ManagerInterface;
 use \Magento\Framework\DataObject;
 use \Magento\Store\Model\StoreManagerInterface;
-use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoOrderData;
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
+use \Liquido\PayIn\Logger\Logger;
 use \Liquido\PayIn\Model\LiquidoPayInSession;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Mexico\PaymentMethod;
@@ -31,7 +31,7 @@ class BankTransfer implements ActionInterface
     private UrlInterface $urlInterface;
     private ManagerInterface $messageManager;
     private StoreManagerInterface $storeManager;
-    private LoggerInterface $logger;
+    private Logger $logger;
     private DataObject $bankTransferInputData;
     private DataObject $bankTransferResultData;
 
@@ -49,7 +49,7 @@ class BankTransfer implements ActionInterface
         UrlInterface $urlInterface,
         ManagerInterface $messageManager,
         StoreManagerInterface $storeManager,
-        LoggerInterface $logger,
+        Logger $logger,
         LiquidoOrderData $liquidoOrderData,
         LiquidoSalesOrderHelper $liquidoSalesOrderHelper,
         LiquidoConfigData $liquidoConfig,

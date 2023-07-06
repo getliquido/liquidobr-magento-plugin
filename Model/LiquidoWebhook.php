@@ -14,12 +14,12 @@ use \Magento\Sales\Model\Order\Email\Sender\CreditmemoSender;
 use \Magento\Sales\Model\Order\Invoice;
 use \Magento\Sales\Model\Service\InvoiceService;
 use \Magento\Framework\DB\Transaction;
-use \Psr\Log\LoggerInterface;
 
 use \Liquido\PayIn\Helper\LiquidoSalesOrderHelper;
 use \Liquido\PayIn\Helper\LiquidoCreditmemoHelper;
 use \Liquido\PayIn\Helper\LiquidoSendEmail;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
+use \Liquido\PayIn\Logger\Logger;
 
 class LiquidoWebhook
 {
@@ -31,7 +31,7 @@ class LiquidoWebhook
 	private ObjectManager $objectManager;
 	private InvoiceService $invoiceService;
 	private Transaction $transaction;
-	private LoggerInterface $logger;
+	private Logger $logger;
 	private LiquidoDeleteCreditmemo $liquidoDeleteCreditmemo; 
 	private LiquidoConfigData $liquidoConfigData;
 	private $salesData;
@@ -45,7 +45,7 @@ class LiquidoWebhook
 		LiquidoSendEmail $sendEmail,
 		InvoiceService $invoiceService,
 		Transaction $transaction,
-		LoggerInterface $logger,
+		Logger $logger,
 		LiquidoDeleteCreditmemo $liquidoDeleteCreditmemo,
 		LiquidoConfigData $liquidoConfigData,
 		SalesData $salesData = null,

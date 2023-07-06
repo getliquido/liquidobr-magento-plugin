@@ -5,17 +5,17 @@ namespace Liquido\PayIn\Controller\LiquidoCO;
 use \Magento\Framework\App\ActionInterface;
 use \Magento\Framework\View\Result\PageFactory;
 use \Magento\Framework\DataObject;
-use \Psr\Log\LoggerInterface;
 
-use \Liquido\PayIn\Model\LiquidoPayInSession;
 use \Liquido\PayIn\Helper\LiquidoConfigData;
+use \Liquido\PayIn\Logger\Logger;
+use \Liquido\PayIn\Model\LiquidoPayInSession;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Config;
 use \LiquidoBrl\PayInPhpSdk\Service\PayInService;
 
 class PseForm implements ActionInterface
 {
-    private LoggerInterface $logger;
+    private Logger $logger;
     private PageFactory $resultPageFactory;
     private DataObject $pseResultData;
     private PayInService $payInService;
@@ -26,7 +26,7 @@ class PseForm implements ActionInterface
         PageFactory $resultPageFactory,
         PayInService $payInService,
         LiquidoPayInSession $payInSession,
-        LoggerInterface $logger,
+        Logger $logger,
         LiquidoConfigData $liquidoConfig
     ) {
         $this->payInService = $payInService;

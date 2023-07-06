@@ -8,21 +8,21 @@ use \SendinBlue\Client\Api\TransactionalEmailsApi;
 use \SendinBlue\Client\Model\SendSmtpEmail;
 
 use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Psr\Log\LoggerInterface;
 
+use \Liquido\PayIn\Logger\Logger;
 use \Liquido\PayIn\Util\SendEmail\LiquidoEmailHtmlCSS;
 
 use \LiquidoBrl\PayInPhpSdk\Util\Country;
 
 class LiquidoSendEmail
 {
-    private LoggerInterface $logger;
+    private Logger $logger;
     private LiquidoConfigData $liquidoConfig;
     private $scopeConfig;
     private LiquidoEmailHtmlCSS $liquidoEmailHtmlCSS;
 
     public function __construct(
-        LoggerInterface $logger,
+        Logger $logger,
         ScopeConfigInterface $scopeConfig,
         LiquidoConfigData $liquidoConfig,
         LiquidoEmailHtmlCSS $liquidoEmailHtmlCSS

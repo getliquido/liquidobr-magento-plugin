@@ -5,8 +5,9 @@ namespace Liquido\PayIn\Model;
 use Exception;
 use \Magento\Sales\Api\CreditmemoRepositoryInterface;
 use \Magento\Sales\Model\Order;
-use \Psr\Log\LoggerInterface;
 use \Magento\Framework\App\ObjectManager;
+
+use \Liquido\PayIn\Logger\Logger;
 
 /**
  * Class Delete
@@ -24,7 +25,7 @@ class LiquidoDeleteCreditmemo
      */
     protected $order;
 
-    private LoggerInterface $logger;
+    private Logger $logger;
     private ObjectManager $objectManager;
 
     /**
@@ -35,7 +36,7 @@ class LiquidoDeleteCreditmemo
     public function __construct(
         Order $order,
         CreditmemoRepositoryInterface $creditmemoRepository,
-        LoggerInterface $logger
+        Logger $logger
     ) {
         $this->order = $order;
         $this->creditmemoRepository = $creditmemoRepository;
