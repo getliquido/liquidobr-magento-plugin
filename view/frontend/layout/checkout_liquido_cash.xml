@@ -4,6 +4,7 @@
     <head>
         <css src="Liquido_PayIn::css/common/general.css" />
         <script src="Liquido_PayIn::js/lib/liquido-brl/checkout-index.js" />
+        <script src="Liquido_PayIn::js/lib/liquido-common/util.js" />
     </head>
     <body>
         <referenceContainer name="content">
