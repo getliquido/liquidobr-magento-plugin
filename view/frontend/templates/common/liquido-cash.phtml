@@ -8,6 +8,7 @@ $resultCssClass = "success";
 $resultHeaderInfoImage = $this->getViewFileUrl("Liquido_PayIn::images/common/success-result.png");
 $resultHeaderInfoDescription = $this->getSuccessMessage();
 $instructions = $this->getInstructions();
+$establishments = $this->getEStablishments();
 
 if ($this->hasFailed()) {
     $successfulResult = false;
@@ -58,12 +59,40 @@ if ($this->hasFailed()) {
                         <h4>Acércate con la referencia de pago a uno de nuestros establecimientos aliados para realizar el pago
                         </h4>
                     </div>
-                    <div class="result-instructions">
-                        <small><?php echo $instructions['establishments'] ?></small>
-                        <small>
-                            <?php echo $instructions['efecty'] ?> <strong> <?php echo $instructions['convenio'] ?> </strong>
-                        </small>
-                    </div>
+                    <?php if ($instructions['country'] == 'CO'): ?>
+                        <div class="result-instructions">
+                            <small>* Establecimientos aliados: <?php echo $instructions['establishments'] ?></small>
+                            <small>
+                                <?php echo $instructions['efecty'] ?> <strong> <?php echo $instructions['convenio'] ?> </strong>
+                            </small>
+                        </div>
+                    <?php elseif ($instructions['country'] == 'MX'): ?>
+                        <div class="result-instructions">
+                            <label for="establishments">Establecimientos aliados:</label>
+                            <select name="establishments" id="establishments">
+                                <option value="">Seleccionar::</option>
+                                <?php foreach ($establishments as $establishment): ?>
+                                    <option value="<?php echo $establishment[1] ?>"><?php echo $establishment[0] ?></option>
+                                <?php endforeach; ?>
+                            </select>
+
+                            <div id="show198" class="myDiv" style="display: none;">
+                                <small>* Convênio: <strong>198</strong> </small>
+                            </div>     
+                            <div id="show3724" class="myDiv" style="display: none;">
+                                <small>* Convênio: <strong>3724</strong> </small>
+                            </div>     
+                            <div id="show7292" class="myDiv" style="display: none;">
+                                <small>* Convênio: <strong>7292</strong> </small>
+                            </div>     
+                            <div id="show7755" class="myDiv" style="display: none;">
+                                <small>* Convênio: <strong>7755</strong> </small>
+                            </div>     
+                            <div id="show1420712" class="myDiv" style="display: none;">
+                                <small>* Convênio: <strong>1420712</strong> </small>
+                            </div>                        
+                        </div>
+                    <?php endif; ?>
                 <?php elseif ($this->getTransferStatus() == PayInStatus::IN_PROGRESS): ?>
                     <div class="result-warning">
                         <img src="<?php echo $this->getViewFileUrl("Liquido_PayIn::images/common/warning-icon.png") ?>"

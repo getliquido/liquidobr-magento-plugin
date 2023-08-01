@@ -54,21 +54,33 @@ class LiquidoCoCash extends Template
         if ($this->payInSession->getData("cashResultData")->getData("country") == 'CO') 
         {
             return [
-                "establishments" => "* Establecimientos aliados: Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.",
+                "establishments" => "Baloto, Banco de Bogotá, Bancolombia, Brinks, Davivienda, Efecty, Superpagos, Sured.",
                 "efecty" => "* Para pagos en establecimientos Efecty presentar el número de convenio:",
-                "convenio" => "112766"
+                "convenio" => "112766",
+                "country" => $this->payInSession->getData("cashResultData")->getData("country")
             ];
         } 
         elseif ($this->payInSession->getData("cashResultData")->getData("country") == 'MX') 
         {
             return [
-                "establishments" => "* Establecimientos aliados: BBVA, HSBC, Santander, BANORTE, 7-ELEVEN, Soriana, Bodega Aurrera, Circulo K, 
-                    Walmart y Walmart express, Sam's Club, Tiendas Extra, Kiosko, Farmacias YZA, Caja Cerano, Caja Morelia Valladolid, Caja Oblatos, 
-                    SMB Rural, CALIMAX, FARMACIA LA MAS BARATA, FARMACIAS ROMA, SUPER DEL NORTE, Telecomm, Via servicios",
-                "efecty" => "* Para pagos en establecimientos Efecty presentar el número de convenio:",
-                "convenio" => "112766"
+                "establishments" => "BBVA:1420712, HSBC:7755, Santander:7292, BANORTE:3724, 7-ELEVEN:0, Soriana:0, Bodega Aurrera:198, Circulo K:0, Walmart y Walmart express:198, Sam's Club:198, Tiendas Extra:0, Kiosko:0, Farmacias YZA:0, Caja Cerano:0, Caja Morelia Valladolid:0, Caja Oblatos:0, SMB Rural:0, CALIMAX:0, FARMACIA LA MAS BARATA:0, FARMACIA S ROMA:0, SUPER DEL NORTE:0, Telecomm:3724, Via servicios:0",
+                "efecty" => "",
+                "convenio" => "",
+                "country" => $this->payInSession->getData("cashResultData")->getData("country")
             ];
         }
+    }
+
+    public function getEStablishments()
+    {
+        $establishmentsInfo = $this->getInstructions();
+        $establishments = explode(",", $establishmentsInfo['establishments']);
+        $establishmentsList = [];
+        foreach ($establishments as $establishment)
+        {
+            $establishmentsList[] = explode(":", $establishment);
+        }
+        return $establishmentsList;
     }
 
     public function getSuccessMessage()
