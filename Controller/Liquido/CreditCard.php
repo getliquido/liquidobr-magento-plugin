@@ -348,6 +348,14 @@ class CreditCard implements ActionInterface
 
         $payInRequest = new PayInRequest($mountPayInRequest);
 
+        $mountPayInRequest["card"]["cardHolderName"] = "*******";
+        $mountPayInRequest["card"]["cardNumber"] = "*******";
+        $mountPayInRequest["card"]["expirationMonth"] = "**";
+        $mountPayInRequest["card"]["expirationYear"] = "****";
+        $mountPayInRequest["card"]["cvc"] = "***";
+
+        $this->logger->info("[Controler Credit Card Payload]: ", $mountPayInRequest);
+
         return $payInRequest;
     }
 
@@ -411,8 +419,6 @@ class CreditCard implements ActionInterface
             );
 
             $payInRequest = $this->mountCreditCardPayloadRequest($liquidoIdempotencyKey);
-
-            $this->logger->info("[Controler Credit Card Payload]: ", $payInRequest->toArray());
 
             $creditCardResponse = null;
             try {
