@@ -1,0 +1,203 @@
+<?php
+/**
+ * @var $block \Liquido\PayIn\Block\Adminhtml\Order\Creditmemo\Create\RefundModalBox
+ */
+
+$banksList = $block->getBanksList();
+?>
+<style>
+    .liquido-modal .modal-inner-wrap{
+        width: 35%;
+    }
+
+    .bank-data-table .input{
+        text-align: right;
+    }
+</style>
+
+
+<div id="popup-modal">
+
+    <form action="<?= $block->escapeUrl($block->getFormUrl())?>" method="post" id="edit_form_liquido" name="edit_form_liquido" class="edit_form_liquido">
+        <section class="admin__page-section">
+            <div class="admin__page-section-title">
+                <span class="title"><?= $block->escapeHtml(__('Dados Bancários')) ?></span>
+            </div>
+            <div class="admin__page-section-content">
+                <table class="data-table admin__table-secondary bank-data-table">
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label for="bank-code"><?php echo __('Cód. do Banco: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <!--<input class="input-text admin__control-text" name="bank-code" type="text">-->
+                            <select class="input-text admin__control-text" name="bank-code" id="bank-code">
+                                <?php foreach($banksList as $bank): ?>
+                                    <option value="<?php echo $bank['financial_institution_code']?>"><?php echo __($bank['financial_institution_code'])?> - <?php echo __($bank['financial_institution_name'])?></option>
+                                <?php endforeach ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label class="label" for="beneficiary-name"><?php echo __('Nome: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <input class="input-text admin__control-text" id="beneficiary-name" name="beneficiary-name" type="text">
+                        </td>
+                    </tr>
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label class="label" for="bank-branch-id"><?php echo __('Agência: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <input class="input-text admin__control-text" id="bank-branch-id" name="bank-branch-id" type="text">
+                        </td>
+                    </tr>
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label class="label" for="bank-account-number"><?php echo __('Conta: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <input class="input-text admin__control-text" id="bank-account-number" name="bank-account-number" type="text">
+                        </td>
+                    </tr>
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label class="label" for="document-type"><?php echo __('Tipo de Documento: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <select class="input-text admin__control-text" name="document-type" id="document-type">
+                                <?php foreach ($block->getDocumentType() as $type): ?>
+                                    <option value="<?php echo $type ?>"><?php echo $type ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="col-0">
+                        <td class="label">
+                            <strong><label class="label" for="document-id"><?php echo __('Número do Documento: ') ?></label></strong>
+                        </td>
+                        <td class="input">
+                            <input class="input-text admin__control-text" id="document-id" name="document-id" type="text">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+    </form>
+
+    <!--<input type="button" value="Refund Order" class="action-default scalable action-default" id="order-view-add-warranty" onclick="submitCreditMemoOffline()">-->
+</div>
+
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function (
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: '',
+                modalClass: 'custom-modal liquido-modal',
+                buttons: [{
+                        text: $.mage.__('Refund Order'),
+                        class: 'action-default scalable action-default action-warranty-order save submit-button primary',
+                        click: function() {
+                            var creditMemoOffline = $('#creditmemo_do_offline');
+                            if (creditMemoOffline.length) {
+                                creditMemoOffline.prop('value', 1);
+                            }
+
+                            var bank_code = document.getElementById('bank-code').value;
+                            var beneficiary_name = document.getElementById('beneficiary-name').value;
+                            var bank_branch_id = document.getElementById('bank-branch-id').value;
+                            var bank_account_number = document.getElementById('bank-account-number').value;
+                            var document_id = document.getElementById('document-id').value;
+                            var document_type = document.getElementById('document-type').value;
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'bank_code',
+                                'value': bank_code,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'beneficiary_name',
+                                'value': beneficiary_name,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'bank_branch_id',
+                                'value': bank_branch_id,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'bank_account_number',
+                                'value': bank_account_number,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'document_id',
+                                'value': document_id,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').append($('<input>', {
+                                'name': 'document_type',
+                                'value': document_type,
+                                'type': 'hidden'
+                            }));
+
+                            $('#edit_form').triggerHandler('save');
+                        }
+                    },
+                    {
+                        text: $.mage.__('Close'),
+                        class: '',
+                        click: function () {
+                            this.closeModal();
+                        }
+                    }
+                ]
+            };
+
+            $("input").prop('required',true);
+            
+            var popup = modal(options, $('#popup-modal'));
+            $("#sendordersms").click(function() {
+                $("#popup-modal").modal('openModal');
+            });
+
+            $('#order-view-add-warranty').click(function () {
+                $('#order-view-add-warranty-form').append($('<input>', {
+                    'name': 'form_key',
+                    'value': window.FORM_KEY,
+                    'type': 'hidden'
+                }));
+                $('#order-view-add-warranty-form').submit();
+
+            });
+
+        },
+        function(jQuery){
+            submitCreditMemoOffline = function() {
+                var creditMemoOffline = jQuery('#creditmemo_do_offline');
+                if (creditMemoOffline.length) {
+                    creditMemoOffline.prop('value', 1);
+                }
+                jQuery('#edit_form').triggerHandler('save');
+            };
+        }
+
+    );
+</script>
