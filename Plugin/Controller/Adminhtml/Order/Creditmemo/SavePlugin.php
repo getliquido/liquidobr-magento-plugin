@@ -134,7 +134,7 @@ class SavePlugin
                 break;
         }
 
-        $this->refundInputData = new DataObject([
+        $inputData = [
             "orderId" => $incrementId,
             "creditmemoId" => $creditmemoId,
             "idempotencyKey" => $idempotencyKey,
@@ -145,14 +145,97 @@ class SavePlugin
             "callbackUrl" => $callbackUrl,
             "transferStatus" => null,
             "paymentMethod" => $paymentMethod
-        ]);
+        ];
+
+        $incrementId = $this->orderInfo->getIncrementId();
+        $paymentInfo = $this->liquidoSalesOrderHelper->getPaymentInfoByOrderId($incrementId);
+
+        if ($paymentInfo['payment_method'] == BrazilPaymentMethod::BOLETO || $paymentInfo['payment_method'] == CommonPaymentMethod::CASH)
+        {
+            $inputData["bankCode"] = $_POST['bank_code'];
+
+            $beneficiaryName = $_POST['beneficiary_name'];
+            if($beneficiaryName == null)
+            {
+                $this->errorMessage = __('Nome do titular da conta é necessário solicitar o reembolso!');
+                return false;
+            }
+            $inputData["beneficiaryName"] = $beneficiaryName;
+
+            $bankAccountNumber = $_POST['bank_account_number'];
+            if($bankAccountNumber == null)
+            {
+                $this->errorMessage = __('Número da conta é necessário solicitar o reembolso!');
+                return false;
+            }
+            $inputData["bankAccountNumber"] = $bankAccountNumber;
+
+            $bankBranchId = $_POST['bank_branch_id'];
+            if($bankBranchId == null)
+            {
+                $this->errorMessage = __('Agência é necessário solicitar o reembolso!');
+                return false;
+            }
+            $inputData["bankBranchId"] = $bankBranchId;
+
+            $inputData["documentType"] = $_POST['document_type'];
+
+            $documentId = $_POST['document_id'];
+            if($documentId == null)
+            {
+                $this->errorMessage = __('Documento é necessário solicitar o reembolso!');
+                return false;
+            }
+            $inputData["documentId"] = $documentId;
+        }
+
+        $this->refundInputData = new DataObject($inputData);
 
         return true;
+    }
+
+    public function mountRefundPayloadRequest()
+    {
+        $payload = [
+            "idempotencyKey" => $this->refundInputData->getData('idempotencyKey'),
+            "referenceId" => $this->refundInputData->getData('referenceId'),
+            "amount" => $this->refundInputData->getData('amount'),
+            "currency" => $this->refundInputData->getData('currency'),
+            "country" => $this->refundInputData->getData('country'),
+            "description" => "Refund Magento 2",
+            "callbackUrl" => $this->refundInputData->getData('callbackUrl')
+        ];
+
+        $incrementId = $this->orderInfo->getIncrementId();
+        $paymentInfo = $this->liquidoSalesOrderHelper->getPaymentInfoByOrderId($incrementId);
+
+        if ($paymentInfo['payment_method'] == BrazilPaymentMethod::BOLETO || $paymentInfo['payment_method'] == CommonPaymentMethod::CASH)
+        {
+            $payload["additionalInfo"] = [
+                "bankTransferAccountInfo" => [
+                    "bankCode" => $this->refundInputData->getData('bankCode'),
+                    "beneficiaryName" => $this->refundInputData->getData('beneficiaryName'),
+                    "bankAccountNumber" => $this->refundInputData->getData('bankAccountNumber'),
+                    "bankAccountType" => "CHECKING",
+                    "bankBranchId" => $this->refundInputData->getData('bankBranchId'),
+                    "document" => [
+                        "documentId" => $this->refundInputData->getData('documentId'),
+                        "type" => $this->refundInputData->getData('documentType')
+                    ]
+                ]
+            ];
+        }
+
+        return $payload;
+
     }
 
     public function beforeExecute(ActionInterface $subject) 
     {
         $this->logger->info("######################Start Plugin Refund Order######################");
+
+        $this->redirectionUrl = $this->url->getUrl('magentotest/order/order',[
+            'order_id' => $this->refundInputData->getData("orderId")]);
 
         if($this->canRefund())
         {
@@ -173,15 +256,7 @@ class SavePlugin
                     $this->liquidoConfig->isProductionModeActived()
                 );
 
-                $refundRequest = new RefundRequest([
-                    "idempotencyKey" => $this->refundInputData->getData('idempotencyKey'),
-                    "referenceId" => $this->refundInputData->getData('referenceId'),
-                    "amount" => $this->refundInputData->getData('amount'),
-                    "currency" => $this->refundInputData->getData('currency'),
-                    "country" => $this->refundInputData->getData('country'),
-                    "description" => "Refund Magento 2",
-                    "callbackUrl" => $this->refundInputData->getData('callbackUrl')
-                ]);
+                $refundRequest = new RefundRequest($this->mountRefundPayloadRequest());
 
                 $this->logger->info("************* Refund Payload ************", (array) $refundRequest->toArray());
 
@@ -286,29 +361,7 @@ class SavePlugin
                 && ($paymentInfo['transfer_status'] == PayInStatus::SETTLED || $paymentInfo['transfer_status'] == PayInStatus::REFUNDED)
         ) 
         {
-            switch ($this->liquidoConfig->getCountry()) {
-                case Country::BRAZIL:
-                    if($paymentInfo['payment_method'] != BrazilPaymentMethod::BOLETO)
-                    {
-                        $bool = true;
-                    }
-                    break;
-                case Country::COLOMBIA:
-                    if($paymentInfo['payment_method'] == CommonPaymentMethod::CREDIT_CARD)
-                    {
-                        $bool = true;
-                    }
-                    break;
-                case Country::MEXICO:
-                    if($paymentInfo['payment_method'] != CommonPaymentMethod::CASH)
-                    {
-                        $bool = true;
-                    }
-                    break;
-                default:
-                    $bool = false;
-                    break;
-            }
+            $bool = true;
         }
 
         return $bool;
